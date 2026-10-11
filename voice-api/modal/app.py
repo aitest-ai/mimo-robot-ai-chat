@@ -56,14 +56,14 @@ def unpack_audio(blob: bytes):
 
 def clean_prediction(raw: str):
     """Keep the checkpoint's separate tags and do not claim confidence values."""
-    tags = re.findall(r"<\\|([A-Za-z_]+)\\|>", raw)
+    tags = re.findall(r"<\|([A-Za-z_]+)\|>", raw)
     all_tags = [x.upper() for x in tags]
     emotions = {"HAPPY", "SAD", "ANGRY", "NEUTRAL", "FEARFUL", "DISGUSTED", "SURPRISED"}
     events = {"SPEECH", "LAUGHTER", "CRY", "SNEEZE", "BREATH", "COUGH", "APPLAUSE", "BGM"}
     language = next((x.lower() for x in all_tags if x.lower() in {"zh", "en", "yue", "ja", "ko"}), "unknown")
     emotion = next((x for x in all_tags if x in emotions), "UNKNOWN")
     event = next((x for x in all_tags if x in events), "")
-    text = re.sub(r"<\\|[^|]+\\|>", "", raw).strip()
+    text = re.sub(r"<\|[^|]+\|>", "", raw).strip()
     return {"text": text[:400], "emotion": emotion, "language": language, "event": event}
 
 

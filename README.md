@@ -1,5 +1,18 @@
 # MIMO — 動態 AI 聊天室 Demo
 
+## 🎒 Mimo 校園人際練習室｜Vercel 已部署
+
+**線上試玩：** https://mimo-school-social-lab.vercel.app/
+
+目前提供六個臺灣國小校園小故事、簡單 SVG 動畫、文字互動練習，以及平板麥克風介面。語音辨識後端程式已放在 `voice-api/`，但 **Cloudflare / Modal 尚未連接與啟動，所以目前真正的 SenseVoice 語音辨識不可用**。
+
+- 學生端原始碼：[social-lab/](./social-lab)
+- 語音模型和部署指南：[voice-api/README.md](./voice-api/README.md)
+- 雲端網站由 Vercel 連接 GitHub main 自動更新。原先 Ollama / Codespaces 專案保留不變。
+
+---
+
+
 ## 🚀 GitHub Codespaces 一鍵啟動 Ollama
 
 1. 在 GitHub 專案按 **Code → Codespaces → Create codespace on main**。

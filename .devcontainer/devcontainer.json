@@ -1,0 +1,19 @@
+{
+  "name": "Mimo AI Chat + Ollama",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Mimo AI Chat",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "remoteEnv": {
+    "MIMO_MODEL": "qwen3:0.6b"
+  }
+}

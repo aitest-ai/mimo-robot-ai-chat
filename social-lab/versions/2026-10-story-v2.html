@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f5f0">
+<meta name="description" content="Mimo 人際練習室：用情境對話、同理與練習重新說話，學習尊重與界線。">
+<title>Mimo 人際練習室｜一句話，可以有更好的說法</title>
+<style>
+:root{--ink:#273548;--sub:#738094;--blue:#4669b0;--cream:#f7f5f0;--line:#e8e6e1;--coral:#e27b6b;--mint:#2c997e}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--cream);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65}button,textarea{font:inherit}button{cursor:pointer}button:focus-visible,textarea:focus-visible{outline:3px solid #f3b978;outline-offset:3px}button:disabled{opacity:.48;cursor:default}
+.site{max-width:1560px;min-height:100svh;margin:auto;display:grid;grid-template-columns:minmax(240px,292px) minmax(420px,1fr) minmax(245px,292px)}
+.left{padding:30px 26px;position:relative;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:23px}.logo{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:850;letter-spacing:.04em}.logomark{border-radius:15px;width:42px;height:42px;background:#3b5e96;color:white;display:grid;place-items:center;font-size:21px;box-shadow:0 7px 22px #38527f21}.logo small{display:block;font-weight:500;letter-spacing:.03em;font-size:10px;color:#8b94a0}.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--blue);font-weight:850;text-transform:uppercase;margin-bottom:6px}.intro h1{font-size:clamp(27px,3.1vw,39px);line-height:1.26;letter-spacing:-.07em;margin:0 0 14px;font-weight:850}.intro p{font-size:13px;color:#6e7987;margin:0;line-height:1.95}.section-label{font-size:11px;font-weight:800;color:#99a0aa;letter-spacing:.08em;margin-bottom:10px}.scenarios{display:flex;flex-direction:column;gap:9px}.scene-btn{text-align:left;width:100%;border:1px solid transparent;border-radius:15px;background:transparent;padding:14px;display:flex;gap:12px;align-items:center;color:#657489;transition:background .2s,border-color .2s}.scene-btn:hover{background:#fff}.scene-btn[aria-current=true]{background:#fff;border-color:#e1e5ea;box-shadow:0 7px 22px #2f40660b;color:#2d405c}.scene-num{width:35px;height:35px;border:1px solid #e3e4e2;border-radius:11px;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}.scene-btn[aria-current=true] .scene-num{background:#e7edf8;color:#4669a8;border-color:transparent}.scene-btn b{display:block;font-size:13px}.scene-btn small{display:block;font-size:11px;opacity:.75;margin-top:2px}.completed{color:#25876b!important}.rule{font-size:11px;color:#9ba4ae;padding:12px 0 0;border-top:1px solid var(--line);margin-top:auto}.rule b{color:#6d7b8b}
+.center{padding:27px clamp(22px,4vw,64px) 38px;min-width:0}.topline{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#77869a;gap:8px}.progress{display:flex;align-items:center;gap:6px}.mark{width:22px;height:5px;border-radius:8px;background:#e0e3e4}.mark.on{background:#6fa18e}.scene-heading{margin:24px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.scene-heading h2{font-size:22px;letter-spacing:-.04em;line-height:1.45;margin:0}.tag{font-size:11px;color:#52725e;border:1px solid #cfded4;border-radius:99px;padding:5px 11px;white-space:nowrap}.context{font-size:13px;color:#738094;margin:4px 0 0;line-height:1.8}.stage{position:relative;min-height:295px;margin-top:15px;background:radial-gradient(ellipse at 53% 72%,#e9eee7 0%,#f2f2ee 51%,#f6f5f2 83%);border:1px solid #e7e8e4;border-radius:25px;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:20px;overflow:hidden}.stage:after{content:"";position:absolute;width:76%;height:12px;background:#a5b1a06b;filter:blur(18px);border-radius:50%;left:12%;bottom:38px;pointer-events:none}.room-line{position:absolute;width:100%;height:1px;background:#dbe3db;bottom:40px;left:0}.robot-wrap{position:relative;width:100%;max-width:280px;justify-self:center;display:flex;align-items:center;justify-content:center;animation:float 5s ease-in-out infinite;transform-origin:50% 75%;z-index:1}.robot-wrap[data-expression="hurt"]{animation:floatQuiet 5.5s ease-in-out infinite}.robot-wrap[data-expression="guarded"]{animation:floatQuiet 6s ease-in-out infinite}.robot-wrap[data-expression="relieved"]{animation:float 4.5s ease-in-out infinite}@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}@keyframes floatQuiet{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-2px) rotate(-2deg)}}.robot{width:100%;height:auto;overflow:visible;filter:drop-shadow(0px 17px 13px #8a978928)}.face{opacity:0;transition:opacity .45s}.robot-wrap[data-expression="neutral"] .face-neutral,.robot-wrap[data-expression="hurt"] .face-hurt,.robot-wrap[data-expression="guarded"] .face-guarded,.robot-wrap[data-expression="relieved"] .face-relieved{opacity:1}.glow{animation:glow 4s ease-in-out infinite}@keyframes glow{50%{opacity:.48}}.talkbox{position:relative;z-index:2;max-width:270px;background:#fff;padding:19px 19px 16px;border:1px solid #e8ebe8;border-radius:21px;border-bottom-left-radius:5px;box-shadow:0 10px 28px #61736b13;margin-left:-25px;align-self:center}.speaker{color:#6b8e86;font-weight:750;letter-spacing:.07em;font-size:11px;margin-bottom:7px}.dialogue{font-size:16px;line-height:1.72;letter-spacing:.005em;font-weight:650}.subtext{font-size:10px;color:#9aa7aa;margin-top:10px}.notice{display:flex;gap:9px;align-items:flex-start;color:#8e9a9b;font-size:11px;padding:13px 3px 2px}.notice svg{flex:none;margin-top:2px}
+.action-area{padding:16px 0 0}.step{font-size:11px;color:#6e92a1;font-weight:800;letter-spacing:.1em}.prompt{font-size:18px;font-weight:850;letter-spacing:-.035em;margin:7px 0 14px}.choices{display:grid;gap:9px}.choice{width:100%;border:1px solid #e5e6e3;background:#fff;padding:15px 16px;display:flex;align-items:center;gap:12px;border-radius:15px;text-align:left;color:#36485c;transition:background .2s,border-color .2s,transform .2s}.choice:hover{border-color:#b4c5d8;background:#fbfdff;transform:translateY(-1px)}.choice.selected{border-color:#557cad;background:#eff4fa}.letter{color:#9cacbc;letter-spacing:.03em;font-size:12px;font-weight:850;flex:none}.choice span:nth-child(2){flex:1;font-size:13px}.arrow{color:#b9c0c5;font-size:16px}
+.response{margin-top:15px;border-top:1px solid #e0e2df;padding-top:16px;animation:reveal .3s ease-out}.response h3{font-size:16px;margin:2px 0 8px}.response p{font-size:13px;line-height:1.9;color:#5d6e7f;margin:6px 0}.mini{display:inline-block;font-size:10px;letter-spacing:.04em;font-weight:700;border-radius:99px;background:#eaf0e9;padding:4px 9px;color:#54755d}.buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}.btn-primary,.btn-secondary{border-radius:12px;padding:11px 16px;font-size:12px;font-weight:800;border:1px solid transparent}.btn-primary{background:#3f669c;color:white}.btn-primary:hover{background:#315888}.btn-secondary{background:#fff;border-color:#dfe3e7;color:#566f88}.btn-secondary:hover{background:#f4f7fa}@keyframes reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.rewrite{margin-top:15px;border-radius:18px;padding:17px;background:#eff2eb;border:1px solid #e0e8dc}.rewrite h3{margin:0 0 5px;font-size:15px}.rewrite p{font-size:12px;color:#718178;margin:0 0 10px}.rewrite textarea{width:100%;min-height:94px;max-height:160px;border:1px solid #d7ded8;border-radius:12px;padding:13px;resize:vertical;background:#fff;color:#34465b;font-size:14px;line-height:1.7}.rewrite .buttons{margin-top:10px}.rewritten{background:#fff;border-radius:11px;padding:12px 14px;margin:10px 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.selfcheck{font-size:12px;color:#596f61;display:flex;flex-direction:column;gap:8px}.selfcheck label{display:flex;gap:9px;align-items:center;cursor:pointer}.selfcheck input{accent-color:#3b8266;width:16px;height:16px}
+.right{border-left:1px solid var(--line);padding:31px 25px;background:#faf9f5}.aside-title{font-size:11px;letter-spacing:.12em;color:#a0a6a8;font-weight:800;margin-bottom:18px}.coach-top{padding:2px 0 24px;border-bottom:1px solid var(--line)}.coach-top .symbol{font-size:32px}.coach-top h3{font-size:19px;letter-spacing:-.035em;margin:12px 0 8px}.coach-top p{font-size:12px;line-height:2;color:#74828c;margin:0}.insight{padding-top:24px}.insight h3{font-size:13px;margin:0 0 17px}.concept{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px}.concept-icon{flex:none;font-size:20px;width:32px}.concept b{font-size:12px}.concept p{font-size:11px;color:#929ca6;margin:3px 0 0;line-height:1.8}.callout{background:#e9efe9;border-radius:17px;padding:16px;margin-top:17px}.callout b{font-size:12px}.callout p{font-size:11px;margin:7px 0 0;color:#688072;line-height:1.95}.smallprint{font-size:10px;color:#a5a9aa;margin-top:23px;line-height:1.85}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1170px){.site{grid-template-columns:235px minmax(380px,1fr)}.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:40px}.coach-top{border-bottom:0}.insight{padding:0}.left{padding:25px 16px}.center{padding:27px 28px}.stage{min-height:275px}}
+@media(max-width:730px){.site{display:block}.left{border-right:0;border-bottom:1px solid var(--line);padding:16px 18px 13px;gap:8px}.logo{font-size:13px}.logomark{height:34px;width:34px;font-size:16px;border-radius:11px}.intro h1{font-size:22px;line-height:1.3;margin:5px 0}.intro p{font-size:11px}.intro{margin:7px 0}.section-label{margin:3px 0 5px}.scenarios{display:flex;overflow-x:auto;padding-bottom:5px;scroll-snap-type:x mandatory;gap:8px}.scene-btn{min-width:155px;flex:0 0 155px;padding:10px;border:1px solid #e7e5e0;background:#fff;scroll-snap-align:start}.scene-btn small{font-size:10px}.scene-num{width:28px;height:28px}.rule{display:none}.center{padding:18px 18px 30px}.scene-heading{margin-top:16px}.scene-heading h2{font-size:19px}.tag{font-size:9px;padding:4px 8px}.stage{min-height:235px;margin-top:14px;padding:9px;grid-template-columns:48% 52%;border-radius:20px}.talkbox{padding:13px;margin-left:-14px}.dialogue{font-size:13px}.speaker{font-size:10px}.subtext{font-size:9px}.prompt{font-size:17px}.choice{padding:13px 12px}.choice span:nth-child(2){font-size:12px}.right{display:block;padding:22px 19px}.coach-top{padding-bottom:20px;border-bottom:1px solid var(--line)}.insight{padding-top:19px}.concept{margin-bottom:10px}.intro p{line-height:1.7}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+/* 小劇場：讓情境先發生，再請孩子決定怎麼回應 */
+[hidden]{display:none!important}
+.storyboard{background:#fff;border:1px solid #e7e9e3;border-radius:19px;padding:16px 18px 14px;margin:15px 0 0;box-shadow:0 5px 22px #263e4e08}
+.story-top,.story-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.story-top{border-bottom:1px solid #f0f0ec;padding-bottom:10px}
+.story-kicker{font-size:11px;font-weight:800;color:#648776;letter-spacing:.08em}
+.story-skip{background:transparent;border:0;color:#7c8691;font-size:11px;padding:4px 7px;text-decoration:underline;text-underline-offset:3px}
+.story-body{display:flex;align-items:flex-start;gap:14px;min-height:104px;padding:17px 0 8px;animation:storyEnter .28s ease-out}
+.story-symbol{flex:none;width:48px;height:48px;border-radius:16px;background:#edf2e9;display:grid;place-items:center;font-size:23px}
+.story-script b{display:block;font-size:12px;letter-spacing:.04em;color:#5f7e72}
+.story-script p{font-size:14px;color:#3a4c5d;line-height:1.9;margin:5px 0 0;white-space:pre-wrap}
+.story-foot{padding-top:7px}
+.story-dots{display:flex;gap:6px}
+.story-dots i{width:17px;height:5px;border-radius:4px;background:#e5e9e3}
+.story-dots i.active{background:#77a592}
+.story-next{border:0;border-radius:11px;background:#446a88;color:#fff;font-size:12px;font-weight:750;padding:10px 15px}
+.story-next:hover{background:#315674}
+@keyframes storyEnter{from{transform:translateY(7px);opacity:.5}to{transform:translateY(0);opacity:1}}
+.stage{transition:background .55s ease}
+.stage[data-scene="team"]{background:radial-gradient(ellipse at 30% 36%,#f8eee0,#f2f2e9 65%,#e8ece6)}
+.stage[data-scene="joke"]{background:radial-gradient(ellipse at 32% 44%,#dff1f0,#f0f4ee 67%,#e8eeed)}
+.stage[data-scene="boundary"]{background:radial-gradient(ellipse at 35% 42%,#ecedfa,#f4f0ec 65%,#e9e8f1)}
+.set-piece{position:absolute;right:15px;top:12px;z-index:1;border:1px solid #ffffffaa;background:#ffffff9c;border-radius:100px;padding:5px 11px;display:flex;align-items:center;gap:7px;max-width:85%;font-size:10px;font-weight:750;color:#658075;box-shadow:0 5px 12px #2d45550a}
+.set-piece span:first-child{font-size:17px}
+.talkbox{transition:border-color .3s,background-color .3s}
+.talkbox.scene-shift{animation:storyEnter .3s ease-out}
+.face-neutral rect{transform-box:fill-box;transform-origin:center;animation:robotBlink 7s linear infinite}
+@keyframes robotBlink{0%,94%,98%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+.player-line{border:1px solid #e6e8ed;background:#edf2f8;border-radius:15px;padding:11px 14px;margin-top:13px}
+.player-line span{font-size:10px;letter-spacing:.08em;font-weight:800;color:#6c88a9}
+.player-line p{margin:3px 0;font-size:13px;line-height:1.75;color:#425b79}
+.moment-card{font-size:13px;line-height:2;color:#546b72;background:#f3f5f0;border:1px solid #e4eadf;border-radius:14px;padding:12px 15px;margin:10px 0}
+.plot-tag{display:inline-block;font-size:10px;color:#66866b;font-weight:750;letter-spacing:.06em}
+.response h3{font-size:15px;line-height:1.8}
+.own-start{width:100%;text-align:center;background:#f7f9f7;color:#547b71;border-style:dashed}.readmore{font-size:11px;color:#86939f;margin-top:5px}
+@media(max-width:730px){
+.storyboard{padding:13px 14px;margin-top:13px}
+.story-body{min-height:115px;gap:10px;padding:14px 0 7px}
+.story-script p{font-size:13px;line-height:1.75}
+.story-symbol{width:40px;height:40px;font-size:20px;border-radius:13px}
+.set-piece{right:8px;top:8px;font-size:9px;padding:4px 8px}
+}
+@media(prefers-reduced-motion:reduce){.robot-wrap,.face-neutral rect{animation:none!important}}
+
+
+/* 三位虛構同學有自己的機身配色與舞台氣氛 */
+.stage[data-scene="team"] #shell stop:first-child{stop-color:#7da0af}
+.stage[data-scene="team"] #shell stop:nth-child(2){stop-color:#52778e}
+.stage[data-scene="team"] #shell stop:last-child{stop-color:#304e68}
+.stage[data-scene="joke"] #shell stop:first-child{stop-color:#cb999d}
+.stage[data-scene="joke"] #shell stop:nth-child(2){stop-color:#b77d8b}
+.stage[data-scene="joke"] #shell stop:last-child{stop-color:#784c70}
+.stage[data-scene="boundary"] #shell stop:first-child{stop-color:#b7a4c3}
+.stage[data-scene="boundary"] #shell stop:nth-child(2){stop-color:#866f9d}
+.stage[data-scene="boundary"] #shell stop:last-child{stop-color:#584c81}
+.actor-tag{position:absolute;z-index:3;bottom:14px;left:25px;color:#52777d;background:#ffffffd6;border:1px solid #ffffffac;padding:5px 11px;font-size:10px;font-weight:750;border-radius:99px;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:730px){.actor-tag{left:9px;bottom:7px;max-width:47%;font-size:9px;padding:4px 6px}}
+
+</style>
+</head>
+<body>
+<div class="site">
+<aside class="left">
+ <div class="logo"><div class="logomark" aria-hidden="true">✦</div><div>MIMO <small>人際練習室 · SOCIAL LAB</small></div></div>
+ <section class="intro"><div class="eyebrow">一句話的力量</div><h1>好好說話，<br>也是一種勇敢。</h1><p>在這裡，試著說出心裡的話，看看對方可能怎麼想。不需要每次都說得完美。</p></section>
+ <div><div class="section-label">選一個練習情境</div><nav class="scenarios" id="scenarios" aria-label="練習情境"></nav></div>
+ <p class="rule"><b>安全的小練習</b><br>角色是虛構的。沒有排行榜，也沒有答錯懲罰。你可以一直重試。</p>
+</aside>
+<main class="center">
+ <div class="topline"><span id="chapter">01 / 03　人際溝通</span><span class="progress" id="progress" aria-label="練習進度"></span></div>
+ <header class="scene-heading"><h2 id="sceneTitle">分組的時候</h2><span class="tag" id="tag">一起合作</span></header>
+ <p class="context" id="context">準備練習...</p>
+
+ <section class="storyboard" id="storyboard" aria-label="情境小短劇">
+   <div class="story-top"><span class="story-kicker" id="storyKicker">故事 · 第一幕</span><button id="skipStory" class="story-skip" type="button">跳過故事，直接練習</button></div>
+   <div class="story-body" id="storyBody"><div class="story-symbol" id="storySymbol" aria-hidden="true">🎨</div><div class="story-script"><b id="storySpeaker">教室裡</b><p id="storyText"></p></div></div>
+   <div class="story-foot"><div class="story-dots" id="storyDots" aria-label="故事進度"></div><button id="nextBeat" class="story-next" type="button">下一幕 →</button></div>
+ </section>
+ <div class="stage" id="stage">
+   <div class="room-line"></div>
+   <div class="set-piece"><span id="propIcon">🎨</span><span id="propLabel">美術課教室</span></div>
+   <div class="actor-tag" id="actorTag">小宇 · 小組夥伴</div>
+   <div class="robot-wrap" id="robotWrap" data-expression="neutral" role="img" aria-label="Mimo 的虛擬同學正在等待你的回答">
+    <svg class="robot" viewBox="0 0 270 280" aria-hidden="true">
+      <defs><linearGradient id="shell" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7896a8"/><stop offset=".46" stop-color="#52778e"/><stop offset="1" stop-color="#314f6d"/></linearGradient>
+        <linearGradient id="bevel" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#dce9e8"/><stop offset=".52" stop-color="#93acae"/><stop offset="1" stop-color="#7d9aa2"/></linearGradient>
+        <radialGradient id="screen"><stop stop-color="#283b51"/><stop offset=".77" stop-color="#18283b"/><stop offset="1" stop-color="#0b1827"/></radialGradient>
+        <filter id="blur"><feGaussianBlur stdDeviation="7"/></filter>
+       </defs>
+      <rect x="119" y="8" width="28" height="25" rx="11" fill="#6e929c"/><path d="M133 32 V51" stroke="#476479" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="133" cy="12" r="11" fill="#c1dbd5"/><circle class="glow" cx="133" cy="12" r="8" fill="#81d9c2" opacity=".8"/>
+      <rect x="21" y="120" width="35" height="47" rx="16" fill="#456c80"/><rect x="211" y="120" width="35" height="47" rx="16" fill="#456c80"/>
+      <rect x="34" y="44" width="200" height="203" rx="57" fill="url(#shell)"/>
+      <rect x="43" y="54" width="182" height="181" rx="53" fill="url(#bevel)" opacity=".88"/>
+      <rect x="57" y="68" width="154" height="156" rx="43" fill="url(#screen)" stroke="#405a67" stroke-width="4"/>
+      <path d="M66 112 Q75 77 119 76" stroke="#c8dce5" stroke-opacity=".23" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <rect x="84" y="210" width="99" height="3" rx="2" fill="#718c9c" opacity=".55"/>
+      <g class="face face-neutral" fill="#abebd8"><rect x="89" y="122" width="24" height="35" rx="10"/><rect x="155" y="122" width="24" height="35" rx="10"/><path d="M113 182 Q134 187 155 182" fill="none" stroke="#abebd8" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-hurt" fill="#9ed9d6"><path d="M86 129 Q99 120 114 132" fill="none" stroke="#9ed9d6" stroke-width="7" stroke-linecap="round"/><path d="M154 132 Q168 120 182 129" fill="none" stroke="#9ed9d6" stroke-width="7" stroke-linecap="round"/><rect x="91" y="140" width="21" height="19" rx="8"/><rect x="156" y="140" width="21" height="19" rx="8"/><path d="M119 188 Q134 173 150 188" fill="none" stroke="#9ed9d6" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-guarded" fill="#a2dfd4"><path d="M87 121 L113 133" stroke="#a2dfd4" stroke-width="7" stroke-linecap="round"/><path d="M181 121 L155 133" stroke="#a2dfd4" stroke-width="7" stroke-linecap="round"/><rect x="93" y="141" width="21" height="24" rx="9"/><rect x="155" y="141" width="21" height="24" rx="9"/><path d="M118 185 L151 185" stroke="#a2dfd4" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-relieved" fill="none" stroke="#b8f6d9" stroke-width="9" stroke-linecap="round"><path d="M88 149 Q102 132 115 149"/><path d="M154 149 Q169 132 182 149"/><path d="M113 176 Q134 198 157 176"/></g>
+      <circle cx="194" cy="211" r="5" fill="#8bc8b8"/><circle cx="64" cy="210" r="4" fill="#cbe9e0" opacity=".8"/>
+    </svg>
+   </div>
+   <div class="talkbox" aria-live="polite"><div class="speaker" id="speaker">小宇說</div><div class="dialogue" id="dialogue"></div><div class="subtext" id="subtext">正在等你回答</div></div>
+ </div>
+ <div class="player-line" id="playerLine" hidden><span>你剛剛說</span><p id="playerQuote"></p></div>
+ <div class="notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#92a1a6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/></svg><span>表情只是虛構角色「可能」的反應；現實中的感受，要靠傾聽和詢問才知道。</span></div>
+ <section class="action-area">
+  <div class="step" id="step">STEP 01 · 先試著說</div><h3 class="prompt" id="prompt">你會怎麼回應？</h3>
+  <div class="choices" id="choices"></div>
+  <div class="response" id="response" hidden aria-live="polite"></div>
+  <div class="rewrite" id="rewrite" hidden>
+   <h3>換成你的說法</h3>
+   <p>把真正在意的事說清楚，也保留對方的尊嚴。不需要討好對方。</p>
+   <label class="sr-only" for="ownWords">我會怎麼說</label>
+   <textarea id="ownWords" maxlength="220" placeholder="例如：我有點擔心來不及完成，我們可以一起想辦法嗎？"></textarea>
+   <div class="buttons"><button class="btn-primary" id="reviewWords" type="button">看看自己的說法</button><button class="btn-secondary" id="closeRewrite" type="button">返回</button></div>
+   <div id="wordReview" hidden>
+    <div class="rewritten" id="yourWords"></div>
+    <div class="selfcheck"><b>給自己三個問題：</b>
+     <label><input type="checkbox"> 我有說清楚發生的事或自己的需求嗎？</label>
+     <label><input type="checkbox"> 我有避免攻擊、嘲笑或替對方貼標籤嗎？</label>
+     <label><input type="checkbox"> 我有尊重自己和對方的界線嗎？</label>
+    </div>
+    <p style="font-size:11px;color:#7b887d;margin-top:10px">這是自我檢查，不是 AI 在判分；真實感受請向對方確認。</p>
+   </div>
+  </div>
+ </section>
+</main>
+<aside class="right">
+ <div class="aside-title">今天的說話練習</div>
+ <div class="coach-top"><div class="symbol">✳</div><h3>先理解，再表達。</h3><p>一句話可以有很多種說法。溝通不是一直讓別人開心，而是<strong>清楚表達自己的想法，同時尊重對方</strong>。</p></div>
+ <section class="insight"><h3>試著注意這三件事</h3>
+  <div class="concept"><div class="concept-icon">◌</div><div><b>我真正想說的是什麼？</b><p>想快點完成、不喜歡被取笑，或需要自己的空間。</p></div></div>
+  <div class="concept"><div class="concept-icon">◎</div><div><b>對方可能怎麼理解？</b><p>先想一種可能，再承認還可能有其他看法。</p></div></div>
+  <div class="concept"><div class="concept-icon">↗</div><div><b>有沒有更清楚的說法？</b><p>試著描述事情、表達需要，或提出邀請與界線。</p></div></div>
+ </section>
+ <div class="callout"><b>勇敢說「不」也很重要。</b><p>不必為了讓角色微笑而答應不合理的要求。即使對方失望，尊重地拒絕仍然是好的溝通。</p></div>
+ <p class="smallprint">課堂概念試作｜沒有 AI 模型、帳號或後端，不儲存也不上傳輸入文字。此教材不替學生貼「好孩子／壞孩子」標籤，也不能取代教師陪伴。</p>
+</aside>
+</div>
+<script>
+(()=>{'use strict';
+const data=[{"id":"team","title":"最後十分鐘","small":"一張快交不出的海報","tag":"一起合作","context":"星期五最後一節美術課。鐘聲快響了，海報卻還沒完成。教室裡的氣氛有點緊繃……","name":"小宇","opening":"我怕把字描歪……你們可以再等我一下嗎？","question":"你也很著急。這一刻，你會怎麼對小宇說？","settingIcon":"⏳","setting":"距離交作品還有 10 分鐘","actor":"小宇 · 小組夥伴","beats":[{"icon":"🎨","label":"星期五 · 美術教室","text":"「沙沙沙……」彩色筆在紙上滑過。你們這組的海報，還有一大塊空白沒完成。","face":"neutral","by":"教室裡","talk":"同學們忙著收材料，椅子輕輕碰到桌腳。"},{"icon":"⏰","label":"老師從門口提醒","text":"「還有十分鐘喔！每一組都要記得寫上標題。」你看了一眼牆上的時鐘。","face":"neutral","by":"老師說","talk":"還有十分鐘，記得寫上標題！"},{"icon":"✏️","label":"你發現一件事","text":"小宇正一筆一筆描著標題，筆尖停在半空中。旁邊的小庭悄悄問你：「怎麼辦？我們好像來不及了。」","face":"guarded","by":"小庭小聲說","talk":"我們是不是會來不及……"},{"icon":"💬","label":"輪到你了","text":"小宇抬起頭，看了一眼海報，又看著你。他還握著那支快沒水的藍色筆。","face":"guarded","by":"小宇說","talk":"我怕把字描歪……你們可以再等我一下嗎？"}],"options":[{"say":"你怎麼每次都這麼慢！大家都被你拖累了。","face":"hurt","reply":"我……其實已經很努力了。","after":"小宇把彩色筆輕輕放在桌上。小庭看了你們一眼，原本吵鬧的這一桌突然安靜下來。","more":"我知道快下課了，可是你說我『每次』都拖累大家，我不知道還能怎麼幫忙。","why":"你真正擔心的是時間不夠，但「每次都拖累大家」是在評論整個人，而不是眼前的進度問題。","thought":"時間快不夠了，怎麼辦？","other":"有些人可能直接回嘴：「我已經很快了！」所以表情與回應都不能代表唯一答案。"},{"say":"我們只剩十分鐘了，要不要分工？我幫你上色。","face":"relieved","reply":"真的嗎？那我把最後幾個字描完！","after":"小宇把海報朝你移過來。小庭拿起綠色彩色筆，三個人重新分配還沒完成的部分。","more":"我比較會描字。標題可以給我，你們幫忙背景嗎？","why":"你沒有否認自己著急，而是說出具體限制並提出合作方式，讓大家有機會一起解決。","thought":"我想讓我們準時完成，也不想吵架。","other":"小宇也可能想自己畫完；這時可以再討論怎麼安排，而不必直接替他決定。"},{"say":"算了，你不要畫了。我自己來比較快。","face":"guarded","reply":"可是……我也想幫忙啊。","after":"你拿起彩色筆繼續畫，但小宇往後挪了椅子，手放在膝蓋上沒有動。","more":"不然……你可不可以讓我幫忙寫標語？","why":"接手工作也許能加快速度，但直接取消同學的參與，可能使他覺得不受信任。","thought":"我怕大家都做不完，所以想自己畫。","other":"如果小宇真的想休息，他也可能同意你接手；最好先確認，不用替他決定。"}]},{"id":"joke","title":"水壺倒下的那一秒","small":"玩笑會不會傷人？","tag":"留意感受","context":"下課鐘響。走廊外傳來腳步聲，一個水壺突然碰到桌角，大家都看了過去。","name":"小芯","opening":"啊！我的作業本……都濕掉了。","question":"你站在旁邊，會對小芯說什麼？","settingIcon":"💧","setting":"下課時間 · 教室一角","actor":"小芯 · 班上同學","beats":[{"icon":"🔔","label":"下課鐘剛響","text":"「叮咚——」大家開始收書包。小芯抱著作業本和水壺走向自己的座位。","face":"neutral","by":"教室裡","talk":"同學們邊聊天邊收拾東西。"},{"icon":"💦","label":"突然！","text":"「哐啷！」水壺撞到桌角。水沿著桌面流下去，作業本的一角一下子濕了。","face":"guarded","by":"小芯喊","talk":"啊！等一下……我的作業！"},{"icon":"👀","label":"大家看了過來","text":"有個同學忍不住笑：「也太好笑了吧！」小芯蹲下撿書，嘴角動了一下，卻沒有跟著笑出來。","face":"hurt","by":"旁邊的同學說","talk":"哇，你的水壺飛出去了！"},{"icon":"📚","label":"她正看著濕掉的紙","text":"小芯拿起作業本，發現上面的鉛筆字有些糊掉了。你手邊剛好有一包衛生紙。","face":"guarded","by":"小芯小聲說","talk":"完了……我寫好久耶。"}],"options":[{"say":"哈哈！你連水壺都拿不好喔！","face":"hurt","reply":"你們可不可以不要笑了……","after":"幾個人也跟著笑了。小芯把作業本抱在胸前，低頭走向洗手台。","more":"我知道你可能只是開玩笑，可是我的作業真的濕了。","why":"即使你只是想開玩笑，也可能讓當事人感到難堪。好不好笑，不能只由說笑的人決定。","thought":"剛剛那一下真的有點好笑。","other":"有些人也可能跟著笑，但不代表每個人都覺得舒服，還是要觀察並詢問。"},{"say":"有沒有滑倒？我有衛生紙，需要幫忙嗎？","face":"relieved","reply":"謝謝！我先把桌子擦乾好了。","after":"你把衛生紙遞過去，小芯接過後先把桌上的水擦掉。旁邊的同學也移開了書包。","more":"我的作業有些字糊掉了。等一下我可能要再問問老師怎麼辦。","why":"你先留意安全與實際困難，再詢問要不要幫忙。這樣讓對方自己選擇需要什麼。","thought":"先確定她有沒有受傷，還能做什麼？","other":"她也可能說不需要幫忙，那尊重她的決定就好。"},{"say":"別難過啦，這又沒什麼大不了。","face":"guarded","reply":"可是我寫了好久……","after":"小芯拿著濕掉的作業本，試著把黏在一起的紙張分開，沒有再接你的話。","more":"對你來說可能沒什麼，可是我很在意這份作業。","why":"你可能想安慰她，但「沒什麼大不了」有時會使對方覺得困擾被忽略了。","thought":"我只是想讓她別那麼難過。","other":"有些人可能真的覺得這樣能緩和氣氛。可以先了解對方在意什麼，再決定怎麼安慰。"}]},{"id":"boundary","title":"誰拿走了我的橡皮擦？","small":"說不，也是尊重","tag":"保護界線","context":"自習時間，教室安靜得只剩下寫字聲。你一抬頭，發現桌上的橡皮擦不見了。","name":"阿哲","opening":"我只是借一下而已，你幹嘛那麼小氣？","question":"你想拿回自己的東西。你會怎麼說？","settingIcon":"✏️","setting":"安靜自習時間","actor":"阿哲 · 隔壁座位","beats":[{"icon":"📖","label":"安靜的自習課","text":"教室裡只聽得到翻書聲。你正寫著習作，習慣性往右手邊摸了一下……橡皮擦不見了。","face":"neutral","by":"教室裡","talk":"只有鉛筆寫在紙上的沙沙聲。"},{"icon":"✏️","label":"你看向隔壁","text":"阿哲正在用你的橡皮擦擦掉寫錯的字。你記得他剛剛沒有先問過你。","face":"neutral","by":"你心裡想","talk":"咦？那是我的橡皮擦耶。"},{"icon":"🤲","label":"你伸出手","text":"你輕聲說：「那個……是我的橡皮擦。」阿哲看了你一眼，手裡還拿著它。","face":"guarded","by":"你說","talk":"那個……是我的橡皮擦。"},{"icon":"💬","label":"對方回了一句","text":"阿哲把橡皮擦放在桌角，皺了皺眉。隔壁兩個同學還在安靜寫作業。","face":"guarded","by":"阿哲說","talk":"我只是借一下而已，你幹嘛那麼小氣？"}],"options":[{"say":"你才小氣！以後不要再跟我講話。","face":"guarded","reply":"你幹嘛講那麼重？","after":"阿哲把橡皮擦放回你桌上，轉頭繼續寫字。你們都沒有再說話。","more":"我只想擦一下字而已，幹嘛一下子就說不跟我講話？","why":"你不開心很合理，但直接用人格攻擊或斷絕關係回擊，可能讓衝突升高。","thought":"我真的很生氣，他都沒有先問我。","other":"他也可能直接道歉；不管怎樣，你都可以清楚要求對方先問過你。"},{"say":"我不喜歡別人沒問就拿。下次請先問我。","face":"guarded","reply":"唉唷，好啦，我知道了。","after":"阿哲把橡皮擦放回桌角，看起來有點不高興，但你拿回了自己的東西。","more":"好啦，下次我會先問你。","why":"你用清楚的句子表達不喜歡的行為，也說明未來希望怎麼做。即使對方不高興，這仍是尊重的界線。","thought":"我希望東西被尊重，也不想跟他吵。","other":"阿哲也可能立刻道歉，或還是感到不高興；你不需要讓所有人都滿意，才能保護自己的界線。"},{"say":"沒、沒關係，你要用多久都可以。","face":"relieved","reply":"好啊，那我繼續用囉。","after":"阿哲繼續擦字。你低頭寫作業，卻發現自己也有一個字需要擦掉。","more":"謝啦！等我擦完就還你。","why":"你可能不想起衝突，所以同意借出；但如果你其實不願意，就沒有照顧到自己的需要。","thought":"我不想被說小氣……還是算了。","other":"阿哲可能並不知道你需要橡皮擦。你可以在後面改變心意，平靜地說出自己的需求。"}]}];
+
+const $=id=>document.getElementById(id);
+let index=0,chosen=-1,alternative=false,beat=0,phase='story';
+const done=new Set();
+const esc=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function sceneList(){
+ $('scenarios').innerHTML=data.map((d,i)=>'<button class="scene-btn '+(done.has(i)?'completed':'')+'" aria-current="'+(i===index)+'" data-scene="'+i+'"><span class="scene-num">'+(done.has(i)?'✓':('0'+(i+1)))+'</span><span><b>'+esc(d.title)+'</b><small>'+esc(d.small)+'</small></span></button>').join('');
+ document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>openScene(Number(b.dataset.scene))));
+}
+function robotFace(face){
+ $('robotWrap').dataset.expression=face;
+ $('robotWrap').setAttribute('aria-label','虛構同學表情：'+({neutral:'平靜',hurt:'低落',guarded:'有些猶豫',relieved:'放鬆'}[face]||'平靜'));
+}
+function speak(by,line,hint){
+ const bubble=document.querySelector('.talkbox');
+ if(bubble){bubble.classList.remove('scene-shift');void bubble.offsetWidth;bubble.classList.add('scene-shift');}
+ $('speaker').textContent=by;
+ $('dialogue').textContent=line;
+ $('subtext').textContent=hint||'這是故事角色可能說的話';
+}
+function renderBeat(){
+ const d=data[index],b=d.beats[beat];
+ phase='story';$('storyboard').hidden=false;$('choices').hidden=true;
+ $('storyKicker').textContent='故事鋪陳 · 第 '+(beat+1)+' 幕 / 共 '+d.beats.length+' 幕';
+ $('storySymbol').textContent=b.icon;$('storySpeaker').textContent=b.label;$('storyText').textContent=b.text;
+ $('storyDots').innerHTML=d.beats.map((_,i)=>'<i class="'+(i<=beat?'active':'')+'"></i>').join('');
+ $('nextBeat').textContent=beat===d.beats.length-1?'換你說話 →':'繼續故事 →';
+ $('propIcon').textContent=b.icon;$('propLabel').textContent=b.label;robotFace(b.face);speak(b.by,b.talk,'情境正在發生');
+ const body=$('storyBody');body.style.animation='none';void body.offsetWidth;body.style.animation='';
+}
+function openScene(i){
+ index=i;chosen=-1;alternative=false;beat=0;phase='story';const d=data[index];
+ $('sceneTitle').textContent=d.title;$('chapter').textContent='0'+(i+1)+' / 0'+data.length+'　人際練習';
+ $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;
+ $('propIcon').textContent=d.settingIcon;$('propLabel').textContent=d.setting;$('actorTag').textContent=d.actor||d.name;
+ $('step').textContent='STEP 01 · 故事正在發生';$('prompt').textContent='先看看發生了什麼事……';
+ $('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('')+'<button class="btn-secondary own-start" id="ownStart" type="button">✎ 我想自己想一句話</button>';
+ document.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.choice))));
+ $('ownStart').onclick=showRewrite;
+ $('playerLine').hidden=true;$('response').hidden=true;$('rewrite').hidden=true;$('wordReview').hidden=true;
+ $('ownWords').value='';$('progress').innerHTML=data.map((_,j)=>'<span class="mark '+(done.has(j)?'on':'')+'"></span>').join('');
+ sceneList();renderBeat();
+}
+function showChoices(){
+ const d=data[index];phase='choice';$('storyboard').hidden=true;$('choices').hidden=false;
+ $('propIcon').textContent='💬';$('propLabel').textContent='輪到你說話';robotFace(d.beats[d.beats.length-1].face);speak(d.name+'說',d.opening,'對方正等著你的回答');
+ $('step').textContent='STEP 02 · 輪到你說話';$('prompt').textContent=d.question;
+ $('choices').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+}
+function choose(j){
+ const d=data[index],o=d.options[j];chosen=j;alternative=false;phase='reaction';
+ $('choices').hidden=true;$('playerLine').hidden=false;$('playerQuote').textContent=o.say;
+ $('propIcon').textContent='↪';$('propLabel').textContent='故事接著發生';robotFace(o.face);speak(d.name+'可能會說',o.reply,'這是一種可能的反應，不是唯一答案');
+ $('step').textContent='STEP 03 · 看看這句話的影響';$('prompt').textContent='接下來，發生了什麼？';
+ $('response').hidden=false;$('rewrite').hidden=true;
+ $('response').innerHTML='<span class="plot-tag">故事繼續 · 下一個瞬間</span><div class="moment-card">'+esc(o.after)+'</div><p class="readmore">角色可能還有話想說，先聽聽看，再想想你要怎麼做。</p><div class="buttons"><button class="btn-primary" id="hearMore">聽聽對方接著說什麼 →</button><button class="btn-secondary" id="restartNow">重新選一句話</button></div>';
+ $('hearMore').onclick=hearMore;$('restartNow').onclick=()=>openScene(index);
+ $('response').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+}
+function hearMore(){
+ if(chosen<0)return;
+ const d=data[index],o=d.options[chosen];phase='reflect';
+ speak(d.name+'接著說',o.more,'每個人可能有不同感受，這只是其中一種');
+ robotFace(o.face);$('step').textContent='STEP 04 · 想想話語背後的意思';$('prompt').textContent='你原本想做的事，有被好好說出來嗎？';
+ renderResponse();
+}
+function renderResponse(){
+ const d=data[index],o=d.options[chosen];
+ $('response').innerHTML='<span class="mini">先理解，再重新表達</span><h3>'+esc(o.why)+'</h3><p><b>你可能原本想的是：</b>'+esc(o.thought)+'</p>'+(alternative?'<p><b>另一種可能：</b>'+esc(o.other)+'</p>':'')+'<div class="buttons"><button id="rewriteBtn" class="btn-primary">✎ 換成自己的說法</button><button id="alternativeBtn" class="btn-secondary">'+(alternative?'收起其他可能':'如果對方反應不同呢？')+'</button><button id="retryBtn" class="btn-secondary">從頭再試一次</button><button id="doneBtn" class="btn-secondary">完成這個故事 ✓</button></div>';
+ $('rewriteBtn').onclick=showRewrite;
+ $('alternativeBtn').onclick=()=>{alternative=!alternative;renderResponse()};
+ $('retryBtn').onclick=()=>openScene(index);
+ $('doneBtn').onclick=()=>{
+   done.add(index);sceneList();
+   if(done.size===data.length){
+     $('response').innerHTML='<span class="mini">三個故事都完成了</span><h3>你試著從不同角度看事情！</h3><p>每個人的感受不一定相同。最重要的不是讓別人永遠笑著，而是學會表達、傾聽，以及保護彼此的界線。</p><div class="buttons"><button class="btn-primary" id="backPractice">重新走進故事</button></div>';
+     $('backPractice').onclick=()=>{done.clear();openScene(0)};
+   }else{
+     const next=data.findIndex((_,i)=>!done.has(i));
+     openScene(next);
+   }
+ };
+}
+function showRewrite(){
+ $('rewrite').hidden=false;$('wordReview').hidden=true;
+ $('rewrite').scrollIntoView?.({behavior:'smooth',block:'nearest'});$('ownWords').focus();
+}
+$('nextBeat').onclick=()=>{if(beat<data[index].beats.length-1){beat++;renderBeat()}else showChoices()};
+$('skipStory').onclick=showChoices;
+$('reviewWords').onclick=()=>{
+ const words=$('ownWords').value.trim();if(!words){$('ownWords').focus();return}
+ $('yourWords').textContent='你的說法：「'+words+'」';$('wordReview').hidden=false;
+ document.querySelectorAll('.selfcheck input').forEach(c=>c.checked=false);
+ $('wordReview').scrollIntoView?.({behavior:'smooth',block:'nearest'});
+};
+$('closeRewrite').onclick=()=>{$('rewrite').hidden=true;$('wordReview').hidden=true};
+openScene(0);
+
+})();
+</script>
+</body>
+</html>

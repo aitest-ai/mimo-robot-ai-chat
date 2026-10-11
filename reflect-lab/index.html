@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F8F7F2">
+<meta name="description" content="Mimo 心晴之鏡：先照顧情緒，再看見事情的不同角度。國小學生情緒與衝突反思引導原型。">
+<title>Mimo 心晴之鏡｜讓心情慢慢說</title>
+<link rel="stylesheet" href="./style.css">
+<script src="./app.js" defer></script>
+</head>
+<body>
+<div id="app" class="app">
+ <header class="topbar">
+  <a class="brand" href="./" aria-label="心晴之鏡首頁"><span class="brand-mark">✳</span><span><strong>Mimo</strong><small>心晴之鏡</small></span></a>
+  <div class="top-meta"><span class="prototype">引導式體驗原型</span><button id="restart" type="button" class="text-button">重新開始 ↺</button></div>
+ </header>
+ <main class="layout">
+  <aside class="journey" aria-label="旅程地圖">
+    <div class="kicker">MY LITTLE JOURNEY</div><h2>把心事，<br>慢慢說清楚。</h2>
+    <p class="journey-sub">這裡沒有考試，也沒有標準答案。你可以隨時停下來。</p>
+    <nav id="path" class="path" aria-label="學習步驟"></nav>
+    <div class="aside-footer"><span aria-hidden="true">☘</span><p>不用急著原諒任何人。<br>你也值得被傾聽。</p></div>
+  </aside>
+  <section class="workspace" aria-label="心晴之鏡練習">
+    <div class="stage-header"><div class="kicker" id="stepCounter">STEP 01 / 07</div><div class="progress-track" aria-hidden="true"><div id="progressFill"></div></div></div>
+    <div id="stepContent" class="step-content" aria-live="polite"></div>
+    <div class="navigation"><button class="secondary-action" id="backBtn" type="button">← 上一步</button><button class="main-action" id="nextBtn" type="button">下一步 →</button></div>
+  </section>
+  <aside class="companion" aria-label="Mimo 陪伴角色">
+    <div class="kicker">MIMO IS HERE</div>
+    <div class="mimo-sky" id="mimoSky" data-weather="cloudy">
+      <span class="sky-decoration deco-one"></span><span class="sky-decoration deco-two"></span>
+      <svg class="mimo-head" id="mimoHead" data-expression="calm" viewBox="0 0 280 275" role="img" aria-label="Mimo 正用平靜的表情陪著你">
+       <defs><linearGradient id="head-shell" x1=".14" y1=".13" x2=".89" y2="1"><stop stop-color="#BBD3D9"/><stop offset=".5" stop-color="#7CA6B3"/><stop offset="1" stop-color="#507D93"/></linearGradient><radialGradient id="screen"><stop stop-color="#314B58"/><stop offset="1" stop-color="#1F3949"/></radialGradient></defs>
+       <path d="M136 44V25" stroke="#6C8D95" stroke-width="11" stroke-linecap="round"/><circle cx="136" cy="19" r="11" fill="#BADBD0"/>
+       <rect x="18" y="121" width="35" height="49" rx="15" fill="#577A89"/><rect x="226" y="121" width="35" height="49" rx="15" fill="#577A89"/>
+       <rect x="36" y="39" width="200" height="207" rx="61" fill="url(#head-shell)" stroke="#648999" stroke-width="4"/>
+       <rect x="52" y="60" width="167" height="167" rx="49" fill="url(#screen)" stroke="#C7D8D5" stroke-width="5"/>
+       <path d="M70 82Q114 60 158 78" fill="none" stroke="#D3E5E7" stroke-width="5" opacity=".2"/>
+       <g class="face face-calm" fill="#C7F1E0"><rect class="eye" x="92" y="131" width="20" height="33" rx="10"/><rect class="eye" x="159" y="131" width="20" height="33" rx="10"/><path d="M117 184Q135 190 154 184" stroke="#C7F1E0" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+       <g class="face face-listen" fill="#C7F1E0"><ellipse cx="102" cy="148" rx="12" ry="16"/><ellipse cx="169" cy="148" rx="12" ry="16"/><path d="M125 185H146" stroke="#C7F1E0" stroke-width="6" stroke-linecap="round"/></g>
+       <g class="face face-soft" fill="none" stroke="#C7F1E0" stroke-linecap="round" stroke-width="8"><path d="M92 149Q103 139 113 149"/><path d="M158 149Q169 139 180 149"/><path d="M120 180Q136 198 154 180"/></g>
+       <g class="face face-hurt" fill="none" stroke="#C7F1E0" stroke-linecap="round" stroke-width="8"><path d="M88 133l29 8M153 141l29-8"/><path d="M96 153v14M170 153v14"/><path d="M122 189Q137 174 152 189"/></g>
+       <g class="face face-guard" fill="none" stroke="#C7F1E0" stroke-linecap="round" stroke-width="8"><path d="M91 134l24 10M178 134l-24 10"/><path d="M101 155v12M168 155v12"/><path d="M120 185h33"/></g>
+       <g class="face face-question" fill="none" stroke="#C7F1E0" stroke-linecap="round" stroke-width="8"><ellipse cx="102" cy="148" rx="9" ry="16"/><ellipse cx="169" cy="148" rx="9" ry="16"/><circle cx="135" cy="190" r="7"/></g>
+       <circle cx="206" cy="217" r="6" fill="#C6F3DC"/>
+      </svg>
+      <div class="floor-shadow"></div>
+    </div>
+    <div class="companion-speech"><div class="small-label">MIMO 想跟你說</div><p id="mimoMessage">你好！我會慢慢聽你說。</p></div>
+    <button id="helpBtn" class="help-link" type="button"><span>♡</span> 我現在需要大人幫忙</button>
+    <p class="privacy-note">本試作不連接 AI、不上傳內容，也不保存個人故事。請使用虛構事件體驗，不要輸入真實身分資料。</p>
+  </aside>
+ </main>
+ <footer class="site-footer"><span>SEL 教育引導試作 · 不是心理治療、診斷或正式輔導服務</span><span>為國小四～六年級設計 · 任何時候都可以找信任的大人</span></footer>
+</div>
+<dialog id="helpDialog" class="help-dialog" aria-labelledby="helpTitle">
+ <h2 id="helpTitle">你不需要一個人面對。</h2>
+ <p>如果你正在受到威脅、持續被欺負、有人受傷，或擔心自己／別人的安全，先停下這個練習，告訴一位能保護你的大人。</p>
+ <p>可以找學校的導師、輔導老師、學務處、家長，或其他值得信任的成年人。如果第一位大人沒有幫上忙，可以繼續找下一位。</p>
+ <div class="help-numbers"><strong>113</strong><span>保護專線（臺灣）</span><strong>110 / 119</strong><span>立即危險或緊急救護</span></div>
+ <p class="help-disclosure">這個原型**不會自動通知任何人**。若正在危險中，請直接聯繫現場大人或緊急服務。</p>
+ <button id="helpClose" class="main-action" type="button">我知道了</button>
+</dialog>
+</body>
+</html>

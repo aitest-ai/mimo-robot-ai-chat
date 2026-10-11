@@ -29,7 +29,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
-    const approved = origin && origin === env.ALLOWED_ORIGIN;
+    const origins = new Set(String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || "").split(",").map(v => v.trim()).filter(Boolean));
+    const approved = Boolean(origin && origins.has(origin));
     if (request.method === "OPTIONS") {
       if (!approved) return respond({ error: "Origin not permitted" }, 403);
       return new Response(null, { status: 204, headers: {

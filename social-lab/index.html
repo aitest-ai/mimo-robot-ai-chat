@@ -64,6 +64,20 @@
 }
 @media(prefers-reduced-motion:reduce){.robot-wrap,.face-neutral rect{animation:none!important}}
 
+
+/* 三位虛構同學有自己的機身配色與舞台氣氛 */
+.stage[data-scene="team"] #shell stop:first-child{stop-color:#7da0af}
+.stage[data-scene="team"] #shell stop:nth-child(2){stop-color:#52778e}
+.stage[data-scene="team"] #shell stop:last-child{stop-color:#304e68}
+.stage[data-scene="joke"] #shell stop:first-child{stop-color:#cb999d}
+.stage[data-scene="joke"] #shell stop:nth-child(2){stop-color:#b77d8b}
+.stage[data-scene="joke"] #shell stop:last-child{stop-color:#784c70}
+.stage[data-scene="boundary"] #shell stop:first-child{stop-color:#b7a4c3}
+.stage[data-scene="boundary"] #shell stop:nth-child(2){stop-color:#866f9d}
+.stage[data-scene="boundary"] #shell stop:last-child{stop-color:#584c81}
+.actor-tag{position:absolute;z-index:3;bottom:14px;left:25px;color:#52777d;background:#ffffffd6;border:1px solid #ffffffac;padding:5px 11px;font-size:10px;font-weight:750;border-radius:99px;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:730px){.actor-tag{left:9px;bottom:7px;max-width:47%;font-size:9px;padding:4px 6px}}
+
 </style>
 </head>
 <body>
@@ -87,6 +101,7 @@
  <div class="stage" id="stage">
    <div class="room-line"></div>
    <div class="set-piece"><span id="propIcon">🎨</span><span id="propLabel">美術課教室</span></div>
+   <div class="actor-tag" id="actorTag">小宇 · 小組夥伴</div>
    <div class="robot-wrap" id="robotWrap" data-expression="neutral" role="img" aria-label="Mimo 的虛擬同學正在等待你的回答">
     <svg class="robot" viewBox="0 0 270 280" aria-hidden="true">
       <defs><linearGradient id="shell" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7896a8"/><stop offset=".46" stop-color="#52778e"/><stop offset="1" stop-color="#314f6d"/></linearGradient>
@@ -149,7 +164,7 @@
 </div>
 <script>
 (()=>{'use strict';
-const data=[{"id":"team","title":"最後十分鐘","small":"一張快交不出的海報","tag":"一起合作","context":"星期五最後一節美術課。鐘聲快響了，海報卻還沒完成。教室裡的氣氛有點緊繃……","name":"小宇","opening":"我怕把字描歪……你們可以再等我一下嗎？","question":"你也很著急。這一刻，你會怎麼對小宇說？","settingIcon":"⏳","setting":"距離交作品還有 10 分鐘","beats":[{"icon":"🎨","label":"星期五 · 美術教室","text":"「沙沙沙……」彩色筆在紙上滑過。你們這組的海報，還有一大塊空白沒完成。","face":"neutral","by":"教室裡","talk":"同學們忙著收材料，椅子輕輕碰到桌腳。"},{"icon":"⏰","label":"老師從門口提醒","text":"「還有十分鐘喔！每一組都要記得寫上標題。」你看了一眼牆上的時鐘。","face":"neutral","by":"老師說","talk":"還有十分鐘，記得寫上標題！"},{"icon":"✏️","label":"你發現一件事","text":"小宇正一筆一筆描著標題，筆尖停在半空中。旁邊的小庭悄悄問你：「怎麼辦？我們好像來不及了。」","face":"guarded","by":"小庭小聲說","talk":"我們是不是會來不及……"},{"icon":"💬","label":"輪到你了","text":"小宇抬起頭，看了一眼海報，又看著你。他還握著那支快沒水的藍色筆。","face":"guarded","by":"小宇說","talk":"我怕把字描歪……你們可以再等我一下嗎？"}],"options":[{"say":"你怎麼每次都這麼慢！大家都被你拖累了。","face":"hurt","reply":"我……其實已經很努力了。","after":"小宇把彩色筆輕輕放在桌上。小庭看了你們一眼，原本吵鬧的這一桌突然安靜下來。","more":"我知道快下課了，可是你說我『每次』都拖累大家，我不知道還能怎麼幫忙。","why":"你真正擔心的是時間不夠，但「每次都拖累大家」是在評論整個人，而不是眼前的進度問題。","thought":"時間快不夠了，怎麼辦？","other":"有些人可能直接回嘴：「我已經很快了！」所以表情與回應都不能代表唯一答案。"},{"say":"我們只剩十分鐘了，要不要分工？我幫你上色。","face":"relieved","reply":"真的嗎？那我把最後幾個字描完！","after":"小宇把海報朝你移過來。小庭拿起綠色彩色筆，三個人重新分配還沒完成的部分。","more":"我比較會描字。標題可以給我，你們幫忙背景嗎？","why":"你沒有否認自己著急，而是說出具體限制並提出合作方式，讓大家有機會一起解決。","thought":"我想讓我們準時完成，也不想吵架。","other":"小宇也可能想自己畫完；這時可以再討論怎麼安排，而不必直接替他決定。"},{"say":"算了，你不要畫了。我自己來比較快。","face":"guarded","reply":"可是……我也想幫忙啊。","after":"你拿起彩色筆繼續畫，但小宇往後挪了椅子，手放在膝蓋上沒有動。","more":"不然……你可不可以讓我幫忙寫標語？","why":"接手工作也許能加快速度，但直接取消同學的參與，可能使他覺得不受信任。","thought":"我怕大家都做不完，所以想自己畫。","other":"如果小宇真的想休息，他也可能同意你接手；最好先確認，不用替他決定。"}]},{"id":"joke","title":"水壺倒下的那一秒","small":"玩笑會不會傷人？","tag":"留意感受","context":"下課鐘響。走廊外傳來腳步聲，一個水壺突然碰到桌角，大家都看了過去。","name":"小芯","opening":"啊！我的作業本……都濕掉了。","question":"你站在旁邊，會對小芯說什麼？","settingIcon":"💧","setting":"下課時間 · 教室一角","beats":[{"icon":"🔔","label":"下課鐘剛響","text":"「叮咚——」大家開始收書包。小芯抱著作業本和水壺走向自己的座位。","face":"neutral","by":"教室裡","talk":"同學們邊聊天邊收拾東西。"},{"icon":"💦","label":"突然！","text":"「哐啷！」水壺撞到桌角。水沿著桌面流下去，作業本的一角一下子濕了。","face":"guarded","by":"小芯喊","talk":"啊！等一下……我的作業！"},{"icon":"👀","label":"大家看了過來","text":"有個同學忍不住笑：「也太好笑了吧！」小芯蹲下撿書，嘴角動了一下，卻沒有跟著笑出來。","face":"hurt","by":"旁邊的同學說","talk":"哇，你的水壺飛出去了！"},{"icon":"📚","label":"她正看著濕掉的紙","text":"小芯拿起作業本，發現上面的鉛筆字有些糊掉了。你手邊剛好有一包衛生紙。","face":"guarded","by":"小芯小聲說","talk":"完了……我寫好久耶。"}],"options":[{"say":"哈哈！你連水壺都拿不好喔！","face":"hurt","reply":"你們可不可以不要笑了……","after":"幾個人也跟著笑了。小芯把作業本抱在胸前，低頭走向洗手台。","more":"我知道你可能只是開玩笑，可是我的作業真的濕了。","why":"即使你只是想開玩笑，也可能讓當事人感到難堪。好不好笑，不能只由說笑的人決定。","thought":"剛剛那一下真的有點好笑。","other":"有些人也可能跟著笑，但不代表每個人都覺得舒服，還是要觀察並詢問。"},{"say":"有沒有滑倒？我有衛生紙，需要幫忙嗎？","face":"relieved","reply":"謝謝！我先把桌子擦乾好了。","after":"你把衛生紙遞過去，小芯接過後先把桌上的水擦掉。旁邊的同學也移開了書包。","more":"我的作業有些字糊掉了。等一下我可能要再問問老師怎麼辦。","why":"你先留意安全與實際困難，再詢問要不要幫忙。這樣讓對方自己選擇需要什麼。","thought":"先確定她有沒有受傷，還能做什麼？","other":"她也可能說不需要幫忙，那尊重她的決定就好。"},{"say":"別難過啦，這又沒什麼大不了。","face":"guarded","reply":"可是我寫了好久……","after":"小芯拿著濕掉的作業本，試著把黏在一起的紙張分開，沒有再接你的話。","more":"對你來說可能沒什麼，可是我很在意這份作業。","why":"你可能想安慰她，但「沒什麼大不了」有時會使對方覺得困擾被忽略了。","thought":"我只是想讓她別那麼難過。","other":"有些人可能真的覺得這樣能緩和氣氛。可以先了解對方在意什麼，再決定怎麼安慰。"}]},{"id":"boundary","title":"誰拿走了我的橡皮擦？","small":"說不，也是尊重","tag":"保護界線","context":"自習時間，教室安靜得只剩下寫字聲。你一抬頭，發現桌上的橡皮擦不見了。","name":"阿哲","opening":"我只是借一下而已，你幹嘛那麼小氣？","question":"你想拿回自己的東西。你會怎麼說？","settingIcon":"✏️","setting":"安靜自習時間","beats":[{"icon":"📖","label":"安靜的自習課","text":"教室裡只聽得到翻書聲。你正寫著習作，習慣性往右手邊摸了一下……橡皮擦不見了。","face":"neutral","by":"教室裡","talk":"只有鉛筆寫在紙上的沙沙聲。"},{"icon":"✏️","label":"你看向隔壁","text":"阿哲正在用你的橡皮擦擦掉寫錯的字。你記得他剛剛沒有先問過你。","face":"neutral","by":"你心裡想","talk":"咦？那是我的橡皮擦耶。"},{"icon":"🤲","label":"你伸出手","text":"你輕聲說：「那個……是我的橡皮擦。」阿哲看了你一眼，手裡還拿著它。","face":"guarded","by":"你說","talk":"那個……是我的橡皮擦。"},{"icon":"💬","label":"對方回了一句","text":"阿哲把橡皮擦放在桌角，皺了皺眉。隔壁兩個同學還在安靜寫作業。","face":"guarded","by":"阿哲說","talk":"我只是借一下而已，你幹嘛那麼小氣？"}],"options":[{"say":"你才小氣！以後不要再跟我講話。","face":"guarded","reply":"你幹嘛講那麼重？","after":"阿哲把橡皮擦放回你桌上，轉頭繼續寫字。你們都沒有再說話。","more":"我只想擦一下字而已，幹嘛一下子就說不跟我講話？","why":"你不開心很合理，但直接用人格攻擊或斷絕關係回擊，可能讓衝突升高。","thought":"我真的很生氣，他都沒有先問我。","other":"他也可能直接道歉；不管怎樣，你都可以清楚要求對方先問過你。"},{"say":"我不喜歡別人沒問就拿。下次請先問我。","face":"guarded","reply":"唉唷，好啦，我知道了。","after":"阿哲把橡皮擦放回桌角，看起來有點不高興，但你拿回了自己的東西。","more":"好啦，下次我會先問你。","why":"你用清楚的句子表達不喜歡的行為，也說明未來希望怎麼做。即使對方不高興，這仍是尊重的界線。","thought":"我希望東西被尊重，也不想跟他吵。","other":"阿哲也可能立刻道歉，或還是感到不高興；你不需要讓所有人都滿意，才能保護自己的界線。"},{"say":"沒、沒關係，你要用多久都可以。","face":"relieved","reply":"好啊，那我繼續用囉。","after":"阿哲繼續擦字。你低頭寫作業，卻發現自己也有一個字需要擦掉。","more":"謝啦！等我擦完就還你。","why":"你可能不想起衝突，所以同意借出；但如果你其實不願意，就沒有照顧到自己的需要。","thought":"我不想被說小氣……還是算了。","other":"阿哲可能並不知道你需要橡皮擦。你可以在後面改變心意，平靜地說出自己的需求。"}]}];
+const data=[{"id":"team","title":"最後十分鐘","small":"一張快交不出的海報","tag":"一起合作","context":"星期五最後一節美術課。鐘聲快響了，海報卻還沒完成。教室裡的氣氛有點緊繃……","name":"小宇","opening":"我怕把字描歪……你們可以再等我一下嗎？","question":"你也很著急。這一刻，你會怎麼對小宇說？","settingIcon":"⏳","setting":"距離交作品還有 10 分鐘","actor":"小宇 · 小組夥伴","beats":[{"icon":"🎨","label":"星期五 · 美術教室","text":"「沙沙沙……」彩色筆在紙上滑過。你們這組的海報，還有一大塊空白沒完成。","face":"neutral","by":"教室裡","talk":"同學們忙著收材料，椅子輕輕碰到桌腳。"},{"icon":"⏰","label":"老師從門口提醒","text":"「還有十分鐘喔！每一組都要記得寫上標題。」你看了一眼牆上的時鐘。","face":"neutral","by":"老師說","talk":"還有十分鐘，記得寫上標題！"},{"icon":"✏️","label":"你發現一件事","text":"小宇正一筆一筆描著標題，筆尖停在半空中。旁邊的小庭悄悄問你：「怎麼辦？我們好像來不及了。」","face":"guarded","by":"小庭小聲說","talk":"我們是不是會來不及……"},{"icon":"💬","label":"輪到你了","text":"小宇抬起頭，看了一眼海報，又看著你。他還握著那支快沒水的藍色筆。","face":"guarded","by":"小宇說","talk":"我怕把字描歪……你們可以再等我一下嗎？"}],"options":[{"say":"你怎麼每次都這麼慢！大家都被你拖累了。","face":"hurt","reply":"我……其實已經很努力了。","after":"小宇把彩色筆輕輕放在桌上。小庭看了你們一眼，原本吵鬧的這一桌突然安靜下來。","more":"我知道快下課了，可是你說我『每次』都拖累大家，我不知道還能怎麼幫忙。","why":"你真正擔心的是時間不夠，但「每次都拖累大家」是在評論整個人，而不是眼前的進度問題。","thought":"時間快不夠了，怎麼辦？","other":"有些人可能直接回嘴：「我已經很快了！」所以表情與回應都不能代表唯一答案。"},{"say":"我們只剩十分鐘了，要不要分工？我幫你上色。","face":"relieved","reply":"真的嗎？那我把最後幾個字描完！","after":"小宇把海報朝你移過來。小庭拿起綠色彩色筆，三個人重新分配還沒完成的部分。","more":"我比較會描字。標題可以給我，你們幫忙背景嗎？","why":"你沒有否認自己著急，而是說出具體限制並提出合作方式，讓大家有機會一起解決。","thought":"我想讓我們準時完成，也不想吵架。","other":"小宇也可能想自己畫完；這時可以再討論怎麼安排，而不必直接替他決定。"},{"say":"算了，你不要畫了。我自己來比較快。","face":"guarded","reply":"可是……我也想幫忙啊。","after":"你拿起彩色筆繼續畫，但小宇往後挪了椅子，手放在膝蓋上沒有動。","more":"不然……你可不可以讓我幫忙寫標語？","why":"接手工作也許能加快速度，但直接取消同學的參與，可能使他覺得不受信任。","thought":"我怕大家都做不完，所以想自己畫。","other":"如果小宇真的想休息，他也可能同意你接手；最好先確認，不用替他決定。"}]},{"id":"joke","title":"水壺倒下的那一秒","small":"玩笑會不會傷人？","tag":"留意感受","context":"下課鐘響。走廊外傳來腳步聲，一個水壺突然碰到桌角，大家都看了過去。","name":"小芯","opening":"啊！我的作業本……都濕掉了。","question":"你站在旁邊，會對小芯說什麼？","settingIcon":"💧","setting":"下課時間 · 教室一角","actor":"小芯 · 班上同學","beats":[{"icon":"🔔","label":"下課鐘剛響","text":"「叮咚——」大家開始收書包。小芯抱著作業本和水壺走向自己的座位。","face":"neutral","by":"教室裡","talk":"同學們邊聊天邊收拾東西。"},{"icon":"💦","label":"突然！","text":"「哐啷！」水壺撞到桌角。水沿著桌面流下去，作業本的一角一下子濕了。","face":"guarded","by":"小芯喊","talk":"啊！等一下……我的作業！"},{"icon":"👀","label":"大家看了過來","text":"有個同學忍不住笑：「也太好笑了吧！」小芯蹲下撿書，嘴角動了一下，卻沒有跟著笑出來。","face":"hurt","by":"旁邊的同學說","talk":"哇，你的水壺飛出去了！"},{"icon":"📚","label":"她正看著濕掉的紙","text":"小芯拿起作業本，發現上面的鉛筆字有些糊掉了。你手邊剛好有一包衛生紙。","face":"guarded","by":"小芯小聲說","talk":"完了……我寫好久耶。"}],"options":[{"say":"哈哈！你連水壺都拿不好喔！","face":"hurt","reply":"你們可不可以不要笑了……","after":"幾個人也跟著笑了。小芯把作業本抱在胸前，低頭走向洗手台。","more":"我知道你可能只是開玩笑，可是我的作業真的濕了。","why":"即使你只是想開玩笑，也可能讓當事人感到難堪。好不好笑，不能只由說笑的人決定。","thought":"剛剛那一下真的有點好笑。","other":"有些人也可能跟著笑，但不代表每個人都覺得舒服，還是要觀察並詢問。"},{"say":"有沒有滑倒？我有衛生紙，需要幫忙嗎？","face":"relieved","reply":"謝謝！我先把桌子擦乾好了。","after":"你把衛生紙遞過去，小芯接過後先把桌上的水擦掉。旁邊的同學也移開了書包。","more":"我的作業有些字糊掉了。等一下我可能要再問問老師怎麼辦。","why":"你先留意安全與實際困難，再詢問要不要幫忙。這樣讓對方自己選擇需要什麼。","thought":"先確定她有沒有受傷，還能做什麼？","other":"她也可能說不需要幫忙，那尊重她的決定就好。"},{"say":"別難過啦，這又沒什麼大不了。","face":"guarded","reply":"可是我寫了好久……","after":"小芯拿著濕掉的作業本，試著把黏在一起的紙張分開，沒有再接你的話。","more":"對你來說可能沒什麼，可是我很在意這份作業。","why":"你可能想安慰她，但「沒什麼大不了」有時會使對方覺得困擾被忽略了。","thought":"我只是想讓她別那麼難過。","other":"有些人可能真的覺得這樣能緩和氣氛。可以先了解對方在意什麼，再決定怎麼安慰。"}]},{"id":"boundary","title":"誰拿走了我的橡皮擦？","small":"說不，也是尊重","tag":"保護界線","context":"自習時間，教室安靜得只剩下寫字聲。你一抬頭，發現桌上的橡皮擦不見了。","name":"阿哲","opening":"我只是借一下而已，你幹嘛那麼小氣？","question":"你想拿回自己的東西。你會怎麼說？","settingIcon":"✏️","setting":"安靜自習時間","actor":"阿哲 · 隔壁座位","beats":[{"icon":"📖","label":"安靜的自習課","text":"教室裡只聽得到翻書聲。你正寫著習作，習慣性往右手邊摸了一下……橡皮擦不見了。","face":"neutral","by":"教室裡","talk":"只有鉛筆寫在紙上的沙沙聲。"},{"icon":"✏️","label":"你看向隔壁","text":"阿哲正在用你的橡皮擦擦掉寫錯的字。你記得他剛剛沒有先問過你。","face":"neutral","by":"你心裡想","talk":"咦？那是我的橡皮擦耶。"},{"icon":"🤲","label":"你伸出手","text":"你輕聲說：「那個……是我的橡皮擦。」阿哲看了你一眼，手裡還拿著它。","face":"guarded","by":"你說","talk":"那個……是我的橡皮擦。"},{"icon":"💬","label":"對方回了一句","text":"阿哲把橡皮擦放在桌角，皺了皺眉。隔壁兩個同學還在安靜寫作業。","face":"guarded","by":"阿哲說","talk":"我只是借一下而已，你幹嘛那麼小氣？"}],"options":[{"say":"你才小氣！以後不要再跟我講話。","face":"guarded","reply":"你幹嘛講那麼重？","after":"阿哲把橡皮擦放回你桌上，轉頭繼續寫字。你們都沒有再說話。","more":"我只想擦一下字而已，幹嘛一下子就說不跟我講話？","why":"你不開心很合理，但直接用人格攻擊或斷絕關係回擊，可能讓衝突升高。","thought":"我真的很生氣，他都沒有先問我。","other":"他也可能直接道歉；不管怎樣，你都可以清楚要求對方先問過你。"},{"say":"我不喜歡別人沒問就拿。下次請先問我。","face":"guarded","reply":"唉唷，好啦，我知道了。","after":"阿哲把橡皮擦放回桌角，看起來有點不高興，但你拿回了自己的東西。","more":"好啦，下次我會先問你。","why":"你用清楚的句子表達不喜歡的行為，也說明未來希望怎麼做。即使對方不高興，這仍是尊重的界線。","thought":"我希望東西被尊重，也不想跟他吵。","other":"阿哲也可能立刻道歉，或還是感到不高興；你不需要讓所有人都滿意，才能保護自己的界線。"},{"say":"沒、沒關係，你要用多久都可以。","face":"relieved","reply":"好啊，那我繼續用囉。","after":"阿哲繼續擦字。你低頭寫作業，卻發現自己也有一個字需要擦掉。","more":"謝啦！等我擦完就還你。","why":"你可能不想起衝突，所以同意借出；但如果你其實不願意，就沒有照顧到自己的需要。","thought":"我不想被說小氣……還是算了。","other":"阿哲可能並不知道你需要橡皮擦。你可以在後面改變心意，平靜地說出自己的需求。"}]}];
 
 const $=id=>document.getElementById(id);
 let index=0,chosen=-1,alternative=false,beat=0,phase='story';
@@ -177,14 +192,14 @@ function renderBeat(){
  $('storySymbol').textContent=b.icon;$('storySpeaker').textContent=b.label;$('storyText').textContent=b.text;
  $('storyDots').innerHTML=d.beats.map((_,i)=>'<i class="'+(i<=beat?'active':'')+'"></i>').join('');
  $('nextBeat').textContent=beat===d.beats.length-1?'換你說話 →':'繼續故事 →';
- robotFace(b.face);speak(b.by,b.talk,'情境正在發生');
+ $('propIcon').textContent=b.icon;$('propLabel').textContent=b.label;robotFace(b.face);speak(b.by,b.talk,'情境正在發生');
  const body=$('storyBody');body.style.animation='none';void body.offsetWidth;body.style.animation='';
 }
 function openScene(i){
  index=i;chosen=-1;alternative=false;beat=0;phase='story';const d=data[index];
  $('sceneTitle').textContent=d.title;$('chapter').textContent='0'+(i+1)+' / 0'+data.length+'　人際練習';
  $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;
- $('propIcon').textContent=d.settingIcon;$('propLabel').textContent=d.setting;
+ $('propIcon').textContent=d.settingIcon;$('propLabel').textContent=d.setting;$('actorTag').textContent=d.actor||d.name;
  $('step').textContent='STEP 01 · 故事正在發生';$('prompt').textContent='先看看發生了什麼事……';
  $('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('')+'<button class="btn-secondary own-start" id="ownStart" type="button">✎ 我想自己想一句話</button>';
  document.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.choice))));
@@ -195,14 +210,14 @@ function openScene(i){
 }
 function showChoices(){
  const d=data[index];phase='choice';$('storyboard').hidden=true;$('choices').hidden=false;
- robotFace(d.beats[d.beats.length-1].face);speak(d.name+'說',d.opening,'對方正等著你的回答');
+ $('propIcon').textContent='💬';$('propLabel').textContent='輪到你說話';robotFace(d.beats[d.beats.length-1].face);speak(d.name+'說',d.opening,'對方正等著你的回答');
  $('step').textContent='STEP 02 · 輪到你說話';$('prompt').textContent=d.question;
  $('choices').scrollIntoView?.({behavior:'smooth',block:'nearest'});
 }
 function choose(j){
  const d=data[index],o=d.options[j];chosen=j;alternative=false;phase='reaction';
  $('choices').hidden=true;$('playerLine').hidden=false;$('playerQuote').textContent=o.say;
- robotFace(o.face);speak(d.name+'可能會說',o.reply,'這是一種可能的反應，不是唯一答案');
+ $('propIcon').textContent='↪';$('propLabel').textContent='故事接著發生';robotFace(o.face);speak(d.name+'可能會說',o.reply,'這是一種可能的反應，不是唯一答案');
  $('step').textContent='STEP 03 · 看看這句話的影響';$('prompt').textContent='接下來，發生了什麼？';
  $('response').hidden=false;$('rewrite').hidden=true;
  $('response').innerHTML='<span class="plot-tag">故事繼續 · 下一個瞬間</span><div class="moment-card">'+esc(o.after)+'</div><p class="readmore">角色可能還有話想說，先聽聽看，再想想你要怎麼做。</p><div class="buttons"><button class="btn-primary" id="hearMore">聽聽對方接著說什麼 →</button><button class="btn-secondary" id="restartNow">重新選一句話</button></div>';

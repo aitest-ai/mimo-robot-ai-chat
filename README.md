@@ -1,5 +1,17 @@
 # MIMO — 動態 AI 聊天室 Demo
 
+## 🌤️ Mimo 心晴之鏡｜情緒與衝突反思實驗室
+
+**獨立網站：** https://mimo-reflection-lab.vercel.app/
+
+七階段 SEL 情緒辨識、情緒強度、安定策略、主觀敘事、事實與推論、學生選擇表情的角色換位、下次行動與成長卡。
+
+- [獨立程式](./reflect-lab/) · [設計與兒少安全規範](./reflect-lab/DESIGN.md)
+- AI 功能目前**僅有規劃，沒有連接到 LLM 或上傳任何個資**。請只用虛構故事試玩，不是正式諮商或危機服務。
+- AI 專用開發分支：`feature/mimo-sel-reflection-ai`；不影響原本 `social-lab/`。
+
+---
+
 ## 🎒 Mimo 校園人際練習室｜Vercel 已部署
 
 **線上試玩：** https://mimo-school-social-lab.vercel.app/

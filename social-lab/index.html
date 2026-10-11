@@ -159,6 +159,12 @@
 .stage[data-scene="clean"] .world-room,.stage[data-scene="lunch"] .world-room{opacity:0}
 @media(prefers-reduced-motion:reduce){.world-corridor,.world-lunch{transition:none!important}}
 
+
+.story-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.story-listen{border:1px solid #cddddd;background:#f1f7f5;color:#437b70;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:800}
+.story-listen:hover{background:#e2f0eb}
+@media(max-width:730px){.story-tools{gap:3px}.story-listen{font-size:10px;padding:5px 7px}.story-skip{font-size:10px}}
+
 </style>
 </head>
 <body>
@@ -175,7 +181,7 @@
  <p class="context" id="context">準備練習...</p>
 
  <section class="storyboard" id="storyboard" aria-label="情境小短劇">
-   <div class="story-top"><span class="story-kicker" id="storyKicker">故事 · 第一幕</span><button id="skipStory" class="story-skip" type="button">跳過故事，直接練習</button></div>
+   <div class="story-top"><span class="story-kicker" id="storyKicker">故事 · 第一幕</span><div class="story-tools"><button id="readStory" class="story-listen" type="button" aria-label="朗讀這一幕的故事">🔊 聽故事</button><button id="skipStory" class="story-skip" type="button">跳過故事</button></div></div>
    <div class="story-body" id="storyBody"><div class="story-symbol" id="storySymbol" aria-hidden="true">🎨</div><div class="story-script"><b id="storySpeaker">教室裡</b><p id="storyText"></p></div></div>
    <div class="story-foot"><div class="story-dots" id="storyDots" aria-label="故事進度"></div><button id="nextBeat" class="story-next" type="button">下一幕 →</button></div>
  </section>
@@ -405,7 +411,17 @@ function speak(by,line,hint){
  $('dialogue').textContent=line;
  $('subtext').textContent=hint||'這是故事角色可能說的話';
 }
+function stopNarration(){try{if(typeof window!=='undefined' && 'speechSynthesis' in window)window.speechSynthesis.cancel()}catch(_){}}
+function readBeatAloud(){
+ if(typeof window==='undefined'||!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){ $('readStory').textContent='此裝置不支援朗讀';return;}
+ stopNarration();
+ const b=data[index].beats[beat];
+ const utterance=new SpeechSynthesisUtterance(b.label+'。'+b.text+'。'+b.by+'：'+b.talk);
+ utterance.lang='zh-TW';utterance.rate=.88;utterance.pitch=1.04;utterance.volume=.9;
+ window.speechSynthesis.speak(utterance);
+}
 function renderBeat(){
+ stopNarration();
  const d=data[index],b=d.beats[beat];
  phase='story';$('storyboard').hidden=false;$('choices').hidden=true;$('stage').dataset.beat=String(beat);
  $('storyKicker').textContent='故事鋪陳 · 第 '+(beat+1)+' 幕 / 共 '+d.beats.length+' 幕';
@@ -416,6 +432,7 @@ function renderBeat(){
  const body=$('storyBody');body.style.animation='none';void body.offsetWidth;body.style.animation='';
 }
 function openScene(i){
+ stopNarration();
  index=i;chosen=-1;alternative=false;beat=0;phase='story';const d=data[index];
  $('sceneTitle').textContent=d.title;$('chapter').textContent='0'+(i+1)+' / 0'+data.length+'　人際練習';
  $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;$('stage').dataset.beat='0';$('kidOtherLabel').textContent=d.name;
@@ -429,6 +446,7 @@ function openScene(i){
  sceneList();renderBeat();
 }
 function showChoices(){
+ stopNarration();
  const d=data[index];phase='choice';$('storyboard').hidden=true;$('stage').dataset.beat='choice';$('choices').hidden=false;
  $('propIcon').textContent='💬';$('propLabel').textContent='輪到你說話';robotFace(d.beats[d.beats.length-1].face);speak(d.name+'說',d.opening,'對方正等著你的回答');
  $('step').textContent='STEP 02 · 輪到你說話';$('prompt').textContent=d.question;
@@ -472,6 +490,7 @@ function showRewrite(){
  $('rewrite').hidden=false;$('wordReview').hidden=true;
  $('rewrite').scrollIntoView?.({behavior:'smooth',block:'nearest'});$('ownWords').focus();
 }
+$('readStory').onclick=readBeatAloud;
 $('nextBeat').onclick=()=>{if(beat<data[index].beats.length-1){beat++;renderBeat()}else showChoices()};
 $('skipStory').onclick=showChoices;
 $('reviewWords').onclick=()=>{

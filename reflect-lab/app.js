@@ -37,7 +37,7 @@ const planOptions=[
  {id:"adult",icon:"🙋",name:"請大人一起幫忙",hint:"遇到困難、害怕或不安全時很重要"}
 ];
 const state={
- step:0,safety:null,weather:"cloudy",intensity:3,emotion:"委屈",ground:"listen",beforeIntensity:3,
+ step:0,safety:null,weather:"cloudy",intensity:3,emotion:"委屈",emotions:["委屈"],ground:"listen",beforeIntensity:3,
  subjective:"",whatSaid:"",fact:"",guess:"",unknown:"",otherMay:"",seenFrom:"me",
  mirrorExpr:"guard",mirrorFeeling:null,mirrorReflection:"",plan:"explain",request:"",nextTime:"",afterIntensity:3,fictional:false
 };
@@ -90,8 +90,8 @@ function render1(){
  '<div class="weather-grid">'+weathers.map(w=>'<button type="button" class="weather" data-weather="'+w.id+'" aria-pressed="'+(state.weather===w.id)+'"><span>'+w.icon+'</span><b>'+w.name+'</b><small>'+w.hint+'</small></button>').join("")+'</div>'+
  '<div class="slider-line"><b>這個感覺有多強烈？</b><span class="intensity-bubble" id="intensityValue">'+state.intensity+' / 5</span></div>'+
  '<input id="intensity" type="range" class="intensity" min="1" max="5" step="1" value="'+state.intensity+'" aria-label="情緒強度"><div class="minmax"><span>一點點</span><span>非常強烈</span></div>'+
- '<label class="input-label">你想把它叫做什麼感覺？</label>'+
- '<div class="emotion-pills">'+emotions.map(e=>'<button type="button" data-emotion="'+e+'" class="pill'+(state.emotion===e?" chosen":"")+'" aria-pressed="'+(state.emotion===e)+'">'+e+'</button>').join("")+'</div>'+
+ '<label class="input-label">你想把它叫做什麼感覺？（可以同時選 1–3 種）</label>'+ 
+ '<div class="emotion-pills">'+emotions.map(e=>'<button type="button" data-emotion="'+e+'" class="pill'+(state.emotions.includes(e)?" chosen":"")+'" aria-pressed="'+(state.emotions.includes(e))+'">'+e+'</button>').join("")+'</div>'+
  '<div class="notice">你的天氣：<strong>'+active.icon+' '+active.name+'</strong>。心情不是身分標籤，天氣會變，你也不必一定讓自己立刻變晴天。</div>';
 }
 function render2(){
@@ -208,7 +208,7 @@ function previous(){if(state.step<=0)return;state.step--;render()}
 function reset(){
  const ok=window.confirm?.("重新開始後，頁面中的文字會清除，而且無法恢復。確定要重新開始嗎？");
  if(ok===false)return;
- const original={step:0,safety:null,weather:"cloudy",intensity:3,emotion:"委屈",ground:"listen",beforeIntensity:3,subjective:"",whatSaid:"",fact:"",guess:"",unknown:"",otherMay:"",seenFrom:"me",mirrorExpr:"guard",mirrorFeeling:null,mirrorReflection:"",plan:"explain",request:"",nextTime:"",afterIntensity:3,fictional:false};
+ const original={step:0,safety:null,weather:"cloudy",intensity:3,emotion:"委屈",emotions:["委屈"],ground:"listen",beforeIntensity:3,subjective:"",whatSaid:"",fact:"",guess:"",unknown:"",otherMay:"",seenFrom:"me",mirrorExpr:"guard",mirrorFeeling:null,mirrorReflection:"",plan:"explain",request:"",nextTime:"",afterIntensity:3,fictional:false};
  Object.assign(state,original);render();
 }
 function showHelp(){const dlg=$("helpDialog");dlg.showModal?.()}
@@ -231,7 +231,7 @@ $("stepContent").addEventListener("click",e=>{
  }
  if(b.dataset.safety){state.safety=b.dataset.safety;render();return}
  if(b.dataset.weather){state.weather=b.dataset.weather;render();return}
- if(b.dataset.emotion){state.emotion=b.dataset.emotion;render();return}
+ if(b.dataset.emotion){const e=b.dataset.emotion;let a=state.emotions.includes(e)?state.emotions.filter(x=>x!==e):[...state.emotions,e];if(a.length>3)a=a.slice(1);if(!a.length)a=[e];state.emotions=a;state.emotion=a[0];render();return}
  if(b.dataset.ground){state.ground=b.dataset.ground;render();return}
  if(b.dataset.expression){
    // User chooses a hypothetical expression; do not infer emotion from text.
@@ -255,7 +255,7 @@ $("stepContent").addEventListener("input",e=>{
   if(id==="finalIntensity"&&state.step===6){
     // Update summary strength without stealing focus from the slider.
     const p=document.querySelector(".card-result .summary-item p");
-    if(p){const w=weathers.find(x=>x.id===state.weather);p.textContent=(w?.icon||"☁️")+" "+(w?.name||"多雲")+" · "+state.emotion+" · 一開始 "+state.intensity+"/5，現在 "+state.afterIntensity+"/5";}
+    if(p){const w=weathers.find(x=>x.id===state.weather);p.textContent=(w?.icon||"☁️")+" "+(w?.name||"多雲")+" · "+state.emotions.join('、')+" · 一開始 "+state.intensity+"/5，現在 "+state.afterIntensity+"/5";}
   }
  }
 });

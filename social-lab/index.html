@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f5f0">
+<meta name="description" content="Mimo 人際練習室：用情境對話、同理與練習重新說話，學習尊重與界線。">
+<title>Mimo 人際練習室｜一句話，可以有更好的說法</title>
+<style>
+:root{--ink:#273548;--sub:#738094;--blue:#4669b0;--cream:#f7f5f0;--line:#e8e6e1;--coral:#e27b6b;--mint:#2c997e}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--cream);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65}button,textarea{font:inherit}button{cursor:pointer}button:focus-visible,textarea:focus-visible{outline:3px solid #f3b978;outline-offset:3px}button:disabled{opacity:.48;cursor:default}
+.site{max-width:1560px;min-height:100svh;margin:auto;display:grid;grid-template-columns:minmax(240px,292px) minmax(420px,1fr) minmax(245px,292px)}
+.left{padding:30px 26px;position:relative;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:23px}.logo{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:850;letter-spacing:.04em}.logomark{border-radius:15px;width:42px;height:42px;background:#3b5e96;color:white;display:grid;place-items:center;font-size:21px;box-shadow:0 7px 22px #38527f21}.logo small{display:block;font-weight:500;letter-spacing:.03em;font-size:10px;color:#8b94a0}.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--blue);font-weight:850;text-transform:uppercase;margin-bottom:6px}.intro h1{font-size:clamp(27px,3.1vw,39px);line-height:1.26;letter-spacing:-.07em;margin:0 0 14px;font-weight:850}.intro p{font-size:13px;color:#6e7987;margin:0;line-height:1.95}.section-label{font-size:11px;font-weight:800;color:#99a0aa;letter-spacing:.08em;margin-bottom:10px}.scenarios{display:flex;flex-direction:column;gap:9px}.scene-btn{text-align:left;width:100%;border:1px solid transparent;border-radius:15px;background:transparent;padding:14px;display:flex;gap:12px;align-items:center;color:#657489;transition:background .2s,border-color .2s}.scene-btn:hover{background:#fff}.scene-btn[aria-current=true]{background:#fff;border-color:#e1e5ea;box-shadow:0 7px 22px #2f40660b;color:#2d405c}.scene-num{width:35px;height:35px;border:1px solid #e3e4e2;border-radius:11px;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}.scene-btn[aria-current=true] .scene-num{background:#e7edf8;color:#4669a8;border-color:transparent}.scene-btn b{display:block;font-size:13px}.scene-btn small{display:block;font-size:11px;opacity:.75;margin-top:2px}.completed{color:#25876b!important}.rule{font-size:11px;color:#9ba4ae;padding:12px 0 0;border-top:1px solid var(--line);margin-top:auto}.rule b{color:#6d7b8b}
+.center{padding:27px clamp(22px,4vw,64px) 38px;min-width:0}.topline{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#77869a;gap:8px}.progress{display:flex;align-items:center;gap:6px}.mark{width:22px;height:5px;border-radius:8px;background:#e0e3e4}.mark.on{background:#6fa18e}.scene-heading{margin:24px 0 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.scene-heading h2{font-size:22px;letter-spacing:-.04em;line-height:1.45;margin:0}.tag{font-size:11px;color:#52725e;border:1px solid #cfded4;border-radius:99px;padding:5px 11px;white-space:nowrap}.context{font-size:13px;color:#738094;margin:4px 0 0;line-height:1.8}.stage{position:relative;min-height:295px;margin-top:15px;background:radial-gradient(ellipse at 53% 72%,#e9eee7 0%,#f2f2ee 51%,#f6f5f2 83%);border:1px solid #e7e8e4;border-radius:25px;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:20px;overflow:hidden}.stage:after{content:"";position:absolute;width:76%;height:12px;background:#a5b1a06b;filter:blur(18px);border-radius:50%;left:12%;bottom:38px;pointer-events:none}.room-line{position:absolute;width:100%;height:1px;background:#dbe3db;bottom:40px;left:0}.robot-wrap{position:relative;width:100%;max-width:280px;justify-self:center;display:flex;align-items:center;justify-content:center;animation:float 5s ease-in-out infinite;transform-origin:50% 75%;z-index:1}.robot-wrap[data-expression="hurt"]{animation:floatQuiet 5.5s ease-in-out infinite}.robot-wrap[data-expression="guarded"]{animation:floatQuiet 6s ease-in-out infinite}.robot-wrap[data-expression="relieved"]{animation:float 4.5s ease-in-out infinite}@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}@keyframes floatQuiet{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-2px) rotate(-2deg)}}.robot{width:100%;height:auto;overflow:visible;filter:drop-shadow(0px 17px 13px #8a978928)}.face{opacity:0;transition:opacity .45s}.robot-wrap[data-expression="neutral"] .face-neutral,.robot-wrap[data-expression="hurt"] .face-hurt,.robot-wrap[data-expression="guarded"] .face-guarded,.robot-wrap[data-expression="relieved"] .face-relieved{opacity:1}.glow{animation:glow 4s ease-in-out infinite}@keyframes glow{50%{opacity:.48}}.talkbox{position:relative;z-index:2;max-width:270px;background:#fff;padding:19px 19px 16px;border:1px solid #e8ebe8;border-radius:21px;border-bottom-left-radius:5px;box-shadow:0 10px 28px #61736b13;margin-left:-25px;align-self:center}.speaker{color:#6b8e86;font-weight:750;letter-spacing:.07em;font-size:11px;margin-bottom:7px}.dialogue{font-size:16px;line-height:1.72;letter-spacing:.005em;font-weight:650}.subtext{font-size:10px;color:#9aa7aa;margin-top:10px}.notice{display:flex;gap:9px;align-items:flex-start;color:#8e9a9b;font-size:11px;padding:13px 3px 2px}.notice svg{flex:none;margin-top:2px}
+.action-area{padding:16px 0 0}.step{font-size:11px;color:#6e92a1;font-weight:800;letter-spacing:.1em}.prompt{font-size:18px;font-weight:850;letter-spacing:-.035em;margin:7px 0 14px}.choices{display:grid;gap:9px}.choice{width:100%;border:1px solid #e5e6e3;background:#fff;padding:15px 16px;display:flex;align-items:center;gap:12px;border-radius:15px;text-align:left;color:#36485c;transition:background .2s,border-color .2s,transform .2s}.choice:hover{border-color:#b4c5d8;background:#fbfdff;transform:translateY(-1px)}.choice.selected{border-color:#557cad;background:#eff4fa}.letter{color:#9cacbc;letter-spacing:.03em;font-size:12px;font-weight:850;flex:none}.choice span:nth-child(2){flex:1;font-size:13px}.arrow{color:#b9c0c5;font-size:16px}
+.response{margin-top:15px;border-top:1px solid #e0e2df;padding-top:16px;animation:reveal .3s ease-out}.response h3{font-size:16px;margin:2px 0 8px}.response p{font-size:13px;line-height:1.9;color:#5d6e7f;margin:6px 0}.mini{display:inline-block;font-size:10px;letter-spacing:.04em;font-weight:700;border-radius:99px;background:#eaf0e9;padding:4px 9px;color:#54755d}.buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}.btn-primary,.btn-secondary{border-radius:12px;padding:11px 16px;font-size:12px;font-weight:800;border:1px solid transparent}.btn-primary{background:#3f669c;color:white}.btn-primary:hover{background:#315888}.btn-secondary{background:#fff;border-color:#dfe3e7;color:#566f88}.btn-secondary:hover{background:#f4f7fa}@keyframes reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.rewrite{margin-top:15px;border-radius:18px;padding:17px;background:#eff2eb;border:1px solid #e0e8dc}.rewrite h3{margin:0 0 5px;font-size:15px}.rewrite p{font-size:12px;color:#718178;margin:0 0 10px}.rewrite textarea{width:100%;min-height:94px;max-height:160px;border:1px solid #d7ded8;border-radius:12px;padding:13px;resize:vertical;background:#fff;color:#34465b;font-size:14px;line-height:1.7}.rewrite .buttons{margin-top:10px}.rewritten{background:#fff;border-radius:11px;padding:12px 14px;margin:10px 0;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.selfcheck{font-size:12px;color:#596f61;display:flex;flex-direction:column;gap:8px}.selfcheck label{display:flex;gap:9px;align-items:center;cursor:pointer}.selfcheck input{accent-color:#3b8266;width:16px;height:16px}
+.right{border-left:1px solid var(--line);padding:31px 25px;background:#faf9f5}.aside-title{font-size:11px;letter-spacing:.12em;color:#a0a6a8;font-weight:800;margin-bottom:18px}.coach-top{padding:2px 0 24px;border-bottom:1px solid var(--line)}.coach-top .symbol{font-size:32px}.coach-top h3{font-size:19px;letter-spacing:-.035em;margin:12px 0 8px}.coach-top p{font-size:12px;line-height:2;color:#74828c;margin:0}.insight{padding-top:24px}.insight h3{font-size:13px;margin:0 0 17px}.concept{display:flex;align-items:flex-start;gap:12px;margin-bottom:22px}.concept-icon{flex:none;font-size:20px;width:32px}.concept b{font-size:12px}.concept p{font-size:11px;color:#929ca6;margin:3px 0 0;line-height:1.8}.callout{background:#e9efe9;border-radius:17px;padding:16px;margin-top:17px}.callout b{font-size:12px}.callout p{font-size:11px;margin:7px 0 0;color:#688072;line-height:1.95}.smallprint{font-size:10px;color:#a5a9aa;margin-top:23px;line-height:1.85}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1170px){.site{grid-template-columns:235px minmax(380px,1fr)}.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:40px}.coach-top{border-bottom:0}.insight{padding:0}.left{padding:25px 16px}.center{padding:27px 28px}.stage{min-height:275px}}
+@media(max-width:730px){.site{display:block}.left{border-right:0;border-bottom:1px solid var(--line);padding:16px 18px 13px;gap:8px}.logo{font-size:13px}.logomark{height:34px;width:34px;font-size:16px;border-radius:11px}.intro h1{font-size:22px;line-height:1.3;margin:5px 0}.intro p{font-size:11px}.intro{margin:7px 0}.section-label{margin:3px 0 5px}.scenarios{display:flex;overflow-x:auto;padding-bottom:5px;scroll-snap-type:x mandatory;gap:8px}.scene-btn{min-width:155px;flex:0 0 155px;padding:10px;border:1px solid #e7e5e0;background:#fff;scroll-snap-align:start}.scene-btn small{font-size:10px}.scene-num{width:28px;height:28px}.rule{display:none}.center{padding:18px 18px 30px}.scene-heading{margin-top:16px}.scene-heading h2{font-size:19px}.tag{font-size:9px;padding:4px 8px}.stage{min-height:235px;margin-top:14px;padding:9px;grid-template-columns:48% 52%;border-radius:20px}.talkbox{padding:13px;margin-left:-14px}.dialogue{font-size:13px}.speaker{font-size:10px}.subtext{font-size:9px}.prompt{font-size:17px}.choice{padding:13px 12px}.choice span:nth-child(2){font-size:12px}.right{display:block;padding:22px 19px}.coach-top{padding-bottom:20px;border-bottom:1px solid var(--line)}.insight{padding-top:19px}.concept{margin-bottom:10px}.intro p{line-height:1.7}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="site">
+<aside class="left">
+ <div class="logo"><div class="logomark" aria-hidden="true">✦</div><div>MIMO <small>人際練習室 · SOCIAL LAB</small></div></div>
+ <section class="intro"><div class="eyebrow">一句話的力量</div><h1>好好說話，<br>也是一種勇敢。</h1><p>在這裡，試著說出心裡的話，看看對方可能怎麼想。不需要每次都說得完美。</p></section>
+ <div><div class="section-label">選一個練習情境</div><nav class="scenarios" id="scenarios" aria-label="練習情境"></nav></div>
+ <p class="rule"><b>安全的小練習</b><br>角色是虛構的。沒有排行榜，也沒有答錯懲罰。你可以一直重試。</p>
+</aside>
+<main class="center">
+ <div class="topline"><span id="chapter">01 / 03　人際溝通</span><span class="progress" id="progress" aria-label="練習進度"></span></div>
+ <header class="scene-heading"><h2 id="sceneTitle">分組的時候</h2><span class="tag" id="tag">一起合作</span></header>
+ <p class="context" id="context">準備練習...</p>
+ <div class="stage">
+   <div class="room-line"></div>
+   <div class="robot-wrap" id="robotWrap" data-expression="neutral" role="img" aria-label="Mimo 的虛擬同學正在等待你的回答">
+    <svg class="robot" viewBox="0 0 270 280" aria-hidden="true">
+      <defs><linearGradient id="shell" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7896a8"/><stop offset=".46" stop-color="#52778e"/><stop offset="1" stop-color="#314f6d"/></linearGradient>
+        <linearGradient id="bevel" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#dce9e8"/><stop offset=".52" stop-color="#93acae"/><stop offset="1" stop-color="#7d9aa2"/></linearGradient>
+        <radialGradient id="screen"><stop stop-color="#283b51"/><stop offset=".77" stop-color="#18283b"/><stop offset="1" stop-color="#0b1827"/></radialGradient>
+        <filter id="blur"><feGaussianBlur stdDeviation="7"/></filter>
+       </defs>
+      <rect x="119" y="8" width="28" height="25" rx="11" fill="#6e929c"/><path d="M133 32 V51" stroke="#476479" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="133" cy="12" r="11" fill="#c1dbd5"/><circle class="glow" cx="133" cy="12" r="8" fill="#81d9c2" opacity=".8"/>
+      <rect x="21" y="120" width="35" height="47" rx="16" fill="#456c80"/><rect x="211" y="120" width="35" height="47" rx="16" fill="#456c80"/>
+      <rect x="34" y="44" width="200" height="203" rx="57" fill="url(#shell)"/>
+      <rect x="43" y="54" width="182" height="181" rx="53" fill="url(#bevel)" opacity=".88"/>
+      <rect x="57" y="68" width="154" height="156" rx="43" fill="url(#screen)" stroke="#405a67" stroke-width="4"/>
+      <path d="M66 112 Q75 77 119 76" stroke="#c8dce5" stroke-opacity=".23" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <rect x="84" y="210" width="99" height="3" rx="2" fill="#718c9c" opacity=".55"/>
+      <g class="face face-neutral" fill="#abebd8"><rect x="89" y="122" width="24" height="35" rx="10"/><rect x="155" y="122" width="24" height="35" rx="10"/><path d="M113 182 Q134 187 155 182" fill="none" stroke="#abebd8" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-hurt" fill="#9ed9d6"><path d="M86 129 Q99 120 114 132" fill="none" stroke="#9ed9d6" stroke-width="7" stroke-linecap="round"/><path d="M154 132 Q168 120 182 129" fill="none" stroke="#9ed9d6" stroke-width="7" stroke-linecap="round"/><rect x="91" y="140" width="21" height="19" rx="8"/><rect x="156" y="140" width="21" height="19" rx="8"/><path d="M119 188 Q134 173 150 188" fill="none" stroke="#9ed9d6" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-guarded" fill="#a2dfd4"><path d="M87 121 L113 133" stroke="#a2dfd4" stroke-width="7" stroke-linecap="round"/><path d="M181 121 L155 133" stroke="#a2dfd4" stroke-width="7" stroke-linecap="round"/><rect x="93" y="141" width="21" height="24" rx="9"/><rect x="155" y="141" width="21" height="24" rx="9"/><path d="M118 185 L151 185" stroke="#a2dfd4" stroke-width="6" stroke-linecap="round"/></g>
+      <g class="face face-relieved" fill="none" stroke="#b8f6d9" stroke-width="9" stroke-linecap="round"><path d="M88 149 Q102 132 115 149"/><path d="M154 149 Q169 132 182 149"/><path d="M113 176 Q134 198 157 176"/></g>
+      <circle cx="194" cy="211" r="5" fill="#8bc8b8"/><circle cx="64" cy="210" r="4" fill="#cbe9e0" opacity=".8"/>
+    </svg>
+   </div>
+   <div class="talkbox" aria-live="polite"><div class="speaker" id="speaker">小宇說</div><div class="dialogue" id="dialogue"></div><div class="subtext" id="subtext">正在等你回答</div></div>
+ </div>
+ <div class="notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#92a1a6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/></svg><span>表情只是虛構角色「可能」的反應；現實中的感受，要靠傾聽和詢問才知道。</span></div>
+ <section class="action-area">
+  <div class="step" id="step">STEP 01 · 先試著說</div><h3 class="prompt" id="prompt">你會怎麼回應？</h3>
+  <div class="choices" id="choices"></div>
+  <div class="response" id="response" hidden aria-live="polite"></div>
+  <div class="rewrite" id="rewrite" hidden>
+   <h3>換成你的說法</h3>
+   <p>把真正在意的事說清楚，也保留對方的尊嚴。不需要討好對方。</p>
+   <label class="sr-only" for="ownWords">我會怎麼說</label>
+   <textarea id="ownWords" maxlength="220" placeholder="例如：我有點擔心來不及完成，我們可以一起想辦法嗎？"></textarea>
+   <div class="buttons"><button class="btn-primary" id="reviewWords" type="button">看看自己的說法</button><button class="btn-secondary" id="closeRewrite" type="button">返回</button></div>
+   <div id="wordReview" hidden>
+    <div class="rewritten" id="yourWords"></div>
+    <div class="selfcheck"><b>給自己三個問題：</b>
+     <label><input type="checkbox"> 我有說清楚發生的事或自己的需求嗎？</label>
+     <label><input type="checkbox"> 我有避免攻擊、嘲笑或替對方貼標籤嗎？</label>
+     <label><input type="checkbox"> 我有尊重自己和對方的界線嗎？</label>
+    </div>
+    <p style="font-size:11px;color:#7b887d;margin-top:10px">這是自我檢查，不是 AI 在判分；真實感受請向對方確認。</p>
+   </div>
+  </div>
+ </section>
+</main>
+<aside class="right">
+ <div class="aside-title">今天的說話練習</div>
+ <div class="coach-top"><div class="symbol">✳</div><h3>先理解，再表達。</h3><p>一句話可以有很多種說法。溝通不是一直讓別人開心，而是<strong>清楚表達自己的想法，同時尊重對方</strong>。</p></div>
+ <section class="insight"><h3>試著注意這三件事</h3>
+  <div class="concept"><div class="concept-icon">◌</div><div><b>我真正想說的是什麼？</b><p>想快點完成、不喜歡被取笑，或需要自己的空間。</p></div></div>
+  <div class="concept"><div class="concept-icon">◎</div><div><b>對方可能怎麼理解？</b><p>先想一種可能，再承認還可能有其他看法。</p></div></div>
+  <div class="concept"><div class="concept-icon">↗</div><div><b>有沒有更清楚的說法？</b><p>試著描述事情、表達需要，或提出邀請與界線。</p></div></div>
+ </section>
+ <div class="callout"><b>勇敢說「不」也很重要。</b><p>不必為了讓角色微笑而答應不合理的要求。即使對方失望，尊重地拒絕仍然是好的溝通。</p></div>
+ <p class="smallprint">課堂概念試作｜沒有 AI 模型、帳號或後端，不儲存也不上傳輸入文字。此教材不替學生貼「好孩子／壞孩子」標籤，也不能取代教師陪伴。</p>
+</aside>
+</div>
+<script>
+(()=>{'use strict';
+const data=[
+ {id:'team',title:'分組的時候',small:'分組合作',tag:'一起合作',context:'美術課快結束了。你們小組的海報還沒完成，你開始著急。',name:'小宇',opening:'我還沒有畫好。你們可以再等我一下嗎？',
+   question:'你想讓小組趕上進度，會怎麼說？',
+   options:[
+     {say:'你怎麼每次都這麼慢！大家都被你拖累了。',face:'hurt',reply:'我……其實很努力在畫了。',why:'你想解決時間問題，但「每次都拖累大家」可能讓小宇覺得自己的努力被否定。',thought:'時間快不夠了，怎麼辦？',other:'也可能有人直接反駁：「我已經很快了！」人們會有不同反應。'},
+     {say:'我們還剩十分鐘，要不要分工？我可以幫你上色。',face:'relieved',reply:'好啊！那我來畫標題，你幫我上色！',why:'你說出了時間壓力，也提供合作方法。這樣比較容易一起解決問題。',thought:'我想讓大家一起完成。',other:'小宇也可能說「我想自己畫完」，你還可以再一起討論分工。'},
+     {say:'算了，不用你畫，我自己來就好。',face:'guarded',reply:'可是……我也想幫忙。',why:'你想提高效率，但對方可能以為你不信任他的能力。',thought:'我怕來不及，想自己做快一點。',other:'小宇也可能鬆一口氣，但下次合作前仍值得確認他的意願。'}
+   ]},
+ {id:'joke',title:'這是開玩笑嗎？',small:'言語與玩笑',tag:'理解感受',context:'下課時，小芯不小心把水壺打翻，有些同學笑了。',name:'小芯',opening:'糟糕！我的水壺倒了……',
+   question:'你就在旁邊。這時候，你會怎麼說？',
+   options:[
+     {say:'哈哈！你連水壺都拿不好喔！',face:'hurt',reply:'你們可以不要笑我嗎？',why:'即使只是想開玩笑，對方也可能感到丟臉。意圖和造成的影響不一定相同。',thought:'剛剛那畫面有點好笑。',other:'有些朋友可能會跟著笑，但仍需要注意當事人是否自在。'},
+     {say:'水灑出來了，你有沒有滑倒？需要衛生紙嗎？',face:'relieved',reply:'我沒事，謝謝你幫我。',why:'先關心狀況、詢問是否需要幫忙，能讓對方保有選擇權。',thought:'我想確認她沒事。',other:'小芯也可能只說「不用，謝謝」，尊重她的回答就好。'},
+     {say:'別難過嘛！這又沒什麼大不了。',face:'guarded',reply:'可是我的書都濕了，我很著急。',why:'你可能是想安慰，但「沒什麼大不了」容易讓對方覺得自己的困擾被忽略。',thought:'我想讓她快點不難過。',other:'有些人可能覺得這樣能緩和氣氛，所以最好留意對方的實際回應。'}
+   ]},
+ {id:'boundary',title:'我的東西，先問我',small:'界線與尊重',tag:'表達界線',context:'你發現同學沒有先問過你，就拿走你的橡皮擦。你想拿回來。',name:'阿哲',opening:'我只是借一下而已，你幹嘛那麼小氣？',
+   question:'你不喜歡別人沒問就拿東西，會怎麼回答？',
+   options:[
+     {say:'你才小氣！以後不要再跟我講話。',face:'guarded',reply:'你幹嘛講這麼重？',why:'生氣是可以理解的，但反擊對方的人格可能讓衝突越來越大。',thought:'我真的很生氣。',other:'對方也可能安靜還東西，不過事情是否真正解決仍要再確認。'},
+     {say:'我不喜歡東西被直接拿走。下次請先問我。',face:'neutral',reply:'喔……好，我下次會先問。',why:'這句話清楚保護自己的界線，也沒有攻擊對方。即使對方一時不開心，你仍有權利這麼說。',thought:'我希望我的東西被尊重。',other:'阿哲也可能不高興；只要說法尊重，你不需要為他的所有情緒負責。'},
+     {say:'沒、沒關係，你要用多久都可以。',face:'relieved',reply:'真的嗎？那我先拿去用。',why:'這句話可能讓對方開心，但如果你其實不願意，就沒有照顧到自己的需要。',thought:'我怕拒絕會讓他不喜歡我。',other:'阿哲可能沒有惡意，不過這仍不表示你一定得借。'}
+   ]}
+];
+const $=id=>document.getElementById(id);let index=0,chosen=-1,alternative=false;const done=new Set();
+function esc(s){return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function sceneList(){ $('scenarios').innerHTML=data.map((d,i)=>'<button class="scene-btn '+(done.has(i)?'completed':'')+'" aria-current="'+(i===index)+'" data-scene="'+i+'"><span class="scene-num">'+(done.has(i)?'✓':('0'+(i+1)))+'</span><span><b>'+d.title+'</b><small>'+d.small+'</small></span></button>').join('');document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>openScene(Number(b.dataset.scene))));}
+function robotFace(face){$('robotWrap').dataset.expression=face;$('robotWrap').setAttribute('aria-label','虛構同學表情：'+({neutral:'平靜',hurt:'低落',guarded:'有些猶豫',relieved:'放鬆'}[face]||'平靜'));}
+function openScene(i){index=i;chosen=-1;alternative=false;const d=data[index];robotFace('neutral');$('sceneTitle').textContent=d.title;$('chapter').textContent='0'+(index+1)+' / 0'+data.length+'　人際溝通';$('tag').textContent=d.tag;$('context').textContent=d.context;$('speaker').textContent=d.name+'說';$('dialogue').textContent=d.opening;$('subtext').textContent='正在等你回答';$('step').textContent='STEP 01 · 先試著說';$('prompt').textContent=d.question;$('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('');document.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.choice))));$('choices').hidden=false;$('response').hidden=true;$('rewrite').hidden=true;$('wordReview').hidden=true;$('ownWords').value='';$('progress').innerHTML=data.map((_,j)=>'<span class="mark '+(done.has(j)?'on':'')+'"></span>').join('');sceneList();}
+function choose(j){const d=data[index],o=d.options[j];chosen=j;alternative=false;document.querySelectorAll('[data-choice]').forEach((b,k)=>{b.classList.toggle('selected',k===j);b.setAttribute('aria-pressed',String(k===j));});robotFace(o.face);$('speaker').textContent=d.name+'可能會說';$('dialogue').textContent=o.reply;$('subtext').textContent='這只是一種可能的回應';$('step').textContent='STEP 02 · 看看可能的影響';$('prompt').textContent='同一句話，還有別的說法嗎？';$('response').hidden=false;$('rewrite').hidden=true;renderResponse();}
+function renderResponse(){const d=data[index],o=d.options[chosen];$('response').innerHTML='<span class="mini">換個角度想</span><h3>'+esc(o.why)+'</h3><p><b>你可能原本想的是：</b>'+esc(o.thought)+'</p>'+(alternative?'<p><b>另一種可能：</b>'+esc(o.other)+'</p>':'')+'<div class="buttons"><button id="rewriteBtn" class="btn-primary">換成自己的說法</button><button id="alternativeBtn" class="btn-secondary">'+(alternative?'收起另一種可能':'看另一種可能')+'</button><button id="retryBtn" class="btn-secondary">重試這題</button><button id="doneBtn" class="btn-secondary">完成這個情境 ✓</button></div>'; $('rewriteBtn').onclick=()=>{const box=$('rewrite');box.hidden=false;box.scrollIntoView({behavior:'smooth',block:'nearest'});$('ownWords').focus()};$('alternativeBtn').onclick=()=>{alternative=!alternative;renderResponse()};$('retryBtn').onclick=()=>openScene(index);$('doneBtn').onclick=()=>{done.add(index);if(done.size===data.length){$('response').innerHTML='<span class="mini">練習完成</span><h3>你練習了不同的說法！</h3><p>記得：不是所有人都會有一樣的反應。下次碰到真實情境，可以先聽對方怎麼想。</p><div class="buttons"><button class="btn-primary" id="backPractice">重新練習</button></div>';$('backPractice').onclick=()=>{done.clear();openScene(0)}}else{openScene((index+1)%data.length)}};}
+$('reviewWords').onclick=()=>{const words=$('ownWords').value.trim();if(!words){$('ownWords').focus();return;}$('yourWords').textContent='你的說法：「'+words+'」';$('wordReview').hidden=false;document.querySelectorAll('.selfcheck input').forEach(c=>c.checked=false);$('wordReview').scrollIntoView({behavior:'smooth',block:'nearest'});};
+$('closeRewrite').onclick=()=>{$('rewrite').hidden=true;$('wordReview').hidden=true;};
+openScene(0);
+})();
+</script>
+</body>
+</html>

@@ -166,6 +166,7 @@
 @media(max-width:730px){.story-tools{gap:3px}.story-listen{font-size:10px;padding:5px 7px}.story-skip{font-size:10px}}
 
 </style>
+<link rel="stylesheet" href="./voice.css">
 </head>
 <body>
 <div class="site">
@@ -438,7 +439,7 @@ function openScene(i){
  $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;$('stage').dataset.beat='0';$('kidOtherLabel').textContent=d.name;
  $('propIcon').textContent=d.settingIcon;$('propLabel').textContent=d.setting;$('actorTag').textContent=d.actor||d.name;
  $('step').textContent='STEP 01 · 故事正在發生';$('prompt').textContent='先看看發生了什麼事……';
- $('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('')+'<button class="btn-secondary own-start" id="ownStart" type="button">✎ 我想自己想一句話</button>';
+ $('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('')+'<button class="btn-secondary own-start" id="ownStart" type="button">✎ 我想自己想一句話</button><button type="button" class="btn-secondary own-start voice-entry" id="voiceOpen">🎙 我想直接說出來（試用版）</button>';
  document.querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.choice))));
  $('ownStart').onclick=showRewrite;
  $('playerLine').hidden=true;$('response').hidden=true;$('rewrite').hidden=true;$('wordReview').hidden=true;
@@ -500,9 +501,11 @@ $('reviewWords').onclick=()=>{
  $('wordReview').scrollIntoView?.({behavior:'smooth',block:'nearest'});
 };
 $('closeRewrite').onclick=()=>{$('rewrite').hidden=true;$('wordReview').hidden=true};
+window.mimoVoiceScene=()=>data[index];
 openScene(0);
 
 })();
 </script>
+<script src="./voice.js" defer></script>
 </body>
 </html>

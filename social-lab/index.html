@@ -78,6 +78,66 @@
 .actor-tag{position:absolute;z-index:3;bottom:14px;left:25px;color:#52777d;background:#ffffffd6;border:1px solid #ffffffac;padding:5px 11px;font-size:10px;font-weight:750;border-radius:99px;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:730px){.actor-tag{left:9px;bottom:7px;max-width:47%;font-size:9px;padding:4px 6px}}
 
+
+/* 專為國小短劇繪製的輕量化 SVG 校園舞台 */
+.stage{display:grid;grid-template-columns:130px minmax(0,1fr);grid-template-rows:210px minmax(116px,auto);gap:0 9px;min-height:354px;padding:13px 17px 15px;overflow:hidden;align-items:center}
+.campus-world{display:block;grid-column:1/-1;grid-row:1;width:100%;height:210px;position:relative;z-index:1;overflow:visible}
+.world-playground,.world-room{transition:opacity .4s ease}
+.world-playground{opacity:0}
+.stage[data-scene="ball"] .world-playground{opacity:1}
+.stage[data-scene="ball"] .world-room{opacity:0}
+.world-prop{opacity:0;transition:opacity .35s}
+.stage[data-scene="team"] .prop-team,.stage[data-scene="joke"] .prop-joke,.stage[data-scene="boundary"] .prop-boundary,.stage[data-scene="ball"] .prop-ball,.stage[data-scene="clean"] .prop-clean,.stage[data-scene="lunch"] .prop-lunch{opacity:1}
+.stage .robot-wrap{grid-column:1;grid-row:2;max-width:122px;width:100%;justify-self:center;align-self:center}
+.stage .robot-wrap .robot{width:115px;max-width:100%}
+.stage .talkbox{grid-column:2;grid-row:2;max-width:none;width:100%;margin:0;align-self:center;padding:14px 16px;min-height:80px;display:flex;flex-direction:column;justify-content:center}
+.stage .talkbox .dialogue{font-size:15px;line-height:1.65}
+.stage .talkbox .speaker{margin:0 0 4px}
+.stage .talkbox .subtext{margin-top:4px}
+.stage .room-line{display:none}
+.stage .set-piece{top:10px;right:15px;font-size:10px;z-index:3}
+.stage .actor-tag{bottom:135px;left:28px;font-size:10px}
+.kid-label{font-family:inherit;font-weight:800;font-size:13px;fill:#50687b;paint-order:stroke fill;stroke:#fff;stroke-width:3px}
+.kid-player,.kid-friend{transition:transform .45s cubic-bezier(.2,.8,.2,1);transform-box:fill-box;transform-origin:center bottom}
+.kid-friend{animation:kidBreathe 4s ease-in-out infinite}
+@keyframes kidBreathe{50%{translate:0 -2px}}
+.kid-mouth-hurt,.kid-mouth-relieved,.kid-mouth-guarded{opacity:0;transition:opacity .45s}
+.stage[data-expression="hurt"] .kid-mouth-neutral,.stage[data-expression="relieved"] .kid-mouth-neutral,.stage[data-expression="guarded"] .kid-mouth-neutral{opacity:0}
+.stage[data-expression="hurt"] .kid-mouth-hurt,.stage[data-expression="relieved"] .kid-mouth-relieved,.stage[data-expression="guarded"] .kid-mouth-guarded{opacity:1}
+.stage[data-expression="hurt"] .kid-friend{transform:translateY(5px) rotate(2deg)}
+.stage[data-expression="guarded"] .kid-friend{transform:translateX(4px) rotate(-2deg)}
+.stage[data-expression="relieved"] .kid-friend{transform:translateY(-3px)}
+.pen-draw,.bottle,.eraser,.rolling-ball,.rolling-ball-details,.broom,.broom-head,.extra-tray{transition:transform .7s cubic-bezier(.2,.72,.26,1);transform-box:fill-box;transform-origin:center}
+.water,.drops{opacity:0;transition:opacity .25s}
+.stage[data-scene="team"][data-beat="2"] .pen-draw,.stage[data-scene="team"][data-beat="3"] .pen-draw,.stage[data-scene="team"][data-beat="choice"] .pen-draw{animation:penWrite 1.3s ease-in-out infinite}
+@keyframes penWrite{0%,100%{transform:translateX(-6px) rotate(-3deg)}50%{transform:translateX(9px) rotate(5deg)}}
+.stage[data-scene="joke"]:not([data-beat="0"]) .bottle{transform:translate(25px,26px) rotate(78deg)}
+.stage[data-scene="joke"]:not([data-beat="0"]) .water,.stage[data-scene="joke"]:not([data-beat="0"]) .drops{opacity:1}
+.stage[data-scene="joke"][data-beat="1"] .drops{animation:splash .8s ease-out 1}
+@keyframes splash{from{transform:translate(-9px,-16px);opacity:0}65%{opacity:1}to{transform:translate(7px,10px);opacity:1}}
+.stage[data-scene="boundary"]:not([data-beat="0"]) .eraser{transform:translateX(66px)}
+.stage[data-scene="ball"]:not([data-beat="0"]) .rolling-ball,.stage[data-scene="ball"]:not([data-beat="0"]) .rolling-ball-details{transform:translateX(68px) rotate(165deg)}
+.stage[data-scene="clean"][data-beat="0"] .broom,.stage[data-scene="clean"][data-beat="1"] .broom{animation:sweep .95s ease-in-out infinite alternate}
+.stage[data-scene="clean"][data-beat="0"] .broom-head,.stage[data-scene="clean"][data-beat="1"] .broom-head{animation:sweep .95s ease-in-out infinite alternate}
+@keyframes sweep{to{transform:translateX(21px) rotate(10deg)}}
+.stage[data-scene="lunch"][data-beat="2"] .extra-tray,.stage[data-scene="lunch"][data-beat="3"] .extra-tray{transform:translateX(-20px)}
+@media(max-width:730px){
+ .stage{grid-template-columns:80px minmax(0,1fr);grid-template-rows:155px minmax(106px,auto);min-height:288px;padding:9px 10px;gap:0 7px}
+ .campus-world{height:155px}
+ .stage .robot-wrap{max-width:80px}
+ .stage .robot-wrap .robot{width:77px}
+ .stage .talkbox{padding:11px 12px;border-radius:13px;border-bottom-left-radius:4px}
+ .stage .talkbox .dialogue{font-size:12px}
+ .stage .talkbox .speaker{font-size:9px}
+ .stage .talkbox .subtext{font-size:9px}
+ .stage .actor-tag{bottom:107px;left:13px;max-width:45%;font-size:9px}
+ .stage .set-piece{right:8px;top:5px;max-width:54%;font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .kid-friend,.broom,.broom-head,.pen-draw,.drops{animation:none!important}
+ .kid-player,.kid-friend,.bottle,.eraser,.rolling-ball,.rolling-ball-details,.extra-tray{transition:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -100,6 +160,118 @@
  </section>
  <div class="stage" id="stage">
    <div class="room-line"></div>
+
+ <svg class="campus-world" id="campusWorld" viewBox="0 0 680 235" aria-hidden="true">
+  <defs>
+   <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#e6f6fd"/><stop offset="1" stop-color="#f8fcf3"/></linearGradient>
+   <linearGradient id="shirt1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#95bfe4"/><stop offset="1" stop-color="#547cbd"/></linearGradient>
+   <linearGradient id="shirt2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd9a2"/><stop offset="1" stop-color="#f09e76"/></linearGradient>
+  </defs>
+  <!-- 校園背景：教室／戶外依情境切換 -->
+  <g class="world-room">
+   <rect x="6" y="8" width="668" height="202" rx="19" fill="#fff6e9" stroke="#eddfc8" stroke-width="2"/>
+   <rect x="26" y="25" width="187" height="103" rx="9" fill="#fefefd" stroke="#c5d7dc" stroke-width="9"/>
+   <rect x="38" y="37" width="163" height="80" fill="url(#sky)"/>
+   <path d="M38 99q39-26 74 0t89 0v18H38z" fill="#b8dec4"/>
+   <path d="M119 37v80M38 78h163" stroke="#d4e6eb" stroke-width="5"/>
+   <rect x="256" y="21" width="200" height="95" rx="10" fill="#61918a" stroke="#cbaa73" stroke-width="9"/>
+   <path d="M274 67h145" stroke="#dcefe6" stroke-width="5" stroke-linecap="round" stroke-dasharray="34 15" opacity=".65"/>
+   <path d="M277 83h118" stroke="#dcefe6" stroke-width="3" opacity=".5" stroke-dasharray="13 13"/>
+   <circle cx="580" cy="51" r="33" fill="#fdfefa" stroke="#dfcdaa" stroke-width="7"/>
+   <path class="clock-hand" d="M580 51v-21M580 51l17 9" stroke="#6f8792" stroke-width="5" stroke-linecap="round" fill="none"/>
+   <rect x="18" y="208" width="644" height="8" rx="4" fill="#d9c7aa" opacity=".62"/>
+  </g>
+  <g class="world-playground">
+   <rect x="6" y="8" width="668" height="202" rx="19" fill="#d8edf9"/>
+   <circle cx="574" cy="37" r="20" fill="#fff5b5"/>
+   <path d="M16 131Q170 98 337 132T665 129v81H16z" fill="#c2e2b6"/>
+   <rect x="12" y="178" width="650" height="32" rx="11" fill="#a9d49e"/>
+   <path d="M323 178v32M22 200h640" stroke="#e6f7df" stroke-width="3" stroke-dasharray="20 9" opacity=".65"/>
+   <path d="M70 181v-86m0 0q25-42 50 0q26-39 46 0" stroke="#587d67" stroke-width="10" fill="none" stroke-linecap="round"/>
+   <path d="M95 85q30-23 68 6" fill="none" stroke="#6aaf79" stroke-width="30" stroke-linecap="round"/>
+   <rect x="540" y="122" width="85" height="56" fill="none" stroke="#fdfefa" stroke-width="7"/>
+   <path d="M555 124V96m56 28V96" stroke="#fdfefa" stroke-width="7"/>
+   <path d="M542 125l82 52m0-52l-82 52" stroke="#bcd8e2" stroke-width="2"/>
+  </g>
+  <!-- 班上兩個小學生：無性別刻板要求，角色只代表虛構同學 -->
+  <g class="kid-player" transform="translate(166 103)">
+   <ellipse cx="2" cy="109" rx="48" ry="7" fill="#719686" opacity=".15"/>
+   <path d="M-22 75L-29 103M20 75l25 28" stroke="#53678e" stroke-width="15" stroke-linecap="round"/>
+   <path d="M-38 108h19M35 108h19" stroke="#44546c" stroke-width="10" stroke-linecap="round"/>
+   <path d="M-28 44 Q0 28 28 44L38 78Q0 91-38 78z" fill="url(#shirt1)"/>
+   <path d="M-33 55l-22 25M34 55l23 18" stroke="#edc5a5" stroke-width="13" stroke-linecap="round"/>
+   <rect x="-10" y="28" width="20" height="17" rx="8" fill="#f0c5a8"/>
+   <circle cy="2" r="38" fill="#f3cfb0"/>
+   <path d="M-38 -3Q-44 -36-8 -41Q26 -48 37 -23L39 -7Q28-16 19-30Q-6-10-38-3z" fill="#3e4958"/>
+   <path d="M-24 4l-1 15M21 4l1 15" stroke="#4a5368" stroke-width="5" stroke-linecap="round"/>
+   <path d="M-10 27Q1 35 12 27" fill="none" stroke="#bd8b76" stroke-width="3.5" stroke-linecap="round"/>
+   <circle cx="-27" cy="26" r="5" fill="#f3a59b" opacity=".4"/>
+   <circle cx="27" cy="26" r="5" fill="#f3a59b" opacity=".4"/>
+   <g class="kid-hand"><path d="M55 75l12-11" stroke="#f0c5a8" stroke-width="10" stroke-linecap="round"/></g>
+  </g>
+  <g class="kid-friend" transform="translate(502 99)">
+   <ellipse cx="2" cy="112" rx="51" ry="7" fill="#719686" opacity=".16"/>
+   <path d="M-22 76l-13 29M20 76l20 29" stroke="#5a6e8d" stroke-width="15" stroke-linecap="round"/>
+   <path d="M-43 108h23M30 108h22" stroke="#495570" stroke-width="10" stroke-linecap="round"/>
+   <path d="M-31 41Q0 26 30 41L35 77Q0 91-35 77z" fill="url(#shirt2)"/>
+   <path class="arm-left" d="M-30 54l-31 17" stroke="#eac4a4" stroke-width="13" stroke-linecap="round"/>
+   <path d="M31 53l29 22" stroke="#eac4a4" stroke-width="13" stroke-linecap="round"/>
+   <rect x="-9" y="27" width="18" height="16" rx="7" fill="#edc5a9"/>
+   <circle cy="2" r="38" fill="#f5cfab"/>
+   <path d="M-39 -6Q-42 -38-11 -42Q20 -43 33-17l4 16Q13-8 8-24Q-11-11-39-6z" fill="#493c45"/>
+   <path d="M30-13Q54-15 47 13" fill="none" stroke="#493c45" stroke-width="15" stroke-linecap="round"/>
+   <path class="kid-brow" d="M-25 -2h11M14 -2h11" stroke="#664d4d" stroke-width="3" stroke-linecap="round"/>
+   <path class="kid-eye" d="M-20 7v12M19 7v12" stroke="#544756" stroke-width="5" stroke-linecap="round"/>
+   <path class="kid-mouth-neutral" d="M-9 29Q0 32 9 29" stroke="#c48b86" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+   <path class="kid-mouth-hurt" d="M-10 32Q0 21 10 32" stroke="#c48b86" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+   <path class="kid-mouth-relieved" d="M-13 25Q0 42 13 25" stroke="#b47268" stroke-width="4.1" stroke-linecap="round" fill="none"/>
+   <path class="kid-mouth-guarded" d="M-11 31h22" stroke="#be7b73" stroke-width="3.6" stroke-linecap="round"/>
+   <circle cx="-28" cy="26" r="7" fill="#f2a6a0" opacity=".44"/><circle cx="27" cy="26" r="7" fill="#f2a6a0" opacity=".44"/>
+  </g>
+  <!-- 各關代表物件，在不同劇情幕進行微動畫 -->
+  <g class="world-prop prop-team">
+   <rect x="239" y="186" width="209" height="37" rx="9" fill="#c79b6f"/>
+   <rect x="244" y="151" width="204" height="45" rx="5" fill="#fcf9ee" stroke="#dfd2b1" stroke-width="2" transform="rotate(-4 340 172)"/>
+   <path d="M272 168h90M272 180h124" stroke="#c5dfe2" stroke-width="7" stroke-linecap="round" transform="rotate(-4 340 172)"/>
+   <g class="pen-draw"><path d="M385 137l-12 49" stroke="#5983bb" stroke-width="11" stroke-linecap="round"/><path d="M374 188l-3 8 8-5" fill="#23395a"/></g>
+  </g>
+  <g class="world-prop prop-joke">
+   <rect x="238" y="188" width="204" height="32" rx="8" fill="#c4a178"/>
+   <rect x="259" y="161" width="154" height="30" rx="4" fill="#f5f0e5" stroke="#b5c4cc" stroke-width="2"/>
+   <path d="M265 169h131M265 176h120" stroke="#94b2b6" stroke-width="2" stroke-dasharray="6 4"/>
+   <g class="bottle"><rect x="333" y="117" width="26" height="55" rx="10" fill="#6ad2cb" stroke="#4095a7" stroke-width="4"/><rect x="338" y="108" width="17" height="12" rx="4" fill="#f4ad74"/><path d="M340 143h11" stroke="#f2fbf9" stroke-width="4"/></g>
+   <path class="water" d="M359 184q12-10 26 0t25 0q12 13-8 14h-36q-19-2-7-14z" fill="#79c5e7" opacity=".8"/>
+   <g class="drops"><circle cx="390" cy="154" r="5" fill="#85d6ed"/><circle cx="411" cy="164" r="3.5" fill="#9cddf1"/></g>
+  </g>
+  <g class="world-prop prop-boundary">
+   <rect x="240" y="177" width="201" height="37" rx="7" fill="#c9a781"/>
+   <path d="M244 178h195" stroke="#e6c8a2" stroke-width="6"/>
+   <rect class="eraser" x="292" y="161" width="42" height="19" rx="6" fill="#f5aba3" stroke="#d48388" stroke-width="3"/>
+   <path class="erase-trail" d="M336 167h49" stroke="#c1aaa0" stroke-width="2" stroke-dasharray="4 5"/>
+   <path d="M374 142l19 23" stroke="#edc6a7" stroke-width="13" stroke-linecap="round"/>
+  </g>
+  <g class="world-prop prop-ball">
+   <circle class="rolling-ball" cx="279" cy="185" r="24" fill="#e6a46a" stroke="#fdf8e2" stroke-width="3"/>
+   <path class="rolling-ball-details" d="M257 183q21-19 42 4M276 163q-10 21 7 43" stroke="#b76760" stroke-width="4" fill="none"/>
+  </g>
+  <g class="world-prop prop-clean">
+   <rect x="236" y="181" width="211" height="35" rx="7" fill="#d9c4a5" opacity=".75"/>
+   <path d="M345 115l-22 77" class="broom" stroke="#99755b" stroke-width="7" stroke-linecap="round"/>
+   <path d="M318 192h32l-6 22h-31z" class="broom-head" fill="#e6c46f" stroke="#c69857" stroke-width="2"/>
+   <path d="M351 183q5-12 15 0l14 26h-43z" fill="#6e868d"/>
+   <path d="M358 180q5 9 10 1" fill="none" stroke="#e5e8ed" stroke-width="3"/>
+   <g class="dust"><circle cx="268" cy="204" r="3" fill="#998b76"/><circle cx="288" cy="208" r="3" fill="#998b76"/></g>
+  </g>
+  <g class="world-prop prop-lunch">
+   <rect x="249" y="189" width="203" height="31" rx="6" fill="#c1d1c8"/>
+   <rect x="287" y="165" width="91" height="31" rx="8" fill="#dfe5e8" stroke="#9dacb6" stroke-width="3"/>
+   <circle cx="311" cy="180" r="11" fill="#f6f3e9"/><circle cx="341" cy="180" r="11" fill="#6caa7c"/><circle cx="361" cy="180" r="7" fill="#e4a074"/>
+   <g class="extra-tray"><rect x="377" y="165" width="56" height="31" rx="7" fill="#d9e1e6" stroke="#9caeb9" stroke-width="3"/><circle cx="402" cy="180" r="10" fill="#efe7bf"/></g>
+  </g>
+  <text class="kid-label kid-you" x="161" y="224" text-anchor="middle">你</text>
+  <text class="kid-label kid-other" id="kidOtherLabel" x="503" y="224" text-anchor="middle">小宇</text>
+ </svg>
+
    <div class="set-piece"><span id="propIcon">🎨</span><span id="propLabel">美術課教室</span></div>
    <div class="actor-tag" id="actorTag">小宇 · 小組夥伴</div>
    <div class="robot-wrap" id="robotWrap" data-expression="neutral" role="img" aria-label="Mimo 的虛擬同學正在等待你的回答">
@@ -174,6 +346,7 @@ function sceneList(){
  document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>openScene(Number(b.dataset.scene))));
 }
 function robotFace(face){
+ $('stage').dataset.expression=face;
  $('robotWrap').dataset.expression=face;
  $('robotWrap').setAttribute('aria-label','虛構同學表情：'+({neutral:'平靜',hurt:'低落',guarded:'有些猶豫',relieved:'放鬆'}[face]||'平靜'));
 }
@@ -186,7 +359,7 @@ function speak(by,line,hint){
 }
 function renderBeat(){
  const d=data[index],b=d.beats[beat];
- phase='story';$('storyboard').hidden=false;$('choices').hidden=true;
+ phase='story';$('storyboard').hidden=false;$('choices').hidden=true;$('stage').dataset.beat=String(beat);
  $('storyKicker').textContent='故事鋪陳 · 第 '+(beat+1)+' 幕 / 共 '+d.beats.length+' 幕';
  $('storySymbol').textContent=b.icon;$('storySpeaker').textContent=b.label;$('storyText').textContent=b.text;
  $('storyDots').innerHTML=d.beats.map((_,i)=>'<i class="'+(i<=beat?'active':'')+'"></i>').join('');
@@ -197,7 +370,7 @@ function renderBeat(){
 function openScene(i){
  index=i;chosen=-1;alternative=false;beat=0;phase='story';const d=data[index];
  $('sceneTitle').textContent=d.title;$('chapter').textContent='0'+(i+1)+' / 0'+data.length+'　人際練習';
- $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;
+ $('tag').textContent=d.tag;$('context').textContent=d.context;$('stage').dataset.scene=d.id;$('stage').dataset.beat='0';$('kidOtherLabel').textContent=d.name;
  $('propIcon').textContent=d.settingIcon;$('propLabel').textContent=d.setting;$('actorTag').textContent=d.actor||d.name;
  $('step').textContent='STEP 01 · 故事正在發生';$('prompt').textContent='先看看發生了什麼事……';
  $('choices').innerHTML=d.options.map((o,j)=>'<button class="choice" data-choice="'+j+'"><span class="letter">'+String.fromCharCode(65+j)+'</span><span>'+esc(o.say)+'</span><span class="arrow">↗</span></button>').join('')+'<button class="btn-secondary own-start" id="ownStart" type="button">✎ 我想自己想一句話</button>';
@@ -208,13 +381,13 @@ function openScene(i){
  sceneList();renderBeat();
 }
 function showChoices(){
- const d=data[index];phase='choice';$('storyboard').hidden=true;$('choices').hidden=false;
+ const d=data[index];phase='choice';$('storyboard').hidden=true;$('stage').dataset.beat='choice';$('choices').hidden=false;
  $('propIcon').textContent='💬';$('propLabel').textContent='輪到你說話';robotFace(d.beats[d.beats.length-1].face);speak(d.name+'說',d.opening,'對方正等著你的回答');
  $('step').textContent='STEP 02 · 輪到你說話';$('prompt').textContent=d.question;
  $('choices').scrollIntoView?.({behavior:'smooth',block:'nearest'});
 }
 function choose(j){
- const d=data[index],o=d.options[j];chosen=j;alternative=false;phase='reaction';
+ const d=data[index],o=d.options[j];chosen=j;alternative=false;phase='reaction';$('stage').dataset.beat='reaction';
  $('choices').hidden=true;$('playerLine').hidden=false;$('playerQuote').textContent=o.say;
  $('propIcon').textContent='↪';$('propLabel').textContent='故事接著發生';robotFace(o.face);speak(d.name+'可能會說',o.reply,'這是一種可能的反應，不是唯一答案');
  $('step').textContent='STEP 03 · 看看這句話的影響';$('prompt').textContent='接下來，發生了什麼？';

@@ -98,15 +98,15 @@
 .stage .set-piece{top:10px;right:15px;font-size:10px;z-index:3}
 .stage .actor-tag{bottom:135px;left:28px;font-size:10px}
 .kid-label{font-family:inherit;font-weight:800;font-size:13px;fill:#50687b;paint-order:stroke fill;stroke:#fff;stroke-width:3px}
-.kid-player,.kid-friend{transition:transform .45s cubic-bezier(.2,.8,.2,1);transform-box:fill-box;transform-origin:center bottom}
-.kid-friend{animation:kidBreathe 4s ease-in-out infinite}
+.kid-player,.kid-friend{transition:translate .45s cubic-bezier(.2,.8,.2,1),rotate .45s ease;transform-box:fill-box;transform-origin:center bottom}
+.stage[data-expression="neutral"] .kid-friend{animation:kidBreathe 4s ease-in-out infinite}
 @keyframes kidBreathe{50%{translate:0 -2px}}
 .kid-mouth-hurt,.kid-mouth-relieved,.kid-mouth-guarded{opacity:0;transition:opacity .45s}
 .stage[data-expression="hurt"] .kid-mouth-neutral,.stage[data-expression="relieved"] .kid-mouth-neutral,.stage[data-expression="guarded"] .kid-mouth-neutral{opacity:0}
 .stage[data-expression="hurt"] .kid-mouth-hurt,.stage[data-expression="relieved"] .kid-mouth-relieved,.stage[data-expression="guarded"] .kid-mouth-guarded{opacity:1}
-.stage[data-expression="hurt"] .kid-friend{transform:translateY(5px) rotate(2deg)}
-.stage[data-expression="guarded"] .kid-friend{transform:translateX(4px) rotate(-2deg)}
-.stage[data-expression="relieved"] .kid-friend{transform:translateY(-3px)}
+.stage[data-expression="hurt"] .kid-friend{translate:0 5px;rotate:2deg}
+.stage[data-expression="guarded"] .kid-friend{translate:4px 0;rotate:-2deg}
+.stage[data-expression="relieved"] .kid-friend{translate:0 -3px}
 .pen-draw,.bottle,.eraser,.rolling-ball,.rolling-ball-details,.broom,.broom-head,.extra-tray{transition:transform .7s cubic-bezier(.2,.72,.26,1);transform-box:fill-box;transform-origin:center}
 .water,.drops{opacity:0;transition:opacity .25s}
 .stage[data-scene="team"][data-beat="2"] .pen-draw,.stage[data-scene="team"][data-beat="3"] .pen-draw,.stage[data-scene="team"][data-beat="choice"] .pen-draw{animation:penWrite 1.3s ease-in-out infinite}

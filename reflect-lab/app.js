@@ -177,7 +177,7 @@ function render6(){
  '<div class="slider-line"><b>回頭看看，現在的心情強度呢？</b><span class="intensity-bubble" id="finalIntensityValue">'+state.afterIntensity+' / 5</span></div>'+
  '<input class="intensity" id="finalIntensity" type="range" min="1" max="5" value="'+state.afterIntensity+'" aria-label="最後的情緒強度"><div class="minmax"><span>一點點</span><span>非常強烈</span></div>'+
  '<section class="card-result"><span class="tag">MY LITTLE GROWTH CARD · 不會自動儲存</span><h2>我的心情成長卡 ✨</h2>'+
- '<div class="summary-item"><b>我的心情天氣</b><p>'+s.icon+' '+s.name+' · '+safeText(state.emotion)+' · 一開始 '+state.intensity+'/5，現在 '+state.afterIntensity+'/5</p></div>'+
+ '<div class="summary-item"><b>我的心情天氣</b><p>'+s.icon+' '+s.name+' · '+safeText(state.emotions.join('、'))+' · 一開始 '+state.intensity+'/5，現在 '+state.afterIntensity+'/5</p></div>'+
  '<div class="summary-item"><b>我看見的事實</b><p>'+safeText(state.fact.trim()||"我還沒有寫；沒關係，這是可以慢慢練習的能力。")+'</p></div>'+
  '<div class="summary-item"><b>我當時的一種猜測</b><p>'+safeText(state.guess.trim()||"我還不確定。")+'</p></div>'+
  '<div class="summary-item"><b>我可以嘗試的方向</b><p>'+plan.icon+' '+plan.name+'</p></div>'+

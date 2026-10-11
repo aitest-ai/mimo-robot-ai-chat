@@ -2,7 +2,7 @@
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
-const v = {rec:null, stream:null, blob:null, mime:"", clock:null, started:0, emotion:"UNKNOWN", fromModel:false};
+const v = {rec:null, stream:null, blob:null, mime:"", clock:null, started:0, emotion:"UNKNOWN", fromModel:false, request:null};
 const tones={
  HAPPY:"模型猜測聲音可能較輕快。",
  SAD:"模型猜測聲音可能有低落的線索。",
@@ -55,8 +55,18 @@ function stopMedia() {
  $("voiceRec").classList.remove("active");$("voiceRec").textContent="🎙";
  $("voiceRec").setAttribute("aria-label","開始錄音");$("voiceSeconds").hidden=true;
 }
-function clearAudio() {stopMedia();v.blob=null;v.mime="";$("voiceSend").disabled=true;$("voiceRecText").textContent="按一下，試著說一句話";}
-function close(){clearAudio();if(dialog.open)dialog.close();}
+function clearAudio() {
+ const oldRecorder=v.rec;v.rec=null;
+ if(oldRecorder?.state==="recording") {
+   // A cancelled recording must never become a newly uploadable file.
+   oldRecorder.onstop=null;try{oldRecorder.stop()}catch(_){}
+ }
+ stopMedia();
+ v.blob=null;v.mime="";
+ $("voiceSend").disabled=true;
+ $("voiceRecText").textContent="按一下，試著說一句話";
+}
+function close(){v.request?.abort();v.request=null;clearAudio();if(dialog.open)dialog.close();}
 function open(){
  clearAudio();v.emotion="UNKNOWN";v.fromModel=false;
  const d=window.mimoVoiceScene?.()||{name:"同學",title:"校園小劇場",opening:"你會怎麼說？",id:"team"};
@@ -83,7 +93,7 @@ async function startRecord(){
   rec.onstop=()=>{
    if(v.rec!==rec)return;
    const mime=(rec.mimeType||type||"audio/mp4").split(";")[0];
-   stopMedia();if(!dialog.open)return;
+   stopMedia();v.rec=null;if(!dialog.open)return;
    const blob=new Blob(chunks,{type:mime});
    if(blob.size<100||blob.size>2500000){status("檔案大小不適合，請錄短一點。",true);return}
    v.blob=blob;v.mime=mime;$("voiceSend").disabled=false;
@@ -114,7 +124,8 @@ async function sendAudio(){
  let origin;try{origin=workerOrigin()}catch{$("voiceSettings").open=true;return status("請填入正確的 HTTPS Worker 網址。",true)}
  $("voiceSend").disabled=true;status("正在辨識，雲端模型首次啟動可能比較慢……");
  try{
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),85000);
+  const controller=new AbortController();v.request=controller;
+  const timeout=setTimeout(()=>controller.abort(),85000);
   let response;try{
    response=await fetch(origin+"/api/transcribe",{
      method:"POST",headers:{"Content-Type":v.mime,"X-Mimo-Class-Code":code},
@@ -129,7 +140,11 @@ async function sendAudio(){
   $("voiceClue").hidden=false;
   $("voiceClue").textContent=(tones[v.emotion]||tones.UNKNOWN)+" 這只是模型估計，並不代表你一定有這樣的感覺。";
   clearAudio();status("語音辨識完成，請檢查是否有聽錯的字。");
- }catch(e){$("voiceSend").disabled=false;status("無法辨識："+(e.name==="AbortError"?"等待逾時":String(e.message).slice(0,110))+"。可以改用文字。",true);}
+ }catch(e){
+  if(!dialog.open)return;
+  $("voiceSend").disabled=false;
+  status("無法辨識："+(e.name==="AbortError"?"等待逾時":String(e.message).slice(0,110))+"。可以改用文字。",true);
+ }finally{v.request=null;}
 }
 async function checkHealth(){
  $("voiceHealthText").textContent="檢查中……";
@@ -176,7 +191,7 @@ $("choices").addEventListener("click",e=>{if(e.target.closest("#voiceOpen"))open
 $("voiceClose").onclick=close;$("voiceBack").onclick=close;
 dialog.addEventListener("close",clearAudio);
 $("voiceRec").onclick=()=>v.rec?.state==="recording"?v.rec.stop():startRecord();
-$("voiceClear").onclick=()=>{clearAudio();status("錄音已清除，可以再試。")};
+$("voiceClear").onclick=()=>{v.request?.abort();v.request=null;clearAudio();status("錄音已清除，可以再試。")};
 $("voiceSend").onclick=sendAudio;
 $("voiceHealth").onclick=checkHealth;
 $("voiceSimulate").onclick=tryWords;

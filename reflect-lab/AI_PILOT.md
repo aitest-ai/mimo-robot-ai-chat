@@ -1,57 +1,70 @@
-# Mimo 心晴之鏡：AI 語意回饋教師試驗
+# Mimo 心晴之鏡：Gemini 2.5 Flash 語意回饋教師試驗
 
-## 與前版有什麼不同？
+## 目前模型與部署架構
 
-前版 `guided.js` 對每一題使用固定回應，沒有 AI 分析。新版在教師開啟研究模式後，會向同源 `/api/reflect` Vercel Function 傳送：當前問題、學生本題輸入，以及已確認的必要前文，經 Vercel AI Gateway 生成一段 **30–75 字繁體中文個別回饋**，並提供 `calm/listen/soft/guard/hurt/question` 其中一個 Mimo 表情狀態。
+- **學生／教師前端**：Vercel 網頁（`reflect-lab/index.html` 與 `guided.js`）。
+- **受控的 API**：同源 Vercel Function `/api/reflect`（`api/reflect.mjs`）。
+- **語言模型**：Google Gemini API，正式模型 ID **`gemini-2.5-flash`**，直接呼叫 `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`。
+- **Google API 金鑰**：只存在 Vercel Production 環境變數 `GEMINI_API_KEY`。**不可放在 JavaScript、GitHub、測試碼、平板或對話訊息中**。
+- **無 Vercel AI Gateway**：不再使用 GPT-5.4 Mini、`AI_GATEWAY_API_KEY` 或 `VERCEL_OIDC_TOKEN` 執行本專案推論。
+- **目前串接狀態**：程式已改寫，`GEMINI_API_KEY` 仍須由部署管理員安全設定，尚未完成真實 Gemini 端到端測試。
 
-固定引導仍在：未啟用 AI、模型錯誤、時間逾時、網路斷線或孩子按略過時，可安全回退。**系統不能讀心，也不會知道哪個同學確實做錯。**
+Google 官方 Gemini 2.5 Flash 模型資料：
+https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash
 
-## 試玩（限教師使用虛構案例）
+> **存取權限制**：Google 目前限制部分新帳戶存取 2.5 系列模型。模型名稱有效不代表任意新 API Key 一定有權限。若 Google 回傳 403 或 404，請先到 Google AI Studio 確認該專案的模型可用性；本專案**不會擅自改用其他模型**。
+
+## 部署設定
+
+請到 <https://vercel.com/> 找到 `mimo-reflection-lab` 專案，進入 **Settings → Environment Variables**：
+
+| 環境變數 | 設定 | 說明 |
+|---|---|---|
+| `GEMINI_API_KEY` | **Sensitive**，Production | 從 Google AI Studio 建立，使用伺服器端的 Gemini API 金鑰 |
+| `MIMO_AI_ENABLED` | `true` | 教師限定測試模式開關 |
+| `MIMO_CLASS_CODE` | 長度充足的隨機教師碼 | 現有公開測試碼已在先前展示中曝光，**真正對外試用前務必更換** |
+| `MIMO_AI_MODEL` | `gemini-2.5-flash` | 精確且固定的 Gemini API 模型 ID |
+
+新增或修改環境變數後，**重新觸發一次 Production Deployment**，新設定才會進入 Function 執行環境。
+
+取得自己的 Gemini API Key：<https://aistudio.google.com/apikey>。
+
+## 教師測試步驟（僅限虛構案例）
 
 1. 開啟 https://mimo-reflection-lab.vercel.app/。
-2. 展開上方 **✦ AI 語意回饋**。
-3. 輸入教師臨時測試碼（只在教師與部署管理者之間傳遞；不要提交到 GitHub、不要公布給學生）。
-4. 勾選『我確認本次僅使用虛構案例』；按『檢查並啟用 AI 回饋』。
-5. 使用模擬的美勞課故事，在不同問題回答不同內容，觀察 Mimo 是否給出不同表情與具體回饋。
-6. 可以隨時按『關閉 AI』，重新整理頁面會丟棄此次狀態。
+2. 展開上方「✦ AI 語意回饋」；輸入教師私下保管的課堂測試碼。
+3. 勾選「本次僅使用虛構案例」，按「檢查並啟用 AI 回饋」。
+4. 使用虛構的美勞課情境輸入不同敘述，觀察是否出現「✦ Mimo · AI 語意回饋」及隨內容變化的機器人表情。
+5. 停用 AI 時仍可繼續使用原本固定的 SEL 引導。
 
-模型正在生成時 Mimo 會顯示理解中，失敗時回退為原本引導；畫面會清楚標示『AI 語意回饋』或『固定引導』。
+API 健康檢查 `GET /api/reflect` 只回傳 `ready` 等非機密狀態。**`ready: true` 僅表示環境變數齊備，不保證模型可存取或有足夠使用額度。**
 
-## Vercel 設定
+## Gemini JSON 回傳契約
 
-專案：`mimo-reflection-lab`（根目錄：`reflect-lab/`）
+後端使用 `generationConfig.responseMimeType="application/json"` 與 `responseSchema` 讓模型輸出：
 
-- `MIMO_AI_ENABLED=true`：允許教師限定的 AI 呼叫。
-- `MIMO_CLASS_CODE`：教師測試碼，必須用 **Sensitive** 或 **Encrypted** 的方式放入 Vercel Production Environment；**不可放進網頁、API 回覆或 GitHub**。
-- `MIMO_AI_MODEL=openai/gpt-5.4-mini`：Vercel AI Gateway 模型，可改成已確認存在的其他模型。
-- `VERCEL_OIDC_TOKEN`：Vercel 部署環境自動供應。若所在專案無法透過 OIDC 呼叫 Gateway，才另行使用 Vercel 安全環境變數 `AI_GATEWAY_API_KEY`。
+```json
+{
+  "reply": "你很在意自己的海報被修改，現在可能有點委屈。我們可以先分清楚你看到什麼、還有哪些不知道的地方。",
+  "face": "listen",
+  "needsAdult": false
+}
+```
 
-環境變數新增後需要一次**新的生產部署**才會進入執行環境。服務健康檢查：`GET /api/reflect` 只回傳 `ready`、`mode`，不會揭露測試碼。
+前端僅接受已驗證的表情 `calm/listen/soft/guard/hurt/question` 與限長繁體中文短句。若模型失敗、回覆格式不合或學生切換題目，會回退固定引導或取消過期請求。
 
-## 哪些資料送到模型？
+## 隱私、安全與限制
 
-僅在教師明確啟用、已勾選『虛構案例』且學生當前題已回答時，將本題答案及最多 11 個已確認欄位送至同源 Vercel API。後端把情境文字交給 AI Gateway／模型提供商處理。伺服器端無帳號、無資料庫，也不主動把答案寫入紀錄；**雲端供應商可能仍保存必要的請求中繼資料或依其服務政策處理輸入**。
+- **尚未開放真實學生事件**。僅以虛構案例驗證介面與教學流程；正式使用須完成學校、兒少安全、隱私與輔導專業審查。
+- 只有教師明確啟用且勾選虛構情境，當題答覆才會連同有限的前文經 Vercel API 傳至 Google Gemini；未啟用時不會發送文字給 Google。
+- Mimo 只能提出候選的情緒反映與事件觀點，**不能確定學生或同學真正的心情、責任或動機**；不能強迫受害者同理霸凌者，也不是心理師或緊急求助服務。
+- 遇到持續欺負、暴力、自傷／傷人風險，固定安全規則優先導向可信任大人。現有關鍵字安全檢查仍可能漏判，不能當成正式風險辨識系統。
+- Function 不主動把學生輸入寫入資料庫或程式 log；雲端供應商仍可能依其資料政策處理請求與中繼資料。
+- 現有教師測試碼只是研究原型門檻，不是正式的登入／學生授權機制。共用測試碼曾展示於聊天中，應於正式開放前輪替。
+- 請在 **Google AI Studio** 監控 Gemini API 使用量與額度，並在 Google Cloud／相關服務配置可用的配額、預算警示和成本管理。Vercel Function 可能另有執行成本。
+- Vercel Function 的單執行個體計數不是分散式限流；正式班級測試需要更完整的身分驗證和跨執行個體流量限制。
 
-公開原型**禁止真實學生輸入真實的衝突經驗或身分資料**。未完成隱私、法遵及兒少保護審查前，不可拿來做真實學生的諮商、心理測驗或危機處理。
-
-## 模型教育規則
-
-- 一次只回應一個問題；不要自己再多問兩三題。
-- 自我覺察階段承接情緒，事件澄清階段只提出可檢查的區分與未知；換位鏡僅提出不確定的可能性。
-- 無法直接聲稱『對方真的就是故意的』、『老師一定對』等，也不要求孩子原諒霸凌者。
-- 對於高風險詞語的固定檢查會優先改用真人求助說明；**關鍵字分流不能保證偵測所有風險**，未完成學校通報流程前仍只供虛構案例。
-- 表情為回饋的視覺設計，不是模型測量孩子實際情緒。
-
-## 安全和費用提醒
-
-- AI Gateway 產生真實模型費用；請在 Vercel 後台設定專案或 Gateway 預算、警示及用量限制。
-- 後端限制同源 POST、教師測試碼、輸入大小、每個函式執行個體的短時請求數，但**執行個體內速率限制不是分散式全站限流**，不能用於正式大量學生上線。正式部署需 Cloudflare/Vercel Firewall 或可靠的共用儲存限流及身分驗證。
-- 模型輸出以 JSON 格式驗證、長度限制及允許的表情類別過濾，前端以純文字安全顯示。
-- 前端不使用 localStorage 儲存內容和測試碼，API 回覆設為 no-store。
-- 教師測試碼可在 Vercel 專案中更換，建議課堂展示後輪替。
-
-## 界線與驗收
-
-已建立動態 API、前端教師啟用面板、情境化回饋、過時請求取消與安全回退。程式模擬測試已檢查開啟／關閉及 AI 回覆替換；真正 Gateway 的成功回覆與兒童適切性仍須使用虛構案例實機驗收。
-
-注意：`GET /api/reflect` 的 `ready=true` 僅表示部署設定齊備，**不保證 AI Gateway 帳戶有足夠餘額或模型回應正常**。
+官方文件：
+- https://ai.google.dev/gemini-api/docs/generate-content/get-started
+- https://ai.google.dev/gemini-api/docs/generate-content/structured-output
+- https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash

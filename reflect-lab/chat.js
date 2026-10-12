@@ -6,7 +6,19 @@
 (()=>{"use strict";
 const $=id=>document.getElementById(id);
 const FACES=new Set(["calm","listen","soft","guard","hurt","question"]);
-const DANGER=/(自殺|想死|不想活|傷害自己|割腕|性侵|被強迫|有人打我|一直被霸凌|被威脅|家暴|想傷害別人|一直欺負我|被打|性騷擾)/u;
+// A safety screen is necessary even when Gemini is offline. It does not replace a real counselor.
+const IMMEDIATE=/(自殺|想死|不想活|傷害自己|割腕|性侵|被強迫|有人打我|一直被霸凌|被威脅|家暴|想傷害別人|一直欺負我|被打|性騷擾|想揍|要揍|會揍|想打人|想打(他|她|同學|老師)|忍不住動手|快(要)?動手|想砍|拿刀傷)/u;
+const OBJECT_RISK=/(掃下去|掃掉|砸(爛|掉|東西)|摔(東西|書|椅|桌|手機)|翻桌|丟(出去|東西)|踢桌|推倒桌|控制不住.{0,8}(東西|破壞))/u;
+const SCHOOL_DISTRESS=/(不想再?上學|不敢(去|上)學|不想去學校|不敢去學校|每天被(笑|排擠|欺負)|一直(被笑|被排擠|被欺負)|每次都(欺負|嘲笑|弄我)|老師(都|也)?(偏心|不理我))/u;
+const REFUSE_PERSPECTIVE=/(不要.{0,5}(換位|體諒|理解(他|她|對方)|原諒|替(他|她)想)|不想.{0,5}(換位|體諒|理解(他|她|對方)|原諒)|憑什麼.{0,8}(我|只有我).{0,6}(退讓|體諒))/u;
+const REFUSE_CALM=/(不要.{0,6}(冷靜|呼吸|忍耐|放鬆)|不想.{0,5}(冷靜|呼吸|放鬆)|不要再問|別再問)/u;
+function riskLevel(text){
+ const t=String(text||"");
+ if(IMMEDIATE.test(t)&&!/(我不想(打|揍|傷害)|我沒有(想|要)(打|揍|傷害))/.test(t))return "immediate";
+ if(OBJECT_RISK.test(t))return "objects";
+ if(SCHOOL_DISTRESS.test(t))return "school";
+ return "none";
+}
 const WEATHER=["☀️ 晴天","☁️ 多雲","🌧️ 下雨","⛈️ 打雷","🌬️ 風很大","🌫️ 霧霧的"];
 const EMOTIONS=["生氣","難過","委屈","擔心","有點亂","說不上來"];
 const phaseInfo={
@@ -22,9 +34,11 @@ const phaseInfo={
  finish:{stage:6,field:"nextTime",question:"今天先聊到這裡，好嗎？",goal:"溫和結束對話，不要求和解"},
  mirrorQuote:{stage:5,field:"quote",question:"你記得自己當時說了哪一句話嗎？",goal:"只記錄孩子自己願意重現的一句話"},
  mirrorExpression:{stage:5,field:"expression",question:"如果 Mimo 要演出當時的你，你想選哪一種表情？",goal:"由學生選擇可能表情，禁止聲稱偵測真實情緒"},
- mirrorReflect:{stage:5,field:"reaction",question:"如果有人用這個表情對你說這句話，你可能有什麼感覺？",goal:"讓孩子想像聽話者可能的感受；允許不知道、不要求道歉"}
+ mirrorReflect:{stage:5,field:"reaction",question:"如果有人用這個表情對你說這句話，你可能有什麼感覺？",goal:"讓孩子想像聽話者可能的感受；允許不知道、不要求道歉"},
+ safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
+ supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,code:"",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question});
+const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,code:"",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false});
 let state=makeInitial();
 const intro="嗨，我是 Mimo。今天有什麼事情，想找我聊聊嗎？";
 const micro=s=>String(s||"").trim().slice(0,70);
@@ -77,6 +91,8 @@ function suggestions(phase){
  if(state.processing){chips([]);return}
  const shortcuts=[{text:"🌿 我想先休息一下",action:"breathe"}];
  switch(phase){
+  case "safePause":return chips([{text:"🪑 我已經退開了",value:"我已經離開桌邊了。"},{text:"🙋 找大人來幫忙",action:"help"},{text:"我還是很激動",value:"我還是很激動，還不想說其他事情。"}]);
+  case "supportCheck":return chips([{text:"🌿 我現在安全",value:"我現在是安全的。"},{text:"☁️ 我不太確定",value:"我不太確定現在安不安全。"},{text:"🙋 找可信任的大人",action:"help"}]);
   case "welcome":return chips([{text:"🎨 用美勞課的例子",action:"demo"},{text:"💬 同學的事",value:"我想聊聊跟同學發生的事情。"},{text:"🌥️ 心情有點亂",value:"我今天心裡有點亂，不知道怎麼說。"}]);
   case "weather":return chips(WEATHER.map(t=>({text:t})));
   case "settle":return chips([{text:"💬 想繼續說",value:"我想繼續說這件事。"},{text:"🍃 跟著呼吸",action:"breathe"},{text:"🙋 想找大人",action:"help"}]);
@@ -95,6 +111,8 @@ function suggestions(phase){
 }
 function proposeNext(current,text){
  const t=String(text);
+ if(current==="safePause")return "settle";
+ if(current==="supportCheck")return "action";
  if(current==="welcome"){
   if(/(生氣|難過|委屈|很煩|很怕|害怕|傷心|焦慮)/.test(t)&&t.length<18)return "event";
   return "weather";
@@ -114,6 +132,8 @@ function proposeNext(current,text){
 }
 function fallback(from,text,next){
  const t=micro(text).replace(/\s+/g," ");const concise=t.length>30?t.slice(0,29)+"…":t;
+ if(from==="safePause")return {reply:"你不需要把怒氣壓下去，但可以先讓自己與旁邊的物品保持距離。",face:"listen"};
+ if(from==="supportCheck")return {reply:"謝謝你告訴我現在的情況。持續被嘲笑或不想上學的難受，需要有人認真聽見。",face:"listen"};
  if(from==="welcome")return {reply:t.length>22?"你提到「"+concise+"」，看起來這件事讓你放在心上。":"嗯，我在聽。我們可以不用急著一次說清楚。",face:"listen"};
  if(from==="weather")return {reply:"原來心情像「"+concise+"」。這只是現在的感覺，不用急著變晴天。",face:/雷|雨|難過/.test(t)?"listen":"soft"};
  if(from==="settle")return {reply:"好，我們照你覺得舒服的速度來。想先休息也是可以的。",face:"soft"};
@@ -129,6 +149,8 @@ function fallback(from,text,next){
  return {reply:"我在這裡，你可以慢慢說。",face:"listen"};
 }
 function updatePrompt(next,response,question){
+ if(state.data.unsafe)return;
+ if(state.declinedMirror&&next==="perspective")next="action";
  state.phase=next;
  const candidate=String(question||"").replace(/\s+/g," ").trim().slice(0,105);
  const q=questionValid(candidate)?candidate:phaseInfo[next].question;
@@ -167,8 +189,55 @@ async function replyTo(text){
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
  addUser(message);$("chatInput").value="";resizeInput();
- if(DANGER.test(message)){state.data.unsafe=true;stopBreath();face("guard");speak("這件事需要能保護你的大人一起處理。你不用一個人面對，也不用先原諒誰。","guard");showHelp();chips([{text:"🙋 再看看可以找誰幫忙",action:"help"}]);return}
- const next=proposeNext(phase,message);
+ const risk=riskLevel(message);
+ if(risk==="immediate"){
+  state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
+  speak("現在先和可能受傷的人保持距離，放下手邊可能傷人的東西，立刻找老師或可信任的大人到現場幫忙。網站不會替你通知任何人。","guard");
+  chips([{text:"🙋 看看怎麼找大人",action:"help"}]);
+  showHelp();return;
+ }
+ if(risk==="objects"){
+  state.safetyConcern="objects";state.returnPhase=phase==="safePause"?state.returnPhase:phase;
+  state.phase="safePause";stopBreath();
+  speak("聽起來你氣到快想把東西掃下去。先不用談誰對誰錯，為了不讓自己或別人受傷，我們先離開桌邊。","listen",phaseInfo.safePause.question);
+  suggestions("safePause");return;
+ }
+ if(risk==="school"&&phase!=="supportCheck"){
+  state.safetyConcern="school";state.returnPhase="action";
+  state.phase="supportCheck";stopBreath();
+  speak("你說不想上學，還提到被嘲笑或覺得沒有人幫你。這很值得認真處理，我們先不急著分析同學。","hurt",phaseInfo.supportCheck.question);
+  suggestions("supportCheck");return;
+ }
+ if(phase==="safePause"){
+  if(/還是|還沒|不能|不行|控制不住|很激動/.test(message)){
+   speak("我聽到你現在還很激動。先不用解釋，試著再和桌上的東西拉開距離；如果做不到，請找附近的大人幫忙。","listen","你身邊有能幫忙的大人嗎？");
+   suggestions("safePause");return;
+  }
+  state.phase="settle";state.safetyConcern="none";
+  speak("你先保護了自己和旁邊的人。現在不需要硬逼自己變平靜。","soft","你想繼續說，還是先休息一下？");
+  suggestions("settle");return;
+ }
+ if(phase==="supportCheck"){
+  if(/不確定|不安全|害怕|有人在|危險/.test(message)&&!/沒有|不會/.test(message)){
+   speak("不確定安全的時候，先找現場能保護你的大人比較重要。如果第一個人沒有幫上忙，可以繼續找另一位。","listen","你願意先找一位可信任的大人嗎？");
+   chips([{text:"🙋 看看可以找誰",action:"help"},{text:"我現在安全了",value:"我現在安全了"}]);return;
+  }
+  state.safetyConcern="none";state.phase="action";
+  speak("謝謝你告訴我。即使現在安全，如果一直被取笑或不想去學校，也值得讓老師或輔導老師知道。","soft","你希望大人先怎麼幫你？");
+  chips([{text:"🙋 找大人一起談",action:"help"},{text:"先讓我說完",value:"我希望他們先聽我把話說完。"},{text:"我想想怎麼保護自己",value:"我想先弄清楚自己的界線。"}]);return;
+ }
+ if(REFUSE_PERSPECTIVE.test(message)){
+  state.declinedMirror=true;state.phase="action";
+  speak("好，我不會要求你體諒或原諒對方。你自己受到的委屈也重要。","listen","你最希望有人怎麼幫你？");
+  suggestions("action");return;
+ }
+ if(REFUSE_CALM.test(message)){
+  state.phase="event";
+  speak("你說得很清楚：你現在不想被要求冷靜。我不會逼你呼吸或忍耐。","listen","你最想讓我知道的是哪件事？");
+  suggestions("event");return;
+ }
+ let next=proposeNext(phase,message);
+ if(state.declinedMirror&&next==="perspective")next="action";
  if(phase==="welcome")state.data.story=message;
  if(phase==="weather")state.data.weather=message;
  if(phase==="event")state.data.story=message;
@@ -278,7 +347,8 @@ function finishBreath(){
  suggestions(phase);
 }
 function startMirror(){
- if(state.data.unsafe)return showHelp();
+ if(state.data.unsafe||state.safetyConcern!=="none")return showHelp();
+ if(state.declinedMirror){state.phase="action";speak("你剛才選擇不重演，這個選擇會被尊重。","listen",phaseInfo.action.question);suggestions("action");return;}
  state.phase="mirrorQuote";
  speak("我們可以讓 Mimo 當一面小鏡子。你可以不重演，也不用勉強自己。","question",phaseInfo.mirrorQuote.question);
  suggestions("mirrorQuote");

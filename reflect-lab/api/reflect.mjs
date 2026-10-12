@@ -70,7 +70,7 @@ export default async function handler(req,res) {
   const nextObjective=chatMode?clean(incoming.nextObjective,180):'';
   const questionHint=chatMode?clean(incoming.questionHint,150):'';
   if(!Number.isInteger(stage)||stage<0||stage>6||!FIELDS.has(field)||!answer)return json(res,422,{error:'INVALID_INPUT'});
-  if(field==='safety'&&answer==='unsafe')return json(res,200,{reply:'如果有人威脅、傷害或持續欺負你，請先找可信任的大人。這個網站不會通知任何人。',question:'',face:'guard',needsAdult:true,source:'safety-rule'});
+  if(field==='safety'&&answer==='unsafe')return json(res,200,{reply:'如果有人威脅、傷害或持續欺負你，請先找可信任的大人。這個網站不會通知任何人。',question:'',face:'listen',needsAdult:true,source:'safety-rule'});
   const context={};
   const userContext=incoming.context&&typeof incoming.context==='object'?incoming.context:{};
   for(const key of CONTEXT){const v=clean(userContext[key],240);if(v)context[key]=v}

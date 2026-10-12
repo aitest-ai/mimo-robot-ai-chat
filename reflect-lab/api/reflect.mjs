@@ -46,7 +46,7 @@ async function bodyFrom(req) {
 
 export default async function handler(req,res) {
   if(req.method==='GET'){
-    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.VERCEL_OIDC_TOKEN||process.env.AI_GATEWAY_API_KEY),check:{enabled:process.env.MIMO_AI_ENABLED==='true',classCode:!!process.env.MIMO_CLASS_CODE,providerAuth:!!(process.env.VERCEL_OIDC_TOKEN||process.env.AI_GATEWAY_API_KEY)},privacy:'fictional-test-only',autoNotify:false});
+    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers['x-vercel-oidc-token']),privacy:'fictional-test-only',autoNotify:false});
   }
   if(req.method!=='POST')return json(res,405,{error:'METHOD_NOT_ALLOWED'});
   const origin=String(req.headers.origin||'');
@@ -70,7 +70,7 @@ export default async function handler(req,res) {
   if(SENSITIVE.test(answer)||Object.values(context).some(v=>SENSITIVE.test(v))){
     return json(res,200,{reply:'如果你可能正受到傷害，這件事需要可信任的大人一起處理。你不用一個人面對，也不用勉強換位思考。',face:'listen',needsAdult:true,source:'safety-rule'});
   }
-  const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN;
+  const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers['x-vercel-oidc-token'];
   if(!token)return json(res,503,{error:'GATEWAY_NOT_CONFIGURED'});
   // No identity or original recording is sent; this still transmits user-entered text to an AI provider.
   const system=[

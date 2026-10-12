@@ -23,6 +23,18 @@
     <div class="aside-footer"><span aria-hidden="true">☘</span><p>不用急著原諒任何人。<br>你也值得被傾聽。</p></div>
   </aside>
   <section class="workspace" aria-label="心晴之鏡練習">
+
+    <details id="aiPanel" class="ai-panel">
+      <summary><span>✦ AI 語意回饋</span><span id="aiBadge" class="ai-badge">尚未啟用 · 固定引導</span></summary>
+      <div class="ai-panel-body">
+        <p>老師可以在虛構案例測試模式下，讓 Mimo 根據學生前面的回答產生不同回饋。啟用後，本次回答及必要的前文將送往 Vercel AI Gateway 與模型供應商處理。</p>
+        <label for="aiCode">教師測試碼</label>
+        <input id="aiCode" type="password" autocomplete="off" placeholder="由老師在 Vercel 安全設定中配置">
+        <label class="ai-consent"><input id="aiFictional" type="checkbox"> 我確認本次僅使用虛構案例，不輸入真實學生事件或身分資料。</label>
+        <div class="ai-buttons"><button id="aiToggle" type="button" class="ai-enable">檢查並啟用 AI 回饋</button><button id="aiDisable" type="button" class="ai-disable" hidden>關閉 AI</button></div>
+        <div id="aiStatus" class="ai-status" role="status">目前沒有上傳任何文字給模型。未啟用時，使用原本的教學引導。</div>
+      </div>
+    </details>
     <div class="stage-header"><div class="kicker" id="stepCounter">STEP 01 / 07</div><div class="progress-track" aria-hidden="true"><div id="progressFill"></div></div></div>
     <div id="stepContent" class="step-content" aria-live="polite"></div>
     <div class="navigation"><button class="secondary-action" id="backBtn" type="button">← 上一步</button><button class="main-action" id="nextBtn" type="button">下一步 →</button></div>

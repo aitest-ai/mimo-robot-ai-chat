@@ -49,8 +49,8 @@ function speak(text,expression="listen",question=""){
  const card=$("speechCard");
  card.classList.remove("flash");void card.offsetWidth;card.classList.add("flash");
  const last=state.history[state.history.length-1];
- if(last?.role==="mimo")return;
- state.history.push({role:"mimo",text:$("mimoTalk").textContent});
+ if(last?.role==="mimo")last.text=$("mimoTalk").textContent;
+ else state.history.push({role:"mimo",text:$("mimoTalk").textContent});
  if(state.history.length>24)state.history.shift();
  refreshHistory();
 }
@@ -163,10 +163,11 @@ function messageForModel(text,phase,next){
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);
  if(!message||state.processing)return;
+ if(state.data.unsafe){showHelp();return;}
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
  addUser(message);$("chatInput").value="";resizeInput();
- if(DANGER.test(message)){stopBreath();face("guard");speak("這件事需要能保護你的大人一起處理。你不用一個人面對，也不用先原諒誰。","guard");showHelp();chips([{text:"🙋 再看看可以找誰幫忙",action:"help"}]);return}
+ if(DANGER.test(message)){state.data.unsafe=true;stopBreath();face("guard");speak("這件事需要能保護你的大人一起處理。你不用一個人面對，也不用先原諒誰。","guard");showHelp();chips([{text:"🙋 再看看可以找誰幫忙",action:"help"}]);return}
  const next=proposeNext(phase,message);
  if(phase==="welcome")state.data.story=message;
  if(phase==="weather")state.data.weather=message;
@@ -198,7 +199,7 @@ async function replyTo(text){
   try{
    const r=await fetch("/api/reflect",{method:"POST",headers:{"Content-Type":"application/json","X-Mimo-Class-Code":state.code},body:JSON.stringify(messageForModel(message,phase,next)),signal:ctl.signal,cache:"no-store"});
    const payload=await r.json();
-   if(!r.ok)throw Error(payload.error||"AI_UNAVAILABLE");
+   if(!r.ok){if(r.status===401){state.teacher=false;state.code="";showAiMode();$("teacherStatus").textContent="教師測試碼無效，已關閉 Gemini。";}throw Error(payload.error||"AI_UNAVAILABLE");}
    if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
    if(payload.needsAdult){state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","guard");showHelp();return}
    result=payload;

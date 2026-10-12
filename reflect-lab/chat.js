@@ -201,7 +201,7 @@ async function replyTo(text){
    const payload=await r.json();
    if(!r.ok){if(r.status===401){state.teacher=false;state.code="";showAiMode();$("teacherStatus").textContent="教師測試碼無效，已關閉 Gemini。";}throw Error(payload.error||"AI_UNAVAILABLE");}
    if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
-   if(payload.needsAdult){state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","guard");showHelp();return}
+   if(payload.needsAdult){state.data.unsafe=true;state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","guard");showHelp();return}
    result=payload;
   }finally{clearTimeout(timeout)}
  }catch(e){

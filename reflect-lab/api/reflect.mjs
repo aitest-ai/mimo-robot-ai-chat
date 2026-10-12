@@ -92,8 +92,8 @@ export default async function handler(req,res) {
       body:JSON.stringify({
         model:process.env.MIMO_AI_MODEL||'openai/gpt-5.4-mini',
         messages:[{role:'system',content:system},{role:'user',content:user}],
-        temperature:0.35,max_tokens:220,stream:false,
-        response_format:{type:'json_object'}
+        max_tokens:500,stream:false,
+        response_format:{type:'json_schema',json_schema:{name:'mimo_sel_feedback',strict:true,schema:{type:'object',properties:{reply:{type:'string'},face:{type:'string',enum:['calm','listen','soft','guard','hurt','question']},needsAdult:{type:'boolean'}},required:['reply','face','needsAdult'],additionalProperties:false}}}
       }),
       signal:AbortSignal.timeout(12000),
     });

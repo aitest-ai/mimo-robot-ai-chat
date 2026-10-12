@@ -41,6 +41,9 @@ const actions=[
 ];
 const defaultData=()=>({safety:"",weather:"",strength:3,feeling:"",strategy:"",after:3,story:"",quote:"",fact:"",guess:"",unknown:"",expression:"",reaction:"",perspective:"",perspectiveNote:"",action:"",newWords:"",nextTime:"",end:3});
 let data=defaultData(), at=0, answered={},feedback="",breathTimer=null,breathStart=0,breathActive=false,breathMotion=true;
+let teacherAiActive=false, teacherAiCode="", aiInFlight=null, aiSeq=0;
+const aiMemo=new Map();
+
 const questions=[
  {stage:0,type:"choice",field:"safety",headline:"這件事，讓你覺得安全嗎？",desc:"先確認是不是適合自己練習的衝突。",options:[
   {id:"normal",icon:"🌿",label:"一般的爭執或誤會",help:"例如意見不同、吵了一架",face:"listen",reply:"謝謝你告訴我。我們先照顧你的感受，再慢慢看整件事。"},
@@ -131,7 +134,7 @@ function replyFor(q,value,skip=false){
   return {face:n>=4?"listen":"soft",text:n>=4?"這個感覺可能很強烈。你不需要急著想清楚，我們慢慢來。":"謝謝你留意自己的感覺，無論有沒有變輕都可以。"};
  }
  if(q.field==="breath")return {face:"soft",text:"謝謝你留一點時間照顧自己。現在可以慢慢繼續；如果還不舒服，也可以先休息。"};
- if(q.field==="story")return {face:"listen",text:"謝謝你願意說自己的版本。我聽見這件事對你很重要。接下來我們不急著判斷。"};
+ if(q.field==="story")return {face:"listen",text:"我讀到你提到「"+String(value||"").slice(0,35)+"」。這是你描述的經驗，我們先聽著，暫時不判誰對誰錯。"};
  if(q.field==="quote")return {face:"question",text:"這是你記得的話。等一下可以從不同角度聽聽看，不代表誰一定有錯。"};
  if(q.field==="fact")return {face:"calm",text:"你正在練習描述可以看見、聽見的事情。這仍是你的敘述，還不是已確認的全部事實。"};
  if(q.field==="guess")return {face:"question",text:"我們常常會猜別人的意思。這是一種想法，但還需要更多資訊才能確認。"};
@@ -163,6 +166,7 @@ function sideNav(){
  }).join("");
 }
 function render(resetSpeech=true){
+ aiSeq++;aiInFlight?.abort();aiInFlight=null;
  stopBreathing();
  const q=current();
  $("stepContent").innerHTML=qHtml(q);
@@ -178,18 +182,117 @@ function render(resetSpeech=true){
  if(q.type==="breath"&&!shownAnswer(q))startBreathing();
  if(q.type==="result")robot("soft","你走到最後了！能認識自己、保護自己，就是很重要的學習。");
 }
+
+function setAiStatus(message) {
+ const el=$("aiStatus"); if(el)el.textContent=message;
+}
+function aiBadge() {
+ $("aiBadge").textContent=teacherAiActive?"AI 已啟用 · 虛構案例測試":"尚未啟用 · 固定引導";
+ $("aiDisable").hidden=!teacherAiActive;
+ $("aiToggle").textContent=teacherAiActive?"已啟用 AI 回饋":"檢查並啟用 AI 回饋";
+}
+async function turnOnAi(){
+ const code=$("aiCode").value.trim();
+ if(!code){setAiStatus("請先輸入教師測試碼。");return}
+ if(!$("aiFictional").checked){setAiStatus("必須確認只有虛構案例才能啟用。");return}
+ setAiStatus("正在檢查模型服務是否準備好……");
+ $("aiToggle").disabled=true;
+ try {
+  const resp=await fetch("/api/reflect",{method:"GET",cache:"no-store"});
+  if(!resp.ok)throw Error("API not available");
+  const info=await resp.json();
+  if(!info.ready){
+   setAiStatus("Vercel 的 AI 服務尚未啟用。請由老師設定 MIMO_AI_ENABLED 和 MIMO_CLASS_CODE。此時不會上傳回答。");
+   return;
+  }
+  teacherAiCode=code;teacherAiActive=true;
+  aiBadge();
+  setAiStatus("AI 研究模式已開啟。從下一次回答起會將虛構案例的必要文字送至 AI 模型；按「關閉 AI」即可停止。測試碼僅暫存於本頁。");
+ }catch{
+  setAiStatus("目前找不到語意回饋服務，繼續使用原本的固定教學引導。");
+ }finally{$("aiToggle").disabled=false}
+}
+function turnOffAi(){
+ teacherAiActive=false;teacherAiCode="";
+ $("aiCode").value="";
+ aiSeq++;aiInFlight?.abort();aiInFlight=null;
+ aiMemo.clear();aiBadge();
+ setAiStatus("AI 已關閉，不會把後續回答傳送給模型。既有頁面回答重新整理後即消失。");
+}
+function contextForAi() {
+ const keys=["weather","feeling","strength","story","quote","fact","guess","unknown","reaction","perspective","action"];
+ const context={};
+ for(const k of keys)if(data[k]!==undefined&&data[k]!==null&&data[k]!=="")context[k]=String(data[k]).slice(0,240);
+ return context;
+}
+async function dynamicResponse(q,box,fallback){
+ if(!teacherAiActive||$("aiFictional").checked!==true)return;
+ if(q.field==="safety"&&data.safety==="unsafe")return;
+ const i=at,value=String(data[q.field]??"");
+ if(!value||answered[i]==="skipped")return;
+ const ctx=contextForAi();
+ const key=JSON.stringify([i,q.field,value,ctx]);
+ const apply=(out)=>{
+  if(i!==at||key!==JSON.stringify([at,current().field,String(data[q.field]??""),contextForAi()])||!teacherAiActive)return;
+  const message=out.reply;
+  box.querySelector("p")?.remove?.();
+  const p=document.createElement("p");p.textContent=message;box.appendChild(p);
+  const head=box.querySelector("strong");if(head)head.textContent="✦ Mimo · AI 語意回饋";
+  robot(out.face,message);
+  if(out.needsAdult){
+   setAiStatus("這個情境可能需要成人協助。請優先找信任的大人；網站不會自動通知。");
+  }
+ };
+ if(aiMemo.has(key)){apply(aiMemo.get(key));return}
+ aiSeq++;const requestSeq=aiSeq;
+ aiInFlight?.abort();const controller=new AbortController();aiInFlight=controller;
+ robot("listen","我正在讀你的回答，想想這個階段怎麼回應比較有幫助……");
+ try{
+  const timeout=setTimeout(()=>controller.abort(),14000);
+  let response;
+  try {
+   response=await fetch("/api/reflect",{
+    method:"POST",headers:{"Content-Type":"application/json","X-Mimo-Class-Code":teacherAiCode},
+    body:JSON.stringify({stage:q.stage,field:q.field,answer:value,context:ctx,fictional:true}),
+    cache:"no-store",signal:controller.signal
+   });
+  }finally{clearTimeout(timeout)}
+  const result=await response.json();
+  if(!response.ok){
+   if(response.status===401){
+    turnOffAi();setAiStatus("教師測試碼無效，已關閉 AI。");
+   }else setAiStatus("本次 AI 回饋不可用（"+String(result.error||response.status)+"）。已切換成固定引導，不影響學習流程。");
+   throw Error("ai unavailable");
+  }
+  if(typeof result.reply!=="string"||!["calm","listen","soft","guard","hurt","question"].includes(result.face))throw Error("Invalid AI output");
+  if(requestSeq===aiSeq){aiMemo.set(key,result);apply(result)}
+ }catch{
+  if(requestSeq===aiSeq&&teacherAiActive&&i===at){
+   robot(fallback.face,fallback.message);
+   const head=box.querySelector("strong");if(head)head.textContent="✳ 固定引導（AI 暫時無法使用）";
+   const p=box.querySelector("p");if(p)p.textContent=fallback.message;
+  }
+ }finally{if(aiInFlight===controller)aiInFlight=null}
+}
+$("aiToggle").onclick=turnOnAi;
+$("aiDisable").onclick=turnOffAi;
+aiBadge();
+
 function showFeedback(updateRobot=true){
  const q=current(),value=data[q.field];
  const v=answered[at]==="skipped" ? replyFor(q,value,true):replyFor(q,value);
  const v2=q.field==="safety"&&data.safety==="unsafe"?{face:"guard",text:"如果有人持續欺負、威脅或傷害你，請先找大人。這個網站不會自動通報。"}:v;
  const face= v2.face || "listen",message=v2.text || v2.reply || "謝謝你告訴我。";
- if(updateRobot)robot(face,message);
+ if(updateRobot&&!teacherAiActive)robot(face,message);
  const box=document.createElement("div");
  box.id="answerFeedback";box.className="guide-feedback";box.setAttribute("role","status");
  box.innerHTML='<strong>✳ Mimo 的回應</strong><p>'+esc(message)+'</p>';
  const old=$("answerFeedback");old?.remove?.();
  $("stepContent").appendChild(box);
  updateNav();
+ if(teacherAiActive && answered[at]!== "skipped" && q.type!== "breath" && q.type!== "result" && !(q.field==="safety"&&data.safety==="unsafe")) {
+   void dynamicResponse(q,box,{face,message});
+ } else if(updateRobot)robot(face,message);
 }
 function selectAnswer(value){
  const q=current();data[q.field]=value;answered[at]=true;

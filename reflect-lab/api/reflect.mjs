@@ -83,7 +83,7 @@ export default async function handler(req,res) {
     return json(res,200,{reply:'聽起來你非常生氣。先不用解釋事情，為了不讓自己或別人受傷，可以先退離桌邊和那些容易被打翻的東西。',question:chatMode?'你現在能先離開桌邊嗎？':'',face:'listen',needsAdult:false,source:'safety-pause'});
   }
   if(SCHOOL.test(answer)){
-    return json(res,200,{reply:'你說不想上學，或是一直被嘲笑。這很值得被認真聽見；先不用替任何人找理由，也不急著追問細節。',question:chatMode?'你現在在學校或家裡，是安全的嗎？':'',face:'hurt',needsAdult:false,source:'support-check'});
+    return json(res,200,{reply:'你說不想上學，或是一直被嘲笑。這很值得被認真聽見；先不用替任何人找理由，也不急著追問細節。',question:chatMode?'你現在在學校或家裡，是安全的嗎？':'',face:'listen',needsAdult:false,source:'support-check'});
   }
   if(CONFLICT_REFUSAL.test(answer)){
     return json(res,200,{reply:'好，我不會逼你冷靜、原諒或換位思考。你的感覺和界線仍然很重要。',question:chatMode?'你希望我先怎麼陪你？':'',face:'listen',needsAdult:false,source:'refusal-respected'});

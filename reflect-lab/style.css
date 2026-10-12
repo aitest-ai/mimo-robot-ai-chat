@@ -84,3 +84,25 @@
  .breath-disk:not(.active-pulse){transform:scale(.79)}
  .guide-feedback,.companion-speech.feedback-animate,.mimo-head.feedback-react{animation:none!important}
 }
+
+/* 教師才啟用的 AI 語意測試模式；不干擾每題單問介面 */
+.ai-panel{border:1px solid #dee8dc;background:#f2f6ef;border-radius:14px;margin:0 0 24px;overflow:hidden}
+.ai-panel summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-size:12px;font-weight:850;color:#517967;padding:11px 14px}
+.ai-panel summary::-webkit-details-marker{display:none}
+.ai-panel summary:before{content:"＋";font-size:17px;margin-right:2px;line-height:1}
+.ai-panel[open] summary:before{content:"−"}
+.ai-panel summary span:first-child{margin-right:auto}
+.ai-badge{font-size:10px;font-weight:650;color:#7a8d7a}
+.ai-panel-body{border-top:1px solid #d9e6da;padding:14px 17px 17px}
+.ai-panel-body p{font-size:12px;color:#657f6c;line-height:1.8;margin:0 0 14px}
+.ai-panel-body>label:not(.ai-consent){display:block;font-size:11px;font-weight:850;color:#5d7b68;margin-bottom:6px}
+#aiCode{width:100%;min-height:41px;border-radius:9px;border:1px solid #c7dccd;background:#fff;padding:9px 11px;font-size:13px;color:#385547}
+.ai-consent{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.8;color:#688274;margin-top:13px}
+.ai-consent input{flex:0 0 17px;width:17px;height:17px;accent-color:#427f63;margin-top:3px}
+.ai-buttons{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0 10px}
+.ai-enable,.ai-disable{border-radius:11px;min-height:40px;padding:9px 14px;font-size:12px;font-weight:850;border:1px solid #a9caba}
+.ai-enable{background:#407a65;color:#fff}
+.ai-enable:disabled{opacity:.5}
+.ai-disable{background:#fff;color:#5a786b}
+.ai-status{font-size:11px;color:#7d9282;line-height:1.75;min-height:21px}
+@media(max-width:760px){.ai-panel{margin-bottom:17px}.ai-panel summary{padding:9px 10px}.ai-badge{font-size:9px}.ai-panel-body{padding:12px}}

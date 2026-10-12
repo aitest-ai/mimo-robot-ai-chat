@@ -133,7 +133,7 @@ export default async function handler(req,res) {
     let output;
     try{output=JSON.parse(raw)}catch{return json(res,502,{error:'INVALID_MODEL_OUTPUT'})}
     const reply=clean(output.reply,220),question=chatMode?clean(output.question,140):'';
-    if(reply.length<8||reply.length>220||!FACES.has(output.face)||typeof output.needsAdult!=='boolean'){
+    if(reply.length<8||reply.length>220||/[?？]/.test(reply)||!FACES.has(output.face)||typeof output.needsAdult!=='boolean'){
       return json(res,502,{error:'INVALID_MODEL_OUTPUT'});
     }
     return json(res,200,{reply,question,face:output.face,needsAdult:output.needsAdult,source:'gemini-2.5-flash'});

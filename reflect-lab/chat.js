@@ -270,7 +270,7 @@ async function replyTo(text){
    const payload=await r.json();
    if(!r.ok){if(r.status===401){state.teacher=false;state.code="";showAiMode();$("teacherStatus").textContent="教師測試碼無效，已關閉 Gemini。";}throw Error(payload.error||"AI_UNAVAILABLE");}
    if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
-   if(payload.needsAdult){state.data.unsafe=true;state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","guard");showHelp();return}
+   if(payload.needsAdult){state.data.unsafe=true;state.safetyConcern="immediate";state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","guard");showHelp();return}
    result=payload;
   }finally{clearTimeout(timeout)}
  }catch(e){
@@ -287,7 +287,20 @@ function toggleBusy(busy){
  suggestions(state.phase);
 }
 function resizeInput(){const el=$("chatInput");el.style.height="auto";el.style.height=Math.min(el.scrollHeight,148)+"px"}
-function showHelp(){$("helpDialog").showModal()}
+function showHelp(){
+ const urgent=state.safetyConcern==="immediate";
+ const objects=state.safetyConcern==="objects";
+ const school=state.safetyConcern==="school";
+ const notice=urgent
+  ?"如果你擔心自己會動手或有人可能受傷，請先與對方保持距離、放下可能傷人的東西，立刻找現場老師或可信任的大人幫忙。"
+  :objects
+  ?"如果氣到想摔東西，先遠離可能被打翻的物品，並找一位大人陪你。"
+  :school
+  ?"如果你一直被笑、被排擠或不想上學，值得讓導師、輔導老師或其他可信任的大人認真聽見。"
+  :"如果有人持續欺負、威脅或傷害你，請先找能保護你的大人；你不需要替傷害你的人找理由。";
+ $("helpGuidance").textContent=notice;
+ const dlg=$("helpDialog");if(!dlg.open)dlg.showModal();
+}
 function showAiMode(){$("aiIndicator").textContent=state.teacher?"Gemini 測試":"故事體驗";$("aiIndicator").classList.toggle("live",state.teacher);$("aiDisable").hidden=!state.teacher;}
 async function enableAI(){
  const code=$("teacherCode").value.trim();

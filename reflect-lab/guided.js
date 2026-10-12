@@ -130,6 +130,7 @@ function replyFor(q,value,skip=false){
   const n=Number(value);
   return {face:n>=4?"listen":"soft",text:n>=4?"這個感覺可能很強烈。你不需要急著想清楚，我們慢慢來。":"謝謝你留意自己的感覺，無論有沒有變輕都可以。"};
  }
+ if(q.field==="breath")return {face:"soft",text:"謝謝你留一點時間照顧自己。現在可以慢慢繼續；如果還不舒服，也可以先休息。"};
  if(q.field==="story")return {face:"listen",text:"謝謝你願意說自己的版本。我聽見這件事對你很重要。接下來我們不急著判斷。"};
  if(q.field==="quote")return {face:"question",text:"這是你記得的話。等一下可以從不同角度聽聽看，不代表誰一定有錯。"};
  if(q.field==="fact")return {face:"calm",text:"你正在練習描述可以看見、聽見的事情。這仍是你的敘述，還不是已確認的全部事實。"};

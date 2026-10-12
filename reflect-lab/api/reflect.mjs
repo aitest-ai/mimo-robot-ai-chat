@@ -72,6 +72,8 @@ export default async function handler(req,res) {
   }
   const geminiKey=process.env.GEMINI_API_KEY;
   if(!geminiKey)return json(res,503,{error:'GEMINI_NOT_CONFIGURED'});
+  const model=process.env.MIMO_AI_MODEL||'gemini-2.5-flash';
+  if(model!=='gemini-2.5-flash')return json(res,503,{error:'UNSUPPORTED_GEMINI_MODEL'});
   // Only fictional, teacher-approved context is sent to Google's Gemini API.
   // Never return or log the secret API key.
   const system=[
@@ -87,7 +89,7 @@ export default async function handler(req,res) {
   ].join('\n');
   const user=JSON.stringify({learning_stage:STAGES[stage],stage,question_field:field,student_answer:answer,student_confirmed_context:context},null,0);
   try {
-    const api=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
+    const api=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',{
       method:'POST',
       headers:{
         'x-goog-api-key':geminiKey,

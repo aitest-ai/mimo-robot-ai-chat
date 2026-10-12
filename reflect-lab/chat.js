@@ -205,7 +205,8 @@ async function replyTo(text){
  if(risk==="school"&&phase!=="supportCheck"){
   state.safetyConcern="school";state.returnPhase="action";
   state.phase="supportCheck";stopBreath();
-  speak("你說不想上學，還提到被嘲笑或覺得沒有人幫你。這很值得認真處理，我們先不急著分析同學。","listen",phaseInfo.supportCheck.question);
+  const concern=/上學|學校/.test(message)?"你說現在很不想去學校，這件事值得讓大人認真聽見。":"你說這些讓你難受的事一再發生，我們先不急著判誰對誰錯。";
+  speak(concern,"listen",phaseInfo.supportCheck.question);
   suggestions("supportCheck");return;
  }
  if(phase==="safePause"){
@@ -223,7 +224,7 @@ async function replyTo(text){
    chips([{text:"🙋 看看可以找誰",action:"help"},{text:"我現在安全了",value:"我現在安全了"}]);return;
   }
   state.safetyConcern="none";state.phase="action";
-  speak("謝謝你告訴我。即使現在安全，如果一直被取笑或不想去學校，也值得讓老師或輔導老師知道。","soft","你希望大人先怎麼幫你？");
+  speak("謝謝你告訴我。即使現在安全，這些反覆發生的困擾也值得讓老師或輔導老師知道。","soft","你希望大人先怎麼幫你？");
   chips([{text:"🙋 找大人一起談",action:"help"},{text:"先讓我說完",value:"我希望他們先聽我把話說完。"},{text:"我想想怎麼保護自己",value:"我想先弄清楚自己的界線。"}]);return;
  }
  if(REFUSE_PERSPECTIVE.test(message)){

@@ -117,7 +117,8 @@ export default async function handler(req,res) {
             },
             required:['reply','question','face','needsAdult'],
           },
-          maxOutputTokens:768,
+          thinkingConfig:{thinkingBudget:0},
+          maxOutputTokens:1100,
         },
       }),
       signal:AbortSignal.timeout(12000),
@@ -131,10 +132,10 @@ export default async function handler(req,res) {
     const parts=result?.candidates?.[0]?.content?.parts;
     const raw=Array.isArray(parts)?parts.filter(x=>typeof x?.text==='string').map(x=>x.text).join(''):'';
     let output;
-    try{output=JSON.parse(raw)}catch{return json(res,502,{error:'INVALID_MODEL_OUTPUT'})}
+    try{output=JSON.parse(raw)}catch{return json(res,502,{error:'INVALID_MODEL_OUTPUT',reason:raw?'unparsable_json':'empty_content',finishReason:result?.candidates?.[0]?.finishReason||'unknown'})}
     const reply=clean(output.reply,220),question=chatMode?clean(output.question,140):'';
-    if(reply.length<8||reply.length>220||/[?？]/.test(reply)||!FACES.has(output.face)||typeof output.needsAdult!=='boolean'){
-      return json(res,502,{error:'INVALID_MODEL_OUTPUT'});
+    if(reply.length<8||reply.length>220||!FACES.has(output.face)||typeof output.needsAdult!=='boolean'){
+      return json(res,502,{error:'INVALID_MODEL_OUTPUT',reason:'invalid_structure',replyLength:reply.length,faceValid:FACES.has(output.face),adultFlagValid:typeof output.needsAdult==='boolean'});
     }
     return json(res,200,{reply,question,face:output.face,needsAdult:output.needsAdult,source:'gemini-2.5-flash'});
   }catch{

@@ -202,12 +202,12 @@ async function turnOnAi(){
   if(!resp.ok)throw Error("API not available");
   const info=await resp.json();
   if(!info.ready){
-   setAiStatus("Vercel 的 AI 服務尚未啟用。請由老師設定 MIMO_AI_ENABLED 和 MIMO_CLASS_CODE。此時不會上傳回答。");
+   setAiStatus("Gemini 2.5 Flash 尚未連線。請由部署管理員在 Vercel 設定 GEMINI_API_KEY，並確認 Google 帳戶有 Gemini 2.5 Flash 使用權限。此時不會上傳回答。");
    return;
   }
   teacherAiCode=code;teacherAiActive=true;
   aiBadge();
-  setAiStatus("AI 研究模式已開啟。從下一次回答起會將虛構案例的必要文字送至 AI 模型；按「關閉 AI」即可停止。測試碼僅暫存於本頁。");
+  setAiStatus("Gemini 2.5 Flash 測試模式已開啟。從下一次回答起，虛構案例的必要文字會送至 Google Gemini API；按「關閉 AI」即可停止。測試碼僅暫存於本頁。");
  }catch{
   setAiStatus("目前找不到語意回饋服務，繼續使用原本的固定教學引導。");
  }finally{$("aiToggle").disabled=false}

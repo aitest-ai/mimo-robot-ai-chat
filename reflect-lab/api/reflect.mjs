@@ -46,7 +46,7 @@ async function bodyFrom(req) {
 
 export default async function handler(req,res) {
   if(req.method==='GET'){
-    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.VERCEL_OIDC_TOKEN||process.env.AI_GATEWAY_API_KEY),privacy:'fictional-test-only',autoNotify:false});
+    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.VERCEL_OIDC_TOKEN||process.env.AI_GATEWAY_API_KEY),check:{enabled:process.env.MIMO_AI_ENABLED==='true',classCode:!!process.env.MIMO_CLASS_CODE,providerAuth:!!(process.env.VERCEL_OIDC_TOKEN||process.env.AI_GATEWAY_API_KEY)},privacy:'fictional-test-only',autoNotify:false});
   }
   if(req.method!=='POST')return json(res,405,{error:'METHOD_NOT_ALLOWED'});
   const origin=String(req.headers.origin||'');

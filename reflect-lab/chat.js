@@ -205,7 +205,7 @@ async function replyTo(text){
  if(risk==="school"&&phase!=="supportCheck"){
   state.safetyConcern="school";state.returnPhase="action";
   state.phase="supportCheck";stopBreath();
-  speak("你說不想上學，還提到被嘲笑或覺得沒有人幫你。這很值得認真處理，我們先不急著分析同學。","hurt",phaseInfo.supportCheck.question);
+  speak("你說不想上學，還提到被嘲笑或覺得沒有人幫你。這很值得認真處理，我們先不急著分析同學。","listen",phaseInfo.supportCheck.question);
   suggestions("supportCheck");return;
  }
  if(phase==="safePause"){

@@ -192,7 +192,7 @@ async function replyTo(text){
  const risk=riskLevel(message);
  if(risk==="immediate"){
   state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
-  speak("現在先和可能受傷的人保持距離，放下手邊可能傷人的東西，立刻找老師或可信任的大人到現場幫忙。網站不會替你通知任何人。","guard");
+  speak("現在先和可能受傷的人保持距離，放下手邊可能傷人的東西，立刻找老師或可信任的大人到現場幫忙。網站不會替你通知任何人。","listen");
   chips([{text:"🙋 看看怎麼找大人",action:"help"}]);
   showHelp();return;
  }

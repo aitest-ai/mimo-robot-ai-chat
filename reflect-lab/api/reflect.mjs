@@ -7,6 +7,8 @@ const FACES = new Set(['calm','listen','soft','guard','hurt','question']);
 const STAGES = ['安全確認','辨識心情','情緒調節','表達主觀經驗','釐清觀察與推測','換位與界線','學習遷移'];
 const FIELDS = new Set(['safety','weather','strength','feeling','strategy','after','breath','story','quote','fact','guess','unknown','expression','reaction','perspective','perspectiveNote','action','newWords','nextTime','end']);
 const CONTEXT = ['weather','feeling','strength','story','quote','fact','guess','unknown','reaction','perspective','action'];
+const ALLOWED_OBJECTIVES=new Set(["自然詢問孩子的感覺或當下想談的事","協助孩子說出當下的感覺，問題只問一個","由孩子決定要不要安定情緒，不強迫深呼吸","傾聽一件具體經過，不急著評斷","以學生自己的說法區分觀察與推測，不宣稱查明真相","協助孩子理解那是對動機的猜測，不當作已確認事實","提出不同可能觀點並保留不知道，不替傷害辯解","協助形成尊重自己、他人且實際可行的選擇","統整孩子自選的可遷移方法，不作心理評分","溫和結束對話，不要求和解","只記錄孩子自己願意重現的一句話","由學生選擇可能表情，禁止聲稱偵測真實情緒","讓孩子想像聽話者可能的感受；允許不知道、不要求道歉","暫停內容分析；先與可能摔落的物品保持距離，提供成人協助","對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"]);
+const ALLOWED_QUESTIONS=new Set(["今天有什麼事情，想找我聊聊嗎？","如果心情是一種天氣，現在比較像哪一種？","你想先說說這件事，還是讓自己休息一下？","那時候發生的哪一件事，讓你最在意？","如果只說你當時看到、聽到的事情，會是什麼？","你當時覺得，對方為什麼會這樣做？","如果換個角度，這件事還可能有什麼解釋？","下次遇到類似的事，你想怎麼照顧自己或表達需要？","你想帶走一句什麼提醒，給下次的自己？","今天先聊到這裡，好嗎？","你記得自己當時說了哪一句話嗎？","如果 Mimo 要演出當時的你，你想選哪一種表情？","如果有人用這個表情對你說這句話，你可能有什麼感覺？","你現在能先離開那些容易被打翻的東西嗎？","你現在在學校或家裡，是安全的嗎？","正在思考"]);
 // Layered safety rules run before the language model. They are not a clinical assessment.
 const SENSITIVE = /(?:自殺|想死|不想活|傷害自己|割腕|性侵|被強迫|有人打我|一直被霸凌|被威脅|家暴|性騷擾|想揍|要揍|會揍|想打人|想打(她|他|同學|老師)|忍不住動手|快(要)?動手|想砍|拿刀傷)/u;
 const OBJECTS = /(?:掃下去|掃掉|砸(爛|掉|東西)|摔(東西|書|椅|桌|手機)|翻桌|丟(出去|東西)|踢桌|推倒桌)/u;
@@ -67,8 +69,10 @@ export default async function handler(req,res) {
   if(!incoming||typeof incoming!=='object'||incoming.fictional!==true)return json(res,403,{error:'FICTIONAL_CASES_ONLY'});
   const stage=Number(incoming.stage),field=clean(incoming.field,30),answer=clean(incoming.answer,480);
   const chatMode=incoming.chat===true;
-  const nextObjective=chatMode?clean(incoming.nextObjective,180):'';
-  const questionHint=chatMode?clean(incoming.questionHint,150):'';
+  // Never accept arbitrary pedagogical instructions from an HTTP caller.
+  const suggestedGoal=clean(incoming.nextObjective,180),suggestedQuestion=clean(incoming.questionHint,150);
+  const nextObjective=chatMode?(ALLOWED_OBJECTIVES.has(suggestedGoal)?suggestedGoal:'安全地承接感受，並且只問一個適齡問題'):'';
+  const questionHint=chatMode?(ALLOWED_QUESTIONS.has(suggestedQuestion)?suggestedQuestion:'現在你最想讓我知道的是什麼？'):'';
   if(!Number.isInteger(stage)||stage<0||stage>6||!FIELDS.has(field)||!answer)return json(res,422,{error:'INVALID_INPUT'});
   if(field==='safety'&&answer==='unsafe')return json(res,200,{reply:'如果有人威脅、傷害或持續欺負你，請先找可信任的大人。這個網站不會通知任何人。',question:'',face:'listen',needsAdult:true,source:'safety-rule'});
   const context={};

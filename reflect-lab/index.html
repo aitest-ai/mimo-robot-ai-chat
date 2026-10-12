@@ -27,7 +27,7 @@
     <details id="aiPanel" class="ai-panel">
       <summary><span>✦ AI 語意回饋</span><span id="aiBadge" class="ai-badge">尚未啟用 · 固定引導</span></summary>
       <div class="ai-panel-body">
-        <p>老師可以在虛構案例測試模式下，讓 Mimo 根據學生前面的回答產生不同回饋。啟用後，本次回答及必要的前文將送往 Vercel AI Gateway 與模型供應商處理。</p>
+        <p>老師可以在虛構案例測試模式下，讓 Mimo 根據學生前面的回答產生不同回饋。啟用後，本次回答及必要的前文會經由 Vercel 伺服器傳至 Google Gemini API（gemini-2.5-flash）。不會在平板上儲存 Gemini API 金鑰。</p>
         <label for="aiCode">教師測試碼</label>
         <input id="aiCode" type="password" autocomplete="off" placeholder="由老師在 Vercel 安全設定中配置">
         <label class="ai-consent"><input id="aiFictional" type="checkbox"> 我確認本次僅使用虛構案例，不輸入真實學生事件或身分資料。</label>

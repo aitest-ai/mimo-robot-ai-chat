@@ -73,12 +73,13 @@ const current=()=>questions[at];
 function available(i){return i!==5||data.strategy==="breathe"}
 function stageFirst(s){return questions.findIndex((q,i)=>q.stage===s&&available(i))}
 function nextIndex(start,delta){for(let i=start+delta;i>=0&&i<questions.length;i+=delta)if(available(i))return i;return start}
-function shownAnswer(q){return answered[at]===true}
+function shownAnswer(q){return answered[at]===true||answered[at]==="skipped"}
 function robot(expr,sentence){
  const head=$("mimoHead");
  head.dataset.expression=expr;
  head.setAttribute("aria-label","Mimo 的表情："+({calm:"平靜",listen:"認真傾聽",soft:"溫柔",hurt:"難過",guard:"皺眉",question:"疑惑"}[expr]||"傾聽"));
  $("mimoMessage").textContent=sentence;
+ head.classList.remove("feedback-react");void head.getBoundingClientRect?.();head.classList.add("feedback-react");
  const speech=document.querySelector(".companion-speech");
  if(speech){speech.classList.remove("feedback-animate");void speech.offsetWidth;speech.classList.add("feedback-animate");}
 }
@@ -87,7 +88,8 @@ function qHtml(q){
  if(q.type==="choice"){
   const c=q.options.map(o=>'<button type="button" data-option="'+esc(o.id)+'" class="guide-option '+(data[q.field]===o.id?"picked":"")+'" aria-pressed="'+(data[q.field]===o.id)+'"><span class="guide-opt-icon">'+esc(o.icon||"●")+'</span><span><strong>'+esc(o.label)+'</strong>'+(o.help?'<small>'+esc(o.help)+'</small>':"")+'</span></button>').join("");
   const extra=q.field==="expression"?'<div class="mirror-stage"><span class="mirror-label">你的話 · 假設情境重現</span><p>'+esc(data.quote||"（如果不記得原話，仍可以探索不同表情。）")+'</p><small>表情由你選擇，不代表 AI 知道當時的情緒。</small></div>':"";
-  return common+extra+'<div class="guide-options '+(q.field==="weather"?"guide-weather":"")+'">'+c+"</div>";
+  const recap=(q.field==="reaction"&&data.quote)?'<div class="mirror-stage"><span class="mirror-label">如果聽見這句話</span><p>'+esc(data.quote)+'</p><small>這只是你記得的句子，不代表現場完整的情況。</small></div>':"";
+  return common+extra+recap+'<div class="guide-options '+(q.field==="weather"?"guide-weather":"")+'">'+c+"</div>";
  }
  if(q.type==="range"){
   const number=Number(data[q.field]);
@@ -100,7 +102,7 @@ function qHtml(q){
   return common+sample+'<label class="sr-only" for="guideInput">'+esc(q.headline)+'</label>'+
    '<textarea id="guideInput" class="guide-input" maxlength="480" rows="4" placeholder="'+esc(q.placeholder||"可以寫簡單一點，也可以略過。")+'">'+esc(data[q.field])+'</textarea>'+
    '<div class="guide-small-note">公開原型請只用虛構故事，不要輸入真實同學的姓名或個資。</div>'+
-   '<button id="sendAnswer" class="send-answer" type="button">告訴 Mimo →</button>';
+   '<button id="sendAnswer" class="send-answer" type="button">告訴 Mimo →</button><button id="skipQuestion" class="example-btn" type="button">先略過這題</button>';
  }
  if(q.type==="breath")return common+
    '<div class="breath-playground"><div id="breathOrb" class="breath-disk active-pulse" aria-hidden="true"><span>✳</span></div>'+
@@ -168,10 +170,11 @@ function render(resetSpeech=true){
  let intro="我們一次只聊一件事。我會在你回答後再說話。";
  if(q.stage===4)intro="先說一件你觀察到的事。不急著猜誰是故意的。";
  if(q.stage===5)intro="換個位置看看，但不必替傷害你的行為找藉口。";
+ if(q.field==="reaction"&&data.expression)intro="你選擇的表情只是示範，我們現在想想聽到這句話的一方可能怎麼感覺。";
  if(q.stage===6)intro="這是你的選擇，沒有一定要和好的規定。";
- if(resetSpeech)robot("calm",intro);
- if(shownAnswer(q))showFeedback(false);
- if(q.type==="breath")startBreathing();
+ if(resetSpeech)robot(q.field==="reaction"?(data.expression||"question"):"calm",intro);
+ if(shownAnswer(q))showFeedback(true);
+ if(q.type==="breath"&&!shownAnswer(q))startBreathing();
  if(q.type==="result")robot("soft","你走到最後了！能認識自己、保護自己，就是很重要的學習。");
 }
 function showFeedback(updateRobot=true){
@@ -194,12 +197,11 @@ function selectAnswer(value){
   // Student selects hypothetical expression, then Mimo holds this face through the reply.
  }
  render(false);
- showFeedback();
 }
 function submitCurrent(skip=false){
  const q=current();
  if(q.type==="breath"){
-  answered[at]=true;stopBreathing();robot("soft","謝謝你給自己一點時間。如果還不舒服，也可以先休息。");showFeedback();return;
+  answered[at]=true;stopBreathing();$("breathOrb")?.classList.remove("active-pulse");showFeedback();return;
  }
  if(q.type==="text"){
   const field=$("guideInput");if(field)data[q.field]=field.value.trim().slice(0,480);

@@ -10,7 +10,7 @@ const CONTEXT = ['weather','feeling','strength','story','quote','fact','guess','
 // Layered safety rules run before the language model. They are not a clinical assessment.
 const SENSITIVE = /(?:自殺|想死|不想活|傷害自己|割腕|性侵|被強迫|有人打我|一直被霸凌|被威脅|家暴|性騷擾|想揍|要揍|會揍|想打人|想打(她|他|同學|老師)|忍不住動手|快(要)?動手|想砍|拿刀傷)/u;
 const OBJECTS = /(?:掃下去|掃掉|砸(爛|掉|東西)|摔(東西|書|椅|桌|手機)|翻桌|丟(出去|東西)|踢桌|推倒桌)/u;
-const SCHOOL = /(?:不(想|要)再?上學|不(想|要)去學校|不去上學|不敢(去|上)學|不敢去學校|每天.{0,6}(嘲笑|排擠|欺負|笑我)|一直(被笑|被嘲笑|被排擠|被欺負|笑我)|每次都(欺負|嘲笑|弄我)|老師(都|也)?(偏心|不理我))/u;
+const SCHOOL = /(?:不(想|要)再?上學|不(想|要)去學校|不去上學|不敢(去|上)學|不敢去學校|每天.{0,6}(被笑|嘲笑|排擠|欺負|笑我|同學笑)|一直(被笑|被嘲笑|被排擠|被欺負|笑我)|每次都.{0,3}(欺負|嘲笑|弄我|笑我|不理我)|老師(都|也)?(偏心|不理我))/u;
 const CONFLICT_REFUSAL = /(?:不要.{0,5}(換位|體諒|理解(他|她|對方)|原諒)|不想.{0,5}(換位|體諒|理解(他|她|對方)|原諒)|不要.{0,6}(冷靜|呼吸|忍耐|放鬆))/u;
 const hits = new Map(); // best-effort per-function-instance safeguard only, not distributed rate limit.
 

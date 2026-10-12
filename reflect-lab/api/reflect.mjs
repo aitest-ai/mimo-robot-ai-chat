@@ -46,7 +46,7 @@ async function bodyFrom(req) {
 
 export default async function handler(req,res) {
   if(req.method==='GET'){
-    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers['x-vercel-oidc-token']),privacy:'fictional-test-only',autoNotify:false});
+    return json(res,200,{mode:'research-pilot',ready:process.env.MIMO_AI_ENABLED==='true'&&Boolean(process.env.MIMO_CLASS_CODE)&&Boolean(process.env.GEMINI_API_KEY),privacy:'fictional-test-only',autoNotify:false});
   }
   if(req.method!=='POST')return json(res,405,{error:'METHOD_NOT_ALLOWED'});
   const origin=String(req.headers.origin||'');
@@ -70,9 +70,10 @@ export default async function handler(req,res) {
   if(SENSITIVE.test(answer)||Object.values(context).some(v=>SENSITIVE.test(v))){
     return json(res,200,{reply:'如果你可能正受到傷害，這件事需要可信任的大人一起處理。你不用一個人面對，也不用勉強換位思考。',face:'listen',needsAdult:true,source:'safety-rule'});
   }
-  const token=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||req.headers['x-vercel-oidc-token'];
-  if(!token)return json(res,503,{error:'GATEWAY_NOT_CONFIGURED'});
-  // No identity or original recording is sent; this still transmits user-entered text to an AI provider.
+  const geminiKey=process.env.GEMINI_API_KEY;
+  if(!geminiKey)return json(res,503,{error:'GEMINI_NOT_CONFIGURED'});
+  // Only fictional, teacher-approved context is sent to Google's Gemini API.
+  // Never return or log the secret API key.
   const system=[
     '你是臺灣國小四至六年級的社會情緒學習 SEL 引導助教 Mimo，處理的是經教師監督的**虛構案例**，不是心理師、調查員或診斷工具。',
     '孩子此刻只需要在一個問題的回答後獲得有溫度的簡短回饋，不要再提出新問題；不急著教訓或套用一模一樣的安慰話。',
@@ -85,29 +86,47 @@ export default async function handler(req,res) {
     '如果孩子描述急迫危險、自傷、他傷、持續霸凌或性／身體傷害，不進行換位模擬，needsAdult=true，先建議立即找可信任大人與正式協助。不要承諾自動通知。',
   ].join('\n');
   const user=JSON.stringify({learning_stage:STAGES[stage],stage,question_field:field,student_answer:answer,student_confirmed_context:context},null,0);
-  try{
-    const api=await fetch('https://ai-gateway.vercel.sh/v1/chat/completions',{
+  try {
+    const api=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
       method:'POST',
-      headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      headers:{
+        'x-goog-api-key':geminiKey,
+        'Content-Type':'application/json',
+      },
       body:JSON.stringify({
-        model:process.env.MIMO_AI_MODEL||'openai/gpt-5.4-mini',
-        messages:[{role:'system',content:system},{role:'user',content:user}],
-        max_tokens:500,stream:false,
-        response_format:{type:'json_schema',json_schema:{name:'mimo_sel_feedback',strict:true,schema:{type:'object',properties:{reply:{type:'string'},face:{type:'string',enum:['calm','listen','soft','guard','hurt','question']},needsAdult:{type:'boolean'}},required:['reply','face','needsAdult'],additionalProperties:false}}}
+        systemInstruction:{parts:[{text:system}]},
+        contents:[{role:'user',parts:[{text:user}]}],
+        generationConfig:{
+          responseMimeType:'application/json',
+          responseSchema:{
+            type:'OBJECT',
+            properties:{
+              reply:{type:'STRING'},
+              face:{type:'STRING',enum:['calm','listen','soft','guard','hurt','question']},
+              needsAdult:{type:'BOOLEAN'},
+            },
+            required:['reply','face','needsAdult'],
+          },
+          maxOutputTokens:768,
+        },
       }),
       signal:AbortSignal.timeout(12000),
     });
-    if(!api.ok)return json(res,502,{error:'GATEWAY_UNAVAILABLE'});
+    if(!api.ok){
+      if(api.status===429)return json(res,503,{error:'GEMINI_QUOTA_EXCEEDED'});
+      if(api.status===403||api.status===404)return json(res,503,{error:'GEMINI_MODEL_ACCESS_UNAVAILABLE'});
+      return json(res,502,{error:'GEMINI_UNAVAILABLE'});
+    }
     const result=await api.json();
-    const message=result?.choices?.[0]?.message?.content;
-    const raw=typeof message==='string'?message:'';
+    const parts=result?.candidates?.[0]?.content?.parts;
+    const raw=Array.isArray(parts)?parts.filter(x=>typeof x?.text==='string').map(x=>x.text).join(''):'';
     let output;
     try{output=JSON.parse(raw)}catch{return json(res,502,{error:'INVALID_MODEL_OUTPUT'})}
     const reply=clean(output.reply,220);
     if(reply.length<8||reply.length>220||!FACES.has(output.face)||typeof output.needsAdult!=='boolean'){
       return json(res,502,{error:'INVALID_MODEL_OUTPUT'});
     }
-    return json(res,200,{reply,face:output.face,needsAdult:output.needsAdult,source:'ai-gateway'});
+    return json(res,200,{reply,face:output.face,needsAdult:output.needsAdult,source:'gemini-2.5-flash'});
   }catch{
     return json(res,502,{error:'AI_TEMPORARILY_UNAVAILABLE'});
   }

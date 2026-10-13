@@ -132,3 +132,15 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 }
 @media(max-height:690px) and (min-width:901px){.robot-wrapper{min-height:270px;width:270px}.mimo-head{max-height:270px}.mimo-stage{padding:14px 24px}.robot-name{margin-bottom:14px}.speech-card{min-height:80px;padding:15px}}
 @media(prefers-reduced-motion:reduce){.mimo-head,.speech-card.flash,.last-reply{animation:none!important}.breath-orb:not(.force-motion){animation:none!important}.breath-orb.force-motion.active{animation:breath-wave 8s ease-in-out infinite!important}button{transition:none!important}}
+
+/* v2: collaborative companionship preference, secondary to the robot */
+.support-modes{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:0 0 16px;color:#8da499;font-size:11px}
+.support-modes>span{font-weight:700;white-space:nowrap}
+.mode-buttons{display:flex;gap:4px;padding:3px;border:1px solid #e0e9df;border-radius:999px;background:#f5f8f3}
+.mode-buttons button{border:0;background:transparent;border-radius:999px;padding:8px 10px;font-size:11px;color:#698276;font-weight:750}
+.mode-buttons button[aria-pressed="true"]{background:#d9ecde;color:#2e7154;box-shadow:0 1px 3px #254e2b19}
+.mode-buttons button:focus-visible{outline:2px solid #e9bc64;outline-offset:2px}
+@media(max-width:520px){
+.support-modes{margin-bottom:11px;gap:4px}
+.mode-buttons button{font-size:10px;padding:8px 9px}
+}

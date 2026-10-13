@@ -6,7 +6,16 @@ const MOVE=['stay','emotion','stabilize','story','facts','perspective','action',
 const SKILL=['reflect_feeling','reflect_meaning','simple_reflection','double_sided_reflection','open_invitation','summary','permission','validate_boundary','offer_choice','reframe_uncertainty','collaborative_plan','quiet_presence'];
 const MODE=['listen','clarify','ideas'];
 const THREAD_FIELDS=['event','importance','openLoop'];
-const CLOSED=/先到這裡|就這樣|今天先聊到這|謝謝你我好多了|我知道怎麼做了|下次我會|我要去找老師|我決定先/u;
+const CLOSED=/先到這裡|就這樣|今天先聊到這|謝謝你我好多了|我知道怎麼做了|下次我會|我要去找老師|我決定先|我想好下次|如果.{2,28}就找老師/u;
+function planTurn(answer,mode,turnCount,thread){
+ if(CLOSED.test(answer)&&!/[？?]$/.test(answer))return '孩子已表達一項明確的下一步或想結束。這一輪不要再叫他說更多細節，也不要只稱讚「很棒／已想好」。請回扣對話開頭具體的事件、當時重要的需求，說明孩子剛剛自己選擇的可行做法如何照顧界線。做成2句短而自然的結語；question 留空，move=close。不可替孩子保證事情會解決。';
+ if(mode==='clarify'&&/想整理|想釐清|一起整理|幫我整理|理一理/u.test(answer))return '孩子主動想整理，**不要反問「你想從哪部分開始？」**。應直接依前文把已看到／聽到的事、孩子的感受、尚不知道的事情整理成簡短的自然說法，再問至多一個「這樣整理符合你的意思嗎？」類的校正問題。';
+ if(mode==='clarify'&&/我看到|我親眼|我聽到|我沒有聽到|不知道.*為什麼/u.test(answer))return '孩子正在分辨觀察與未知。指出可以確認的觀察，和還無法知道的意圖；不應突然追問旁邊有哪些同學、誰在場或其它無關枝節。接續既有主線，讓孩子知道已經整理得更清楚。';
+ if(/最在意|其實不是.{1,28}而是|重點不是/u.test(answer))return '孩子已清楚指出核心在意點，請記住並承接這個轉變；**不要只把他的話原封不動重述一遍**。可以溫和連結「界線、被尊重」與孩子自己的需要，但不要急著進入建議或強迫反思。';
+ if(mode==='listen'&&turnCount>=2&&thread?.event)return '已談了好幾輪，同一事件不應每句只重說「你很生氣」。用一句把前面與現在的焦點連起來，回應真正新增的內容；若孩子只想被聽，允許不問。可以自然邀請孩子選擇繼續說或整理，但不能強迫。';
+ if(mode==='ideas')return '孩子想找方法，根據整段對話提供一個具體小選擇，不要只說「可以一起想」，也不要重複問他想不想得到建議。與孩子在意的事直接相連，避免無目的提問。';
+ return '請從整段談話建立連貫的下一句，不依固定回合表；一般先承接新內容，但如果孩子已說清焦點，就不必一再反映同樣情緒。';
+}
 const RISK=/自殺|想死|不想活|割腕|要自殘|想傷害自己|想揍|想打人|會揍|要揍|忍不住動手|快動手|性侵|性騷擾|被強迫|被威脅|家暴|被打|有人打我|一直被霸凌/u;
 const NEGATED=/我不想(打|揍|傷害)|我(沒有|不會)(想|要)(打|揍|傷害)/u;
 const OBJECTS=/掃下去|掃掉|翻桌|摔(東西|椅子|水壺|書)|砸(東西|爛)|打翻|丟(東西|出去)/u;
@@ -34,7 +43,10 @@ const SYSTEM=[
 '原始 Mimo 特色：心情天氣、自主命名情緒、主觀敘述、觀察與推測、選擇性換位、保護界線、自己整理下次可用的策略。SEL 是背景地圖，不是每句話都要依序完成的流程。',
 '最重要的不是每回合的技巧名稱，而是一整段聊天的敘事連續性。請維持一條清楚的人際事件主線：發生什麼、孩子在意什麼、還有什麼不知道、孩子希望接下來如何被支持。每一回合先承接上一回合的具體資訊，說明這次新訊息如何影響理解，再決定是否要問一個真正有必要的問題。',
 '自然對話節奏：剛開始先知道孩子想談的重點；談過兩三輪後，可以自然地以一句話把故事串起來，邀請孩子選擇「先整理」還是「繼續說」；當孩子已說清需要、明確提出做法或表示想結束，請回扣開頭的事件、簡短整理孩子自己的觀察和選擇並自然收束。這不是固定關卡，若學生只想被聽就不要強迫轉向。',
-'每回合記得未解決的線索 openLoop：若上一個關心點已被孩子回答，應把它更新成新焦點，絕對不要再次問「還有什麼感覺」「發生了什麼」之類重複的泛用問題。先聚焦一個問題，沒必要就別問。',
+'每回合記得未解決的線索 openLoop：若上一個關心點已被孩子回答，應把它更新成新焦點；孩子已說出具體處理方法時 openLoop 應清空，不得把已解決問題又變成下一題。絕對不要再次問「還有什麼感覺」「發生了什麼」之類重複的泛用問題。先聚焦一個問題，沒必要就別問。',
+'反例：學生說「我最在意的不是畫壞，是她沒問我」；錯誤只複誦「你在意她沒問你」便結束。比較好的是承接前文「剛才你說畫花了很委屈，現在聽起來更難受的是對方沒有先尊重你的決定」，不強迫追問。',
+'反例：學生表示「我想整理一下」；錯誤又問「你想從哪裡開始整理」。比較好的是用現有資訊主動整理「你看到的是作品被修改；你覺得被忽略，但對方為何這樣做還不知道」，詢問是否有誤解。',
+'反例：學生已提出「下次我會先說要先問我，如果對方不聽就找老師」；錯誤只答「你已經想好了」。比較好的是自然回扣最初的委屈，說「你現在有一個先表達界線、必要時求助的做法。這不能保證事情一定順利，但你不必自己扛著」，然後允許結束。不要照抄範例，須依實際對話。',
 '孩子問「那我怎麼辦」、想下一步時，不要一直說「我們可以慢慢想」，而是根據已說的情境給一個小而可行的選擇，必要時先問是否願意；孩子已自行提出合理做法時，不要再問相同問題，應回到事件確認做法如何保護界線，並可結束。',
 '輸出 thread 是你對這段對話的簡短暫時工作摘要：event=孩子自己說的事件（非核實事實），importance=孩子最在意的感受或價值，openLoop=仍未談完、值得等孩子願意時再談的焦點。只保留孩子確實說過的資訊，不得推測別人的動機，更新而非每次重置。',
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
@@ -88,7 +100,7 @@ export default async function handler(req,res){
  const turnCount=Math.min(18,Math.max(0,Number(input.turnCount)||0));
  const previousQuestion=trim(input.lastQuestion,115);
  const lastQuestions=history.filter(h=>h.role==='mimo').map(h=>h.text.split(/[\n]/).at(-1)).filter(t=>t&&/[?？]/.test(t)).slice(-3);
- const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,child_has_proposed_next_step:CLOSED.test(answer),learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
+ const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},
@@ -104,7 +116,9 @@ export default async function handler(req,res){
   const comparison=q=>q.replace(/[？?！，。\s「」『』：:]/g,'').slice(0,80);
   const nearSame=(a,b)=>{const x=comparison(a),y=comparison(b);if(!x||!y)return false;if(x===y)return true;const grams=x.length>=2?Array.from({length:x.length-1},(_,i)=>x.slice(i,i+2)):[];const other=new Set(Array.from({length:Math.max(0,y.length-1)},(_,i)=>y.slice(i,i+2)));return grams.length>=5&&grams.filter(z=>other.has(z)).length/grams.length>.76};
   if([previousQuestion,...lastQuestions].some(q=>nearSame(question,q)))question='';
-  if(CLOSED.test(answer)&&mode!=='listen'&&!question)out.move='close';
+  if(CLOSED.test(answer)&&!/[？?]$/.test(answer)){
+    out.move='close';question='';nextThread.openLoop='';
+  }
   if(reply.length<5||!FACE.includes(out.face)||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean'||question.split(/[？?]/).length>2)return send(res,502,{error:'BAD_SCHEMA'});
   if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
   return send(res,200,{reply,question,thread:nextThread,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:'gemini-2.5-flash'});

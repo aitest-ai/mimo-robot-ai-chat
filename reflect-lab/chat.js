@@ -1,6 +1,6 @@
-/* Mimo 心晴之鏡 · conversation-first SEL prototype.
-   Child-facing: one natural question, persistent robot expressions, no stepper.
-   Gemini is OFF by default. Teacher opt-in + fictitious cases only.
+/* Mimo 心晴之鏡 · conversation-thread SEL prototype.
+   Child-facing: context-aware replies, optional question, non-forced progression.
+   Gemini default-on for fictional practice only; never submit real student information.
    Does not store chat content, credentials or child identities.
  */
 (()=>{"use strict";
@@ -38,7 +38,7 @@ const phaseInfo={
  safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
  supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:""});
+const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},conversationTurns:0});
 let state=makeInitial();
 const intro="嗨，我是 Mimo！我們先用虛構的校園故事練習，今天想聊什麼？";
 const micro=s=>String(s||"").trim().slice(0,70);
@@ -90,9 +90,19 @@ function chips(values){
 }
 function suggestions(phase){
  if(state.processing){chips([]);return}
- // Listening mode must not quietly turn into an emotion-label worksheet.
- if(state.teacher&&state.supportMode==="listen"&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect","finish"].includes(phase)){
-  return chips([{text:"💬 我還想說",value:"我還想繼續說這件事。"},{text:"☁️ 我還不知道怎麼說",value:"我現在還不知道怎麼說。"},{text:"🍃 想先休息",action:"breathe"},{text:"🙋 找大人",action:"help"}]);
+ // In AI mode, optional actions express the child's choice, not canned student replies.
+ // Keep mirror and immediate-safety choices separate.
+ if(state.teacher&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect"].includes(phase)){
+  if(state.conversationTurns===0)return chips([{text:"🎨 試試虛構美勞課故事",action:"demo"},{text:"🍃 先休息",action:"breathe"}]);
+  if(state.lastMove==="close"||phase==="finish")return chips([{text:"💬 我還想再聊",action:"continue"},{text:"✨ 今天先到這裡",action:"finish"}]);
+  const options=state.supportMode==="listen"?
+   [{text:"🧩 我想整理這件事",action:"clarify"},{text:"💡 想想下一步",action:"ideas"}]:
+   state.supportMode==="clarify"?
+   [{text:"💬 先聽我說",action:"listen"},{text:"💡 想想下一步",action:"ideas"}]:
+   [{text:"💬 再說說感受",action:"listen"},{text:"🧩 一起理清楚",action:"clarify"}];
+  if(state.conversationTurns>2)options.push({text:"✨ 今天先聊到這",action:"finish"});
+  else options.push({text:"🍃 先休息",action:"breathe"});
+  return chips(options);
  }
  const shortcuts=[{text:"🌿 我想先休息一下",action:"breathe"}];
  switch(phase){
@@ -135,6 +145,12 @@ function proposeNext(current,text){
  if(current==="mirrorReflect")return "action";
  return "weather";
 }
+function continuityFallback(text){
+ const event=state.thread.event,importance=state.thread.importance;
+ if(event&&importance)return "剛才你說到「"+event.slice(0,37)+"」，還有你很在意的「"+importance.slice(0,24)+"」。我先記著，你可以照自己的速度繼續。";
+ if(event)return "剛才談到「"+event.slice(0,45)+"」，我記得這是你在意的事。你可以慢慢接著說。";
+ return "我還在這裡。你可以先說現在最想讓我知道的事，不需要照著題目回答。";
+}
 function fallback(from,text,next){
  const t=micro(text).replace(/\s+/g," ");const concise=t.length>30?t.slice(0,29)+"…":t;
  if(from==="safePause")return {reply:"你不需要把怒氣壓下去，但可以先讓自己與旁邊的物品保持距離。",face:"listen"};
@@ -174,9 +190,8 @@ function selectMode(next,silent=false){
  if(!["listen","clarify","ideas"].includes(next)||state.processing)return;
  state.supportMode=next;
  document.querySelectorAll("#supportModes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===next)));
- const line={listen:"好，我先聽你說，不急著分析。",clarify:"好，如果你願意，我們一起慢慢釐清。",ideas:"好，需要時我們再一起想一個可行的做法。"}[next];
- if(!silent)speak(line,"soft","",true);
- // Continue where the child left off; changing a preference is NOT an answer.
+ // Switching preferences should not inject another artificial robot turn into the story.
+ if(!silent)suggestions(state.phase);
 }
 function questionValid(q){
  if(!q||q.length<6||q.length>105)return false;
@@ -200,7 +215,9 @@ function messageForModel(text,phase,next){
  if(phase==="mirrorQuote")context.quote=text;
  if(phase==="mirrorReflect")context.reaction=text;
  if(phase==="action")context.action=text;
- return {answer:text,history:state.history.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
+ const recent=state.history.slice(-11);
+ if(recent.at(-1)?.role==="user"&&recent.at(-1).text===text)recent.pop();
+ return {answer:text,history:recent.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);
@@ -208,7 +225,7 @@ async function replyTo(text){
  if(state.data.unsafe){showHelp();return;}
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
- addUser(message);$("chatInput").value="";resizeInput();
+ addUser(message);state.conversationTurns++;$("chatInput").value="";resizeInput();
  const risk=riskLevel(message);
  if(risk==="immediate"){
   state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
@@ -309,10 +326,17 @@ async function replyTo(text){
   if(seq===state.turn&&String(e?.message)!=="PRIVATE_DEMO_INPUT")$("teacherStatus").textContent="Gemini 暫時沒有回應，已切換為固定引導。";
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
- const response=result?{reply:result.reply,face:result.face}:local;
- const mapped=result?chooseMove(result.move,phase,next):next;
- state.lastSkill=result?.skill||"";state.lastSource=result?.source||"fallback";
- updatePrompt(mapped,response,result?.question,!!result);
+ if(result?.thread&&typeof result.thread==="object"){
+   for(const key of ["event","importance","openLoop"]){
+    if(typeof result.thread[key]==="string")state.thread[key]=result.thread[key].slice(0,130);
+   }
+ }
+ state.lastMove=result?.move||"stay";
+ state.lastSkill=result?.skill||"";
+ state.lastSource=result?.source||"fallback";
+ const mapped=result?chooseMove(result.move,phase,next):phase;
+ const response=result?{reply:result.reply,face:result.face}:{reply:continuityFallback(message),face:"listen"};
+ updatePrompt(mapped,response,result?.question,true);
  if(next==="mirrorReflect"&&FACES.has(message))face(message);
 }
 function toggleBusy(busy){
@@ -420,13 +444,14 @@ function startMirror(){
  suggestions("mirrorQuote");
 }
 function useAction(action){
+ if(["listen","clarify","ideas"].includes(action))return selectMode(action);
  if(action==="help")return showHelp();
  if(action==="breathe")return breathe();
  if(action==="demo")return demo();
  if(action==="mirror")return startMirror();
  if(action==="skipMirror"){state.phase="action";speak("不重演也完全可以。我們繼續想想怎麼保護自己的需要。","soft",phaseInfo.action.question);suggestions("action");return}
- if(action==="continue"){state.phase="event";speak("當然可以，我還在聽。","listen","你還想說說哪件事？");suggestions("event");return}
- if(action==="finish"){speak("好，今天就先到這裡。記得，遇到難處時也可以找可信任的大人。","soft");chips([{text:"✨ 再聊一次",action:"restart"}]);return}
+ if(action==="continue"){state.phase="event";state.lastMove="stay";speak("好，我在聽。剛才那件事還有哪部分讓你放不下？","listen");suggestions("event");return}
+ if(action==="finish"){state.lastMove="close";state.phase="finish";const event=state.thread.event,care=state.thread.importance;speak(event?"今天我們談了「"+event.slice(0,35)+"」，也看到你在意的"+(care?care.slice(0,25):"心情")+"。先聊到這裡就好；若事情還困擾你，可以找可信任的大人陪你。":"好，先聊到這裡。需要的時候，可以找可信任的大人陪你。","soft");chips([{text:"💬 再聊聊",action:"continue"},{text:"✨ 重新開始",action:"restart"}]);return}
  if(action==="restart")return reset();
 }
 $("chatForm").addEventListener("submit",e=>{e.preventDefault();void replyTo($("chatInput").value)});

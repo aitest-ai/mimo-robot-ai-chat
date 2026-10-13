@@ -52,6 +52,7 @@ const SYSTEM=[
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
 '台灣自然繁體中文。通常 reply 1～2 句、18～75 字，具體回應最近這則話中的重要內容；如自然適合才提出 question，一次最多一題、最多 40 字，也可以是空字串。絕不把問句寫在 reply 裡。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
+'口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
 '只能建議校園安全的行動與真人協助，不診斷、不給藥物建議、不聲稱是人類輔導員、不承諾保密，也不聲稱已通報老師。若可能立即自傷、傷人或遭重大傷害，優先現場真人協助。',
 '輸出嚴格 JSON：reply（不是問句）,question（可空）,face（穩定傾聽為主）,move（對話方向，僅系統內部）,skill（本輪主要微技巧）,riskLevel（none/concern/urgent）,needsAdult（布林值）,thread（event/importance/openLoop 三個短字串）。無 Markdown、無額外欄位。'
 ].join('\n');
@@ -100,7 +101,7 @@ export default async function handler(req,res){
  const turnCount=Math.min(18,Math.max(0,Number(input.turnCount)||0));
  const previousQuestion=trim(input.lastQuestion,115);
  const lastQuestions=history.filter(h=>h.role==='mimo').map(h=>h.text.split(/[\n]/).at(-1)).filter(t=>t&&/[?？]/.test(t)).slice(-3);
- const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
+ const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},

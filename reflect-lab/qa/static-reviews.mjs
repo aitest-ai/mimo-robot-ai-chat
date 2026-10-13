@@ -29,7 +29,7 @@ function review(role,scenario){
     add(i,'major','孩子已要求整理，卻仍問「從哪裡開始」','先用已有的事件與孩子的在意點直接整理，再讓孩子確認。');
   if(i>=2&&['counselor','supervisor'].includes(role)){
     const recent=turns.slice(i-2,i+1).map(x=>processText(x.mimo));
-    if(recent.every(x=>/^你|^原來你/.test(x)&&x.length<105&&!(x.match(/[?？]/g)||[]).length))
+    if(recent.every(x=>/^(你|原來你)/.test(x)&&x.length<170))
       add(i,'major','連續三輪只有以「你...」重述孩子，對話未推進','回扣前面核心焦點或幫孩子釐清新資訊，必要時容許沉默。');
   }
   if(plan.test(s)&&['teacher','counselor'].includes(role)&&

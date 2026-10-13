@@ -101,7 +101,12 @@ export default async function handler(req,res){
  const turnCount=Math.min(18,Math.max(0,Number(input.turnCount)||0));
  const previousQuestion=trim(input.lastQuestion,115);
  const lastQuestions=history.filter(h=>h.role==='mimo').map(h=>h.text.split(/[\n]/).at(-1)).filter(t=>t&&/[?？]/.test(t)).slice(-3);
- const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
+ const previousReplies=history.filter(h=>h.role==='mimo').slice(-2).map(h=>h.text.trim());
+ const repeatedYouOpening=previousReplies.length===2&&previousReplies.every(x=>/^(你|原來你)/u.test(x));
+ const voiceInstruction=repeatedYouOpening
+  ?'前兩句已經都用「你…」開頭。本輪不要再用「你」起頭，也不要再重述學生整句話；請用自然的事件連結、情感中的需要或輕柔轉折，回應最新內容。不能添加孩子沒說過的事。'
+  :'回應語句應有口語節奏，不必每句都用「你說…／你覺得…」起頭。';
+ const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),voice_instruction:voiceInstruction,learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},

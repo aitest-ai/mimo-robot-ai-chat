@@ -68,3 +68,11 @@ API 健康檢查 `GET /api/reflect` 只回傳 `ready` 等非機密狀態。**`re
 - https://ai.google.dev/gemini-api/docs/generate-content/get-started
 - https://ai.google.dev/gemini-api/docs/generate-content/structured-output
 - https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash
+
+## v2 回饋端點更新
+
+新網站已使用 `POST /api/reflect-v2`（現行 Gemini API），取代舊版 `/api/reflect` 的「每題固定下一個教材目標」。
+
+只在教師已啟用虛構情境測試模式時，送出 `{fictional:true,answer,supportMode,history,context}`，其中 `supportMode` 為 `listen|clarify|ideas`，最近對話最多十則（每則 240 字），情境欄位限制長度。伺服器使用 Gemini 的結構化回覆，輸出對話微技巧與建議互動方向。回應可能沒有問題，不能由前端強行補上固定問題。
+
+安全仍由前端和伺服器規則先行處理。學生資料傳送到 Google Gemini；不能宣稱資料不出校、已通知學校或真正完成心理諮商。詳細設計請見 [MIMO_FEEDBACK_FRAMEWORK_v2.md](./MIMO_FEEDBACK_FRAMEWORK_v2.md)。

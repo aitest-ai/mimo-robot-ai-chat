@@ -217,7 +217,7 @@ function messageForModel(text,phase,next){
  if(phase==="action")context.action=text;
  const recent=state.history.slice(-11);
  if(recent.at(-1)?.role==="user"&&recent.at(-1).text===text)recent.pop();
- return {answer:text,history:recent.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
+ return {answer:text,history:recent.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);

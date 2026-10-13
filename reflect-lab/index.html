@@ -53,6 +53,7 @@
   </section>
   <section class="interaction" aria-label="你的回應">
    <div class="last-reply" id="lastReply" hidden><span>你剛剛說</span><p id="lastReplyText"></p></div>
+   <div class="support-modes" aria-label="希望 Mimo 怎麼陪你"><span>希望我怎麼陪你？</span><div id="supportModes" class="mode-buttons" role="group" aria-label="陪伴方式"><button type="button" data-mode="listen" aria-pressed="true">先聽我說</button><button type="button" data-mode="clarify" aria-pressed="false">幫我整理</button><button type="button" data-mode="ideas" aria-pressed="false">想想方法</button></div></div>
    <div class="quick-replies" id="quickReplies" aria-label="可以直接點選的回應"></div>
    <form class="composer" id="chatForm">
     <label class="sr-only" for="chatInput">對 Mimo 說的話</label>
@@ -70,12 +71,12 @@
 </div>
 <dialog id="teacherDialog" class="dialog teacher-dialog" aria-labelledby="teacherTitle">
  <div class="dialog-top"><h2 id="teacherTitle">教師測試設定</h2><button class="dialog-close" id="teacherClose" type="button" aria-label="關閉設定">×</button></div>
- <p>預設是固定的情境引導。啟用後，本次虛構案例的答案和少量前文會傳送至 Google Gemini 2.5 Flash，由 AI 依內容回饋。此原型不適合收集真實學生事件。</p>
+ <p>預設是固定的情境引導。啟用後，本次虛構案例的答案和少量前文會傳送至 Google Gemini 2.5 Flash，由 AI 結合傾聽、澄清、尊重界線與 SEL 反思回饋。此原型不適合收集真實學生事件。</p>
  <label for="teacherCode">教師測試碼</label>
  <input type="password" id="teacherCode" autocomplete="off" placeholder="由教師設定的測試碼">
  <label class="consent"><input id="fictionalConsent" type="checkbox"> <span>我只會使用虛構情境，不輸入真實學生資料。</span></label>
  <div class="dialog-actions"><button id="aiEnable" class="primary" type="button">啟用 Gemini 回饋</button><button id="aiDisable" type="button" hidden>關閉 AI</button></div>
- <p class="status-msg" id="teacherStatus" role="status">尚未啟用 AI。所有回應仍可在本機示範。</p>
+ <p class="status-msg" id="teacherStatus" role="status">尚未啟用 Gemini；目前使用固定教學引導。</p>
  <p class="low-note">模型金鑰僅設定在 Vercel 伺服器，請勿輸入於此。網頁重新整理後會清除測試碼。</p>
 </dialog>
 <dialog id="helpDialog" class="dialog help-dialog" aria-labelledby="helpTitle">

@@ -461,5 +461,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();
+face("soft");suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();void enablePublicDemo();
 })();

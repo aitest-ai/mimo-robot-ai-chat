@@ -1,0 +1,4 @@
+gemini-key.txt
+*.env
+.env
+.local-secrets/

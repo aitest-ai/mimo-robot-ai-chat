@@ -1,16 +1,20 @@
 import {writeFile,mkdir,readFile} from 'node:fs/promises';
 import {scenarios} from './scenarios.mjs';
+import {reviewAll} from './static-reviews.mjs';
 const ROOT=(process.env.MIMO_URL||'https://mimo-reflection-lab.vercel.app').replace(/\/$/,'');
 const CODE=process.env.MIMO_QA_CODE;
 const ROUND=process.env.MIMO_QA_ROUND||'round1';
 const selected=(process.env.MIMO_QA_CASES||'').split(',').filter(Boolean);
 const roles=['psychologist','counselor','teacher','supervisor'];
-if(!CODE){console.error('Provide MIMO_QA_CODE as a runtime secret; never commit it.');process.exit(2)}
+const MODE=CODE?'private-AI-review':'public-demo-deterministic-review';
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function request(path,body){
  const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),22000);
  try{
-  const r=await fetch(ROOT+path,{method:'POST',headers:{'Content-Type':'application/json','Origin':ROOT,'X-Mimo-Class-Code':CODE},body:JSON.stringify(body),signal:ctrl.signal,cache:'no-store'});
+  const headers={'Content-Type':'application/json','Origin':ROOT};
+  if(CODE)headers['X-Mimo-Class-Code']=CODE;
+  else headers['X-Mimo-Demo']='fictional-practice-v1';
+  const r=await fetch(ROOT+path,{method:'POST',headers,body:JSON.stringify(body),signal:ctrl.signal,cache:'no-store'});
   const data=await r.json();return {ok:r.ok,status:r.status,data};
  }finally{clearTimeout(timeout)}
 }
@@ -35,7 +39,7 @@ function gate(reviews,turns){
 async function simulate(scenario){
  const history=[],thread={event:'',importance:'',openLoop:''},turns=[];let lastQuestion='',lastSkill='';
  for(const t of scenario.turns){
-  const body={fictional:true,answer:t.say,supportMode:t.mode,history:history.slice(-10),context:{},thread,lastQuestion,lastSkill,turnCount:turns.length+1};
+  const body={fictional:true,publicDemo:!CODE,demoCase:scenario.id.includes('friend')||scenario.id.includes('teasing')?'friendship':'poster',answer:t.say,supportMode:t.mode,history:history.slice(CODE?-10:-6),context:{},thread,lastQuestion,lastSkill,turnCount:turns.length+1};
   let result;
   try{result=await request('/api/reflect-v2',body)}catch(e){result={ok:false,status:0,data:{error:String(e)}}}
   const d=result.data||{};
@@ -58,14 +62,14 @@ async function review(run,role){
  }catch(e){return {role,status:0,result:{error:String(e)}}}
 }
 const chosen=scenarios.filter(x=>!selected.length||selected.includes(x.id));
-const output={round:ROUND,ranAt:new Date().toISOString(),model:'gemini-2.5-flash',reviewers:'four independent AI-simulated expert perspectives',framework:'Task-to-Task + Supervisor-to-Task',cases:[]};
+const output={round:ROUND,ranAt:new Date().toISOString(),model:'gemini-2.5-flash',reviewers:CODE?'four independent AI-simulated reviewer calls':'four independent deterministic rubric screens (NOT AI experts)',executionMode:MODE,framework:'Task-to-Task + Supervisor-to-Task',cases:[]};
 for(const scenario of chosen){
  const transcript=await simulate(scenario);
  console.log('DIALOGUE',scenario.id,transcript.turns.map(t=>({n:t.turn,source:t.source,student:t.student,mimo:t.mimo.slice(0,110)})));
  const reviews=[];
- for(let i=0;i<roles.length;i+=2){
-  const batch=await Promise.all(roles.slice(i,i+2).map(r=>review(transcript,r)));reviews.push(...batch);
- }
+ if(CODE){
+  for(let i=0;i<roles.length;i+=2){const batch=await Promise.all(roles.slice(i,i+2).map(r=>review(transcript,r)));reviews.push(...batch)}
+ }else reviews.push(...reviewAll(transcript));
  const decision=gate(reviews,transcript.turns);
  output.cases.push({...transcript,reviews,gate:decision});
  console.log('GATE',scenario.id,JSON.stringify(decision));

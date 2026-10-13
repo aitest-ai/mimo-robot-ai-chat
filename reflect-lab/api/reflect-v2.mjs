@@ -111,17 +111,34 @@ export default async function handler(req,res){
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
-  const reply=trim(out.reply,230);let question=trim(out.question,115);
+  let reply=trim(out.reply,230);let question=trim(out.question,115);let responseSource="gemini-2.5-flash";
   const nextThread={};const rawOutput=out.thread&&typeof out.thread==='object'?out.thread:{};
   for(const k of THREAD_FIELDS)nextThread[k]=trim(rawOutput[k],publicAuthorized?90:130);
   const comparison=q=>q.replace(/[？?！，。\s「」『』：:]/g,'').slice(0,80);
   const nearSame=(a,b)=>{const x=comparison(a),y=comparison(b);if(!x||!y)return false;if(x===y)return true;const grams=x.length>=2?Array.from({length:x.length-1},(_,i)=>x.slice(i,i+2)):[];const other=new Set(Array.from({length:Math.max(0,y.length-1)},(_,i)=>y.slice(i,i+2)));return grams.length>=5&&grams.filter(z=>other.has(z)).length/grams.length>.76};
+  // Validate a specific conversational failure: the child asks us to summarize,
+  // but the model asks them to plan the summary instead. Build only from child-stated context.
+  const isSummaryRequest=mode==='clarify'&&/想整理|幫我整理|想釐清|整理一下/u.test(answer);
+  if(isSummaryRequest&&/從哪|哪個部分|哪一部分|怎麼開始/u.test(question)){
+    const parts=[];
+    if(thread.event)parts.push('剛才你說到'+thread.event.replace(/[。！？]$/,''));
+    if(thread.importance)parts.push('你在意的是'+thread.importance.replace(/[。！？]$/,''));
+    if(!parts.length){
+      // No facts to summarize; do not invent details.
+      reply='我們先只整理已經提過的事，不用急著補上還不知道的部分。';
+    }else{
+      reply='我們先把剛才說的放在一起：'+parts.join('；')+'。';
+      if(!/不確定|不知道|不清楚/.test(reply))reply+='對方怎麼想，還需要另外確認。';
+    }
+    question='這樣整理和你想說的接近嗎？';
+    out.move='facts';out.skill='summary';responseSource='continuity-repair';
+  }
   if([previousQuestion,...lastQuestions].some(q=>nearSame(question,q)))question='';
   if(CLOSED.test(answer)&&!/[？?]$/.test(answer)){
     out.move='close';question='';nextThread.openLoop='';
   }
   if(reply.length<5||!FACE.includes(out.face)||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean'||question.split(/[？?]/).length>2)return send(res,502,{error:'BAD_SCHEMA'});
   if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
-  return send(res,200,{reply,question,thread:nextThread,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:'gemini-2.5-flash'});
+  return send(res,200,{reply,question,thread:nextThread,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

@@ -90,6 +90,10 @@ function chips(values){
 }
 function suggestions(phase){
  if(state.processing){chips([]);return}
+ // Listening mode must not quietly turn into an emotion-label worksheet.
+ if(state.teacher&&state.supportMode==="listen"&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect","finish"].includes(phase)){
+  return chips([{text:"💬 我還想說",value:"我還想繼續說這件事。"},{text:"☁️ 我還不知道怎麼說",value:"我現在還不知道怎麼說。"},{text:"🍃 想先休息",action:"breathe"},{text:"🙋 找大人",action:"help"}]);
+ }
  const shortcuts=[{text:"🌿 我想先休息一下",action:"breathe"}];
  switch(phase){
   case "safePause":return chips([{text:"🪑 我已經退開了",value:"我已經離開桌邊了。"},{text:"🙋 找大人來幫忙",action:"help"},{text:"我還是很激動",value:"我還是很激動，還不想說其他事情。"}]);

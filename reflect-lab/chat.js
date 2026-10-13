@@ -40,7 +40,7 @@ const phaseInfo={
 };
 const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:""});
 let state=makeInitial();
-const intro="嗨，我是 Mimo。今天有什麼事情，想找我聊聊嗎？";
+const intro="嗨，我是 Mimo！我們先用虛構的校園故事練習，今天想聊什麼？";
 const micro=s=>String(s||"").trim().slice(0,70);
 const safeContext=()=>{
  const keys=["weather","feeling","strength","story","quote","fact","guess","unknown","reaction","perspective","action"];

@@ -38,7 +38,7 @@ const phaseInfo={
  safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
  supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,code:"",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:""});
+const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:""});
 let state=makeInitial();
 const intro="嗨，我是 Mimo。今天有什麼事情，想找我聊聊嗎？";
 const micro=s=>String(s||"").trim().slice(0,70);
@@ -200,7 +200,7 @@ function messageForModel(text,phase,next){
  if(phase==="mirrorQuote")context.quote=text;
  if(phase==="mirrorReflect")context.reaction=text;
  if(phase==="action")context.action=text;
- return {answer:text,history:state.history.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,supportMode:state.supportMode,fictional:true};
+ return {answer:text,history:state.history.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);
@@ -287,15 +287,26 @@ async function replyTo(text){
   const ctl=new AbortController();state.abort=ctl;
   const timeout=setTimeout(()=>ctl.abort(),13500);
   try{
-   const r=await fetch("/api/reflect-v2",{method:"POST",headers:{"Content-Type":"application/json","X-Mimo-Class-Code":state.code},body:JSON.stringify(messageForModel(message,phase,next)),signal:ctl.signal,cache:"no-store"});
+   const headers={"Content-Type":"application/json"};
+   if(state.demo)headers["X-Mimo-Demo"]="fictional-practice-v1";
+   else headers["X-Mimo-Class-Code"]=state.code;
+   const r=await fetch("/api/reflect-v2",{method:"POST",headers,body:JSON.stringify(messageForModel(message,phase,next)),signal:ctl.signal,cache:"no-store"});
    const payload=await r.json();
-   if(!r.ok){if(r.status===401){state.teacher=false;state.code="";showAiMode();$("teacherStatus").textContent="教師測試碼無效，已關閉 Gemini。";}throw Error(payload.error||"AI_UNAVAILABLE");}
+   if(!r.ok){
+    if(r.status===401){state.teacher=false;state.demo=false;state.code="";showAiMode();$("teacherStatus").textContent="Gemini 使用權限失效，已切換為固定引導。";}
+    if(payload.error==="PUBLIC_DEMO_NO_PERSONAL_DETAILS"){
+      $("teacherStatus").textContent="公開練習不能輸入真實姓名、學校、電話或身分資料，請改用虛構人物。";
+      result={reply:"這裡先用虛構人物來練習就好，真實的事情可以找可信任的大人聊。",face:"listen",question:"",move:"stay",skill:"validate_boundary",source:"privacy-rule"};
+      throw Error("PRIVATE_DEMO_INPUT");
+    }
+    throw Error(payload.error||"AI_UNAVAILABLE");
+   }
    if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
    if(payload.needsAdult){state.data.unsafe=true;state.safetyConcern="immediate";state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","listen");showHelp();return}
    result=payload;
   }finally{clearTimeout(timeout)}
  }catch(e){
-  if(seq===state.turn)$("teacherStatus").textContent="Gemini 暫時沒有回應，已切換為固定引導。";
+  if(seq===state.turn&&String(e?.message)!=="PRIVATE_DEMO_INPUT")$("teacherStatus").textContent="Gemini 暫時沒有回應，已切換為固定引導。";
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
  const response=result?{reply:result.reply,face:result.face}:local;
@@ -324,7 +335,26 @@ function showHelp(){
  $("helpGuidance").textContent=notice;
  const dlg=$("helpDialog");if(!dlg.open)dlg.showModal();
 }
-function showAiMode(){$("aiIndicator").textContent=state.teacher?"Gemini 測試":"故事體驗";$("aiIndicator").classList.toggle("live",state.teacher);$("aiDisable").hidden=!state.teacher;}
+function showAiMode(){
+ $("aiIndicator").textContent=state.demo?"Gemini 練習中":state.teacher?"Gemini 教師模式":"固定引導";
+ $("aiIndicator").classList.toggle("live",state.teacher);
+ $("aiDisable").hidden=!state.teacher;
+}
+async function enablePublicDemo(){
+ if(state.teacher||state.manualDisabled)return;
+ try{
+  const response=await fetch("/api/reflect-v2",{cache:"no-store"});
+  if(!response.ok)return;
+  const info=await response.json();
+  if(info.publicDemoReady&&!state.teacher&&!state.manualDisabled){
+   state.demo=true;state.teacher=true;state.code="";
+   showAiMode();suggestions(state.phase);
+   $("teacherStatus").textContent="Gemini 已預設啟用：只限虛構校園故事。請勿輸入真實姓名、學校或私人經歷。";
+  }
+ }catch{
+  $("teacherStatus").textContent="Gemini 目前不可用，已使用固定引導。";
+ }
+}
 async function enableAI(){
  const code=$("teacherCode").value.trim();
  if(!code||!$("fictionalConsent").checked){$("teacherStatus").textContent="請先填教師測試碼，並確認只用虛構故事。";return}
@@ -332,13 +362,13 @@ async function enableAI(){
  try{
   const r=await fetch("/api/reflect-v2",{cache:"no-store"});
   const d=await r.json();if(!d.ready)throw Error("Gemini 尚未設定完成。請先在 Vercel 加入 GEMINI_API_KEY。");
-  state.teacher=true;state.code=code;showAiMode();
+  state.teacher=true;state.demo=false;state.manualDisabled=false;state.code=code;showAiMode();
   $("teacherStatus").textContent="已啟用 Gemini。只有新的虛構回答會送到 Google 模型。";
  }catch(e){$("teacherStatus").textContent=String(e.message||"無法使用 AI；仍可以本機體驗。");}
  finally{$("aiEnable").disabled=false}
 }
 function disableAI(){
- state.teacher=false;state.code="";state.turn++;
+ state.teacher=false;state.demo=false;state.manualDisabled=true;state.code="";state.turn++;
  state.abort?.abort();state.abort=null;state.processing=false;toggleBusy(false);
  $("teacherCode").value="";showAiMode();$("teacherStatus").textContent="Gemini 已關閉，接下來的文字不會送到模型。";
 }
@@ -347,7 +377,7 @@ function reset(){
  state.abort?.abort();stopBreath();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
  $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft");
- suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();
+ suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();void enablePublicDemo();
 }
 function demo(){
  // Entirely fictional, and distinguished from real student conflict.

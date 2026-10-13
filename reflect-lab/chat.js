@@ -166,12 +166,12 @@ function chooseMove(move,previous,backup){
  if(state.safetyConcern!=="none"&&target==="perspective")target="supportCheck";
  return phaseInfo[target]?target:backup;
 }
-function selectMode(next){
+function selectMode(next,silent=false){
  if(!["listen","clarify","ideas"].includes(next)||state.processing)return;
  state.supportMode=next;
  document.querySelectorAll("#supportModes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===next)));
  const line={listen:"好，我先聽你說，不急著分析。",clarify:"好，如果你願意，我們一起慢慢釐清。",ideas:"好，需要時我們再一起想一個可行的做法。"}[next];
- speak(line,"soft","",true);
+ if(!silent)speak(line,"soft","",true);
  // Continue where the child left off; changing a preference is NOT an answer.
 }
 function questionValid(q){
@@ -343,7 +343,7 @@ function reset(){
  state.abort?.abort();stopBreath();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
  $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft");
- suggestions("welcome");showAiMode();selectMode("listen");resizeInput();
+ suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();
 }
 function demo(){
  // Entirely fictional, and distinguished from real student conflict.
@@ -427,5 +427,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");suggestions("welcome");showAiMode();selectMode("listen");resizeInput();
+face("soft");suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();
 })();

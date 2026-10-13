@@ -38,7 +38,7 @@ const phaseInfo={
  safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
  supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,code:"",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false});
+const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,code:"",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:""});
 let state=makeInitial();
 const intro="嗨，我是 Mimo。今天有什麼事情，想找我聊聊嗎？";
 const micro=s=>String(s||"").trim().slice(0,70);
@@ -55,13 +55,14 @@ function face(expression){
  robot.setAttribute("aria-label","Mimo 的表情："+({calm:"平靜",listen:"認真傾聽",soft:"溫暖",guard:"皺眉",hurt:"難過",question:"正在思考"}[expression]));
  robot.classList.remove("react");void robot.getBoundingClientRect();robot.classList.add("react");
 }
-function speak(text,expression="listen",question=""){
+function speak(text,expression="listen",question="",record=true){
  face(expression);
  const message=String(text).trim();
  const q=String(question||"").trim();
  $("mimoTalk").textContent=(message+(message&&q?"\n":"")+q).trim()||intro;
  const card=$("speechCard");
  card.classList.remove("flash");void card.offsetWidth;card.classList.add("flash");
+ if(!record)return;
  const last=state.history[state.history.length-1];
  if(last?.role==="mimo")last.text=$("mimoTalk").textContent;
  else state.history.push({role:"mimo",text:$("mimoTalk").textContent});
@@ -148,15 +149,30 @@ function fallback(from,text,next){
  if(from==="wrap")return {reply:"你留給自己的提醒很重要。下次可以試試看，也可以找大人陪你一起處理。",face:"soft"};
  return {reply:"我在這裡，你可以慢慢說。",face:"listen"};
 }
-function updatePrompt(next,response,question){
+function updatePrompt(next,response,question,allowSilence=false){
  if(state.data.unsafe)return;
  if(state.declinedMirror&&next==="perspective")next="action";
  state.phase=next;
  const candidate=String(question||"").replace(/\s+/g," ").trim().slice(0,105);
- const q=questionValid(candidate)?candidate:phaseInfo[next].question;
+ const q=questionValid(candidate)?candidate:(allowSilence?"":phaseInfo[next].question);
  state.lastPrompt=q;
  speak(response.reply,response.face,q);
  suggestions(next);
+}
+function chooseMove(move,previous,backup){
+ const map={stay:previous,emotion:"weather",stabilize:"settle",story:"event",facts:"facts",perspective:"perspective",action:"action",close:"finish",support:"supportCheck"};
+ let target=map[move]||backup;
+ if(state.declinedMirror&&target==="perspective")target="action";
+ if(state.safetyConcern!=="none"&&target==="perspective")target="supportCheck";
+ return phaseInfo[target]?target:backup;
+}
+function selectMode(next){
+ if(!["listen","clarify","ideas"].includes(next)||state.processing)return;
+ state.supportMode=next;
+ document.querySelectorAll("#supportModes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===next)));
+ const line={listen:"好，我先聽你說，不急著分析。",clarify:"好，如果你願意，我們一起慢慢釐清。",ideas:"好，需要時我們再一起想一個可行的做法。"}[next];
+ speak(line,"soft","",true);
+ // Continue where the child left off; changing a preference is NOT an answer.
 }
 function questionValid(q){
  if(!q||q.length<6||q.length>105)return false;
@@ -180,7 +196,7 @@ function messageForModel(text,phase,next){
  if(phase==="mirrorQuote")context.quote=text;
  if(phase==="mirrorReflect")context.reaction=text;
  if(phase==="action")context.action=text;
- return {stage:p.stage,field:p.field,answer:text,chat:true,nextObjective:n.goal,questionHint:n.question,context,fictional:true};
+ return {answer:text,history:state.history.slice(-10).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,supportMode:state.supportMode,fictional:true};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);
@@ -261,13 +277,13 @@ async function replyTo(text){
  }
  const seq=++state.turn;
  state.processing=true;toggleBusy(true);
- speak("我在聽，也在想怎麼接住你剛才說的事……","listen");
+ speak("我在聽，慢慢來。","listen","",false);
  let result=null;
  try{
   const ctl=new AbortController();state.abort=ctl;
   const timeout=setTimeout(()=>ctl.abort(),13500);
   try{
-   const r=await fetch("/api/reflect",{method:"POST",headers:{"Content-Type":"application/json","X-Mimo-Class-Code":state.code},body:JSON.stringify(messageForModel(message,phase,next)),signal:ctl.signal,cache:"no-store"});
+   const r=await fetch("/api/reflect-v2",{method:"POST",headers:{"Content-Type":"application/json","X-Mimo-Class-Code":state.code},body:JSON.stringify(messageForModel(message,phase,next)),signal:ctl.signal,cache:"no-store"});
    const payload=await r.json();
    if(!r.ok){if(r.status===401){state.teacher=false;state.code="";showAiMode();$("teacherStatus").textContent="教師測試碼無效，已關閉 Gemini。";}throw Error(payload.error||"AI_UNAVAILABLE");}
    if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
@@ -279,7 +295,9 @@ async function replyTo(text){
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
  const response=result?{reply:result.reply,face:result.face}:local;
- updatePrompt(next,response,result?.question);
+ const mapped=result?chooseMove(result.move,phase,next):next;
+ state.lastSkill=result?.skill||"";state.lastSource=result?.source||"fallback";
+ updatePrompt(mapped,response,result?.question,!!result);
  if(next==="mirrorReflect"&&FACES.has(message))face(message);
 }
 function toggleBusy(busy){
@@ -308,7 +326,7 @@ async function enableAI(){
  if(!code||!$("fictionalConsent").checked){$("teacherStatus").textContent="請先填教師測試碼，並確認只用虛構故事。";return}
  $("aiEnable").disabled=true;
  try{
-  const r=await fetch("/api/reflect",{cache:"no-store"});
+  const r=await fetch("/api/reflect-v2",{cache:"no-store"});
   const d=await r.json();if(!d.ready)throw Error("Gemini 尚未設定完成。請先在 Vercel 加入 GEMINI_API_KEY。");
   state.teacher=true;state.code=code;showAiMode();
   $("teacherStatus").textContent="已啟用 Gemini。只有新的虛構回答會送到 Google 模型。";
@@ -325,7 +343,7 @@ function reset(){
  state.abort?.abort();stopBreath();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
  $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft");
- suggestions("welcome");showAiMode();resizeInput();
+ suggestions("welcome");showAiMode();selectMode("listen");resizeInput();
 }
 function demo(){
  // Entirely fictional, and distinguished from real student conflict.
@@ -380,6 +398,7 @@ function useAction(action){
 $("chatForm").addEventListener("submit",e=>{e.preventDefault();void replyTo($("chatInput").value)});
 $("chatInput").addEventListener("input",resizeInput);
 $("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();$("chatForm").requestSubmit?.()}});
+$("supportModes").addEventListener("click",e=>{const b=e.target.closest("button[data-mode]");if(b)selectMode(b.dataset.mode)});
 $("quickReplies").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.action)useAction(b.dataset.action);else void replyTo(b.dataset.value)});
 $("historyToggle").onclick=()=>{
  const el=$("history");el.hidden=!el.hidden;
@@ -408,5 +427,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");suggestions("welcome");showAiMode();resizeInput();
+face("soft");suggestions("welcome");showAiMode();selectMode("listen");resizeInput();
 })();

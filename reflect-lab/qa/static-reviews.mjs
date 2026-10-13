@@ -24,6 +24,14 @@ function review(role,scenario){
   }
   if(school.test(s)&&['psychologist','supervisor'].includes(role)&&
     !/(安全|老師|大人|輔導|幫忙|支持|找人)/u.test(reply))add(i,'major','反覆困擾、拒學但未提及安全或真人支持','先確認安全與可求助的人');
+  if(/想整理|幫我整理|想釐清/.test(s)&&/(從哪(裡|個|一個).{0,8}開始|想從哪個部分開始)/.test(reply)&&
+    ['counselor','supervisor','teacher'].includes(role))
+    add(i,'major','孩子已要求整理，卻仍問「從哪裡開始」','先用已有的事件與孩子的在意點直接整理，再讓孩子確認。');
+  if(i>=2&&['counselor','supervisor'].includes(role)){
+    const recent=turns.slice(i-2,i+1).map(x=>processText(x.mimo));
+    if(recent.every(x=>/^你|^原來你/.test(x)&&x.length<105&&!(x.match(/[?？]/g)||[]).length))
+      add(i,'major','連續三輪只有以「你...」重述孩子，對話未推進','回扣前面核心焦點或幫孩子釐清新資訊，必要時容許沉默。');
+  }
   if(plan.test(s)&&['teacher','counselor'].includes(role)&&
     /(你已經想好|你想好了|你已經有)/u.test(reply)&&reply.length<40)add(i,'major','孩子已提出行動，但只有機械式稱讚或複誦','回扣事件和孩子想保護的界線，再自然收束');
   if((s.includes('我不知道她為什麼')||s.includes('不知道是不是真的故意'))&&['psychologist','teacher'].includes(role)&&

@@ -14,7 +14,7 @@
  <header class="topbar">
   <div class="brand"><span class="brand-icon" aria-hidden="true">✳</span><span><strong>Mimo</strong><small>心晴之鏡</small></span></div>
   <div class="top-actions">
-   <span id="aiIndicator" class="ai-indicator">故事體驗</span>
+   <span id="aiIndicator" class="ai-indicator">Gemini 連線中…</span>
    <button id="restart" class="icon-button" type="button" aria-label="重新聊天" title="重新聊天">↻</button>
    <button id="teacherOpen" class="icon-button" type="button" aria-label="教師測試設定" title="教師測試設定">⚙</button>
   </div>
@@ -42,7 +42,7 @@
    </div>
    <div class="robot-name"><span class="online-dot"></span> Mimo 在這裡</div>
    <div class="speech-card" id="speechCard">
-     <p id="mimoTalk" aria-live="polite">嗨，我是 Mimo。今天有什麼事情，想找我聊聊嗎？</p>
+     <p id="mimoTalk" aria-live="polite">嗨，我是 Mimo！我們先用虛構的校園故事練習，今天想聊什麼？</p>
    </div>
    <div class="breathing-box" id="breathingBox" hidden>
     <div class="breath-orb" id="breathOrb" aria-hidden="true"><span>✳</span></div>
@@ -57,7 +57,7 @@
    <div class="quick-replies" id="quickReplies" aria-label="可以直接點選的回應"></div>
    <form class="composer" id="chatForm">
     <label class="sr-only" for="chatInput">對 Mimo 說的話</label>
-    <textarea id="chatInput" rows="1" maxlength="480" placeholder="想說什麼都可以慢慢打……" enterkeyhint="send" autocomplete="off"></textarea>
+    <textarea id="chatInput" rows="1" maxlength="480" placeholder="用虛構故事中的角色，慢慢說給我聽……" enterkeyhint="send" autocomplete="off"></textarea>
     <button class="send-button" id="sendBtn" type="submit" aria-label="送出訊息">➜</button>
    </form>
    <div class="bottom-row">
@@ -65,18 +65,18 @@
     <button id="helpBtn" type="button" class="help-link">♡ 找大人幫忙</button>
    </div>
    <div class="history" id="history" hidden><div id="historyItems" class="history-items"></div></div>
-   <p class="tiny-note">Mimo 是 AI 情緒學習夥伴，不是輔導老師 · 僅限虛構故事測試 · 不會自動通知大人</p>
+   <p class="tiny-note">已預設連接 Gemini（虛構情境練習）· 請勿輸入真實姓名、學校或私人事件 · 不會自動通知大人</p>
   </section>
  </main>
 </div>
 <dialog id="teacherDialog" class="dialog teacher-dialog" aria-labelledby="teacherTitle">
  <div class="dialog-top"><h2 id="teacherTitle">教師測試設定</h2><button class="dialog-close" id="teacherClose" type="button" aria-label="關閉設定">×</button></div>
- <p>預設是固定的情境引導。啟用後，本次虛構案例的答案和少量前文會傳送至 Google Gemini 2.5 Flash，由 AI 結合傾聽、澄清、尊重界線與 SEL 反思回饋。此原型不適合收集真實學生事件。</p>
+ <p>公開虛構故事體驗已預設使用 Gemini 2.5 Flash，無須輸入教師碼。教師測試碼可切換到教師模式；按「關閉 AI」可改用固定引導。輸入內容可能送到 Google Gemini API，請勿輸入真實學生事件或個資。</p>
  <label for="teacherCode">教師測試碼</label>
  <input type="password" id="teacherCode" autocomplete="off" placeholder="由教師設定的測試碼">
  <label class="consent"><input id="fictionalConsent" type="checkbox"> <span>我只會使用虛構情境，不輸入真實學生資料。</span></label>
  <div class="dialog-actions"><button id="aiEnable" class="primary" type="button">啟用 Gemini 回饋</button><button id="aiDisable" type="button" hidden>關閉 AI</button></div>
- <p class="status-msg" id="teacherStatus" role="status">尚未啟用 Gemini；目前使用固定教學引導。</p>
+ <p class="status-msg" id="teacherStatus" role="status">正在確認 Gemini 虛構練習服務是否可用。</p>
  <p class="low-note">模型金鑰僅設定在 Vercel 伺服器，請勿輸入於此。網頁重新整理後會清除測試碼。</p>
 </dialog>
 <dialog id="helpDialog" class="dialog help-dialog" aria-labelledby="helpTitle">

@@ -19,6 +19,8 @@ async function request(path,body){
  }finally{clearTimeout(timeout)}
 }
 function gate(reviews,turns){
+ const infrastructure=turns.filter(t=>t.responseError).map(t=>'Transport/API: '+t.responseError+' at turn '+t.turn);
+ if(infrastructure.length)return {verdict:'BLOCKED',vetoes:[],revisionReasons:infrastructure,scores:{},note:'Infrastructure problem is NOT a validated psychological quality failure; cannot pass.'};
  const findings=reviews.flatMap(r=>(r.result?.findings||[]).map(f=>({...f,role:r.role})));
  const actual=reviews.filter(r=>r.result&&r.status===200);
  const fail=[
@@ -72,10 +74,11 @@ for(const scenario of chosen){
  }else reviews.push(...reviewAll(transcript));
  const decision=gate(reviews,transcript.turns);
  output.cases.push({...transcript,reviews,gate:decision});
+ if(!CODE&&chosen.indexOf(scenario)<chosen.length-1){console.log('WAIT public demo per-minute limit, keeping frozen cases');await sleep(65000)}
  console.log('GATE',scenario.id,JSON.stringify(decision));
 }
 output.summary={cases:output.cases.length,passed:output.cases.filter(c=>c.gate.verdict==='PASS').length,
- revised:output.cases.filter(c=>c.gate.verdict==='REVISE').length,rejected:output.cases.filter(c=>c.gate.verdict==='REJECT').length};
+ revised:output.cases.filter(c=>c.gate.verdict==='REVISE').length,rejected:output.cases.filter(c=>c.gate.verdict==='REJECT').length,blocked:output.cases.filter(c=>c.gate.verdict==='BLOCKED').length};
 await mkdir('./qa/rounds',{recursive:true});
 const name='./qa/rounds/'+ROUND+'.json';
 await writeFile(name,JSON.stringify(output,null,2));

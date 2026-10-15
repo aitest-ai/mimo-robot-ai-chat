@@ -288,7 +288,7 @@ function noteChildBoundary(text){
 function addUser(text){
  noteChildBoundary(text);
  state.history.push({role:"user",text});
- if(state.history.length>30)state.history.shift();
+ if(state.history.length>80)state.history.shift();
  $("lastReply").hidden=false;$("lastReplyText").textContent=text;refreshHistory();
 }
 function selectArchivedClues(query){

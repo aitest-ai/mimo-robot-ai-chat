@@ -276,3 +276,5 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .chat-thread>.chat-message:first-child{margin-top:auto}
 .starter-card .starter-icon{width:32px;height:32px;display:grid;place-items:center;flex:0 0 32px;font-size:13px;font-weight:850;letter-spacing:.04em;color:#60957a;background:#e9f3ea;border:1px solid #d6e7d9;border-radius:10px}
 @media(max-width:520px){.starter-card .starter-icon{font-size:12px;width:30px;height:30px;flex-basis:30px}}
+
+.service-notice{background:#fff9eb;border:1px solid #efe2bf;border-radius:12px;padding:9px 12px;color:#896c35;font-size:12px;line-height:1.6;margin-bottom:10px}

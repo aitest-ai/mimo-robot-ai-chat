@@ -42,6 +42,7 @@ const SYSTEM=[
 '學生自己選擇的陪伴方式：listen=先聽我說（多反映少追問）；clarify=一起整理（在孩子同意時釐清事實、推測、未知）；ideas=想些方法（先徵詢再提供一兩個可行、安全的方法）。',
 '原始 Mimo 特色：心情天氣、自主命名情緒、主觀敘述、觀察與推測、選擇性換位、保護界線、自己整理下次可用的策略。SEL 是背景地圖，不是每句話都要依序完成的流程。',
 '最重要的不是每回合的技巧名稱，而是一整段聊天的敘事連續性。請維持一條清楚的人際事件主線：發生什麼、孩子在意什麼、還有什麼不知道、孩子希望接下來如何被支持。每一回合先承接上一回合的具體資訊，說明這次新訊息如何影響理解，再決定是否要問一個真正有必要的問題。',
+'多輪對話記憶規則：不可把已提過的海報／誰修改／沒先問／孩子在意的界線當成新故事；學生第二、三次提到同一件事時，不要再回到「發生什麼事」「你想說什麼」。必要時自然引用一個確實已知的小細節，顯示你真的記得，但不要每句都大段摘要。最近訊息和 conversation_thread 比泛用教材流程更重要。',
 '自然對話節奏：剛開始先知道孩子想談的重點；談過兩三輪後，可以自然地以一句話把故事串起來，邀請孩子選擇「先整理」還是「繼續說」；當孩子已說清需要、明確提出做法或表示想結束，請回扣開頭的事件、簡短整理孩子自己的觀察和選擇並自然收束。這不是固定關卡，若學生只想被聽就不要強迫轉向。',
 '每回合記得未解決的線索 openLoop：若上一個關心點已被孩子回答，應把它更新成新焦點；孩子已說出具體處理方法時 openLoop 應清空，不得把已解決問題又變成下一題。絕對不要再次問「還有什麼感覺」「發生了什麼」之類重複的泛用問題。先聚焦一個問題，沒必要就別問。',
 '反例：學生說「我最在意的不是畫壞，是她沒問我」；錯誤只複誦「你在意她沒問你」便結束。比較好的是承接前文「剛才你說畫花了很委屈，現在聽起來更難受的是對方沒有先尊重你的決定」，不強迫追問。',
@@ -52,6 +53,7 @@ const SYSTEM=[
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
 '台灣自然繁體中文。通常 reply 1～2 句、18～75 字，具體回應最近這則話中的重要內容；如自然適合才提出 question，一次最多一題、最多 40 字，也可以是空字串。絕不把問句寫在 reply 裡。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
+'絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
 '口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
 '只能建議校園安全的行動與真人協助，不診斷、不給藥物建議、不聲稱是人類輔導員、不承諾保密，也不聲稱已通報老師。若可能立即自傷、傷人或遭重大傷害，優先現場真人協助。',
 '輸出嚴格 JSON：reply（不是問句）,question（可空）,face（穩定傾聽為主）,move（對話方向，僅系統內部）,skill（本輪主要微技巧）,riskLevel（none/concern/urgent）,needsAdult（布林值）,thread（event/importance/openLoop 三個短字串）。無 Markdown、無額外欄位。'
@@ -86,7 +88,7 @@ export default async function handler(req,res){
  const answer=trim(input.answer,publicAuthorized?250:480),mode=MODE.includes(input.supportMode)?input.supportMode:'listen';
  if(publicAuthorized&&(PII_LIKE.test(answer)||String(input.answer||'').length>250))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
  if(!answer)return send(res,422,{error:'EMPTY'});
- const history=Array.isArray(input.history)?input.history.slice(publicAuthorized?-6:-10).filter(m=>m&&['user','mimo'].includes(m.role)&&typeof m.text==='string').map(m=>({role:m.role,text:trim(m.text,240)})):[];
+ const history=Array.isArray(input.history)?input.history.slice(-12).filter(m=>m&&['user','mimo'].includes(m.role)&&typeof m.text==='string').map(m=>({role:m.role,text:trim(m.text,210)})):[];
  const context={};const provided=input.context&&typeof input.context==='object'?input.context:{};
  for(const k of CONTEXT){const v=trim(provided[k],publicAuthorized?120:200);if(v)context[k]=v}
  if(publicAuthorized&&(Object.values(context).some(v=>PII_LIKE.test(v))||history.some(h=>PII_LIKE.test(h.text))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
@@ -118,7 +120,7 @@ export default async function handler(req,res){
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
   let reply=trim(out.reply,230);let question=trim(out.question,115);let responseSource="gemini-2.5-flash";
   const nextThread={};const rawOutput=out.thread&&typeof out.thread==='object'?out.thread:{};
-  for(const k of THREAD_FIELDS)nextThread[k]=trim(rawOutput[k],publicAuthorized?90:130);
+  for(const k of THREAD_FIELDS){const incoming=trim(rawOutput[k],publicAuthorized?90:130);nextThread[k]=incoming||thread[k]||'';}
   const comparison=q=>q.replace(/[？?！，。\s「」『』：:]/g,'').slice(0,80);
   const nearSame=(a,b)=>{const x=comparison(a),y=comparison(b);if(!x||!y)return false;if(x===y)return true;const grams=x.length>=2?Array.from({length:x.length-1},(_,i)=>x.slice(i,i+2)):[];const other=new Set(Array.from({length:Math.max(0,y.length-1)},(_,i)=>y.slice(i,i+2)));return grams.length>=5&&grams.filter(z=>other.has(z)).length/grams.length>.76};
   // Validate a specific conversational failure: the child asks us to summarize,

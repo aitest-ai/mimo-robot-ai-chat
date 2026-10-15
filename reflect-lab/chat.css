@@ -243,3 +243,31 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
  .conversation-heading{margin-bottom:4px}
 }
 @media(prefers-reduced-motion:reduce){.typing-dots i,.chat-message{animation:none!important}}
+
+/* Story choices live next to the invitation, not as another row of mystery chips. */
+.chat-welcome{margin:16px 0 auto;max-width:none;text-align:left;color:#849b8e}
+.chat-welcome p{font-size:17px;line-height:1.55;color:#3d6853;margin-bottom:7px}
+.chat-welcome span{display:block;font-size:12px;line-height:1.55}
+.starter-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:23px}
+.starter-card{min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:10px;text-align:left;border:1px solid #e1ebe1;background:#f9fcf8;border-radius:14px;padding:15px 13px;box-shadow:0 3px 11px #45694c08;color:#426d55;transition:border-color .16s,transform .16s,background .16s}
+.starter-card:hover{border-color:#a9cead;background:#eef8ed;transform:translateY(-2px)}
+.starter-card .starter-icon{font-size:24px;line-height:1.4;display:inline-block}
+.starter-card strong{display:block;font-size:12px;line-height:1.4;font-weight:800}
+.starter-card small{display:block;font-size:10px;color:#8b9f91;line-height:1.55;margin-top:5px}
+@media(max-width:900px){
+ .chat-welcome{margin:8px 0 auto}
+ .starter-options{margin-top:16px}
+}
+@media(max-width:520px){
+ .chat-welcome{margin:5px 0 auto}
+ .chat-welcome p{font-size:14px}
+ .chat-welcome span{font-size:11px}
+ .starter-options{grid-template-columns:1fr;gap:7px;margin-top:12px}
+ .starter-card{flex-direction:row;align-items:center;gap:11px;padding:10px 11px}
+ .starter-card .starter-icon{font-size:20px;line-height:1.2}
+ .starter-card strong{font-size:12px}
+ .starter-card small{font-size:10px;margin-top:2px}
+ .mimo-stage:not(.has-conversation .mimo-stage){max-height:245px}
+ .app:not(.has-conversation) .robot-wrapper{width:107px;min-height:110px}
+ .app:not(.has-conversation) .mimo-head{max-width:107px;max-height:118px}
+}

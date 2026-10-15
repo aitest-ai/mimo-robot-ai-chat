@@ -144,3 +144,102 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .support-modes{margin-bottom:11px;gap:4px}
 .mode-buttons button{font-size:10px;padding:8px 9px}
 }
+
+
+/* v3: conversation-first interface. Calm, readable, with visible memory and no fake thinking text. */
+.chat-shell{max-width:1180px;grid-template-columns:minmax(250px,.72fr) minmax(430px,1.28fr);height:calc(100dvh - 74px);min-height:600px}
+.mimo-stage{min-height:0;justify-content:center;padding:24px 28px;border-radius:0 0 0 32px}
+.robot-wrapper{width:min(250px,88%);min-height:255px}
+.mimo-head{max-width:255px;max-height:267px}
+.robot-name{margin:6px 0 22px;font-size:12px;letter-spacing:0}
+.speech-card{width:100%;min-height:118px;box-shadow:0 11px 25px #5279611c}
+.speech-card p{font-size:17px;line-height:1.72}
+.has-conversation .robot-wrapper{width:min(235px,83%);min-height:230px}
+.has-conversation .mimo-head{max-width:235px}
+.has-conversation .speech-card{display:none}
+.has-conversation .robot-name{margin-top:12px}
+.interaction{min-height:0;min-width:0;justify-content:initial;padding:26px clamp(24px,3vw,44px) 17px;gap:0;overflow:hidden}
+.conversation-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.section-eyebrow{font-size:10px;font-weight:800;color:#609680;letter-spacing:.14em}
+.conversation-heading h1{font-size:21px;font-weight:800;letter-spacing:-.04em;color:#315346;margin:4px 0}
+.memory-status{font-size:10px;color:#8fa99a;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.memory-dot{height:7px;width:7px;background:#94c6a0;border-radius:50%}
+.memory-hint{background:#f2f8f2;color:#678e78;border:1px solid #e4efe5;padding:10px 13px;border-radius:12px;font-size:12px;line-height:1.6;margin:0 0 12px;overflow-wrap:anywhere}
+.chat-thread{display:flex;flex:1;min-height:135px;flex-direction:column;gap:14px;padding:14px 4px 14px 0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d0e3d7 transparent}
+.chat-welcome{max-width:370px;margin:auto;text-align:center;color:#879e8f;line-height:1.85}
+.chat-welcome p{font-size:16px;color:#547c6b;font-weight:750;margin:0 0 11px}
+.chat-welcome span{font-size:12px}
+.chat-message{max-width:min(88%,530px);display:flex;flex-direction:column;gap:6px;animation:speech-arrive .25s ease}
+.chat-message.mine{align-self:flex-end;align-items:flex-end}
+.chat-message.theirs{align-self:flex-start;align-items:flex-start}
+.chat-message-who{font-size:11px;font-weight:750;color:#7d9889;padding:0 5px}
+.chat-message.mine .chat-message-who{color:#a18b73}
+.chat-bubble{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf5ee;border:1px solid #deebdf;color:#38584a;border-radius:18px 18px 18px 5px;padding:12px 16px;line-height:1.78;font-size:15px}
+.chat-message.mine .chat-bubble{background:#fff2e1;border-color:#f3e3d2;color:#745b43;border-radius:18px 18px 5px 18px}
+.typing-indicator{display:flex;align-items:center;gap:8px;margin:7px 0 14px;color:#718f7c;min-height:34px}
+.typing-avatar{height:28px;width:28px;display:grid;place-items:center;background:#e9f3e9;border-radius:10px;font-size:16px}
+.typing-dots{display:flex;gap:5px;padding:11px 12px;background:#edf5ee;border-radius:14px}
+.typing-dots i{width:5px;height:5px;border-radius:50%;background:#82a993;animation:mimo-dot 1.2s ease-in-out infinite}
+.typing-dots i:nth-child(2){animation-delay:.16s}
+.typing-dots i:nth-child(3){animation-delay:.32s}
+@keyframes mimo-dot{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.last-reply{display:none!important}
+.support-modes{padding-top:12px;margin-bottom:12px;border-top:1px solid #eef3ee}
+.quick-replies{margin-bottom:12px;gap:7px}
+.quick-replies button{min-height:37px;padding:8px 13px;font-weight:650;font-size:12px;background:#f9fcf8;border-color:#dae8dc;color:#477762}
+.composer{margin-top:0}
+.bottom-row{margin:8px 0 1px}
+.session-note{font-size:10px;color:#8aa294;line-height:1.5}
+.tiny-note{font-size:10px;line-height:1.45}
+.history{display:none!important}
+@media(max-width:900px){
+ .chat-shell{height:calc(100dvh - 62px);min-height:540px;max-width:740px;display:flex;flex-direction:column}
+ .mimo-stage{flex:0 0 auto;min-height:0;max-height:230px;padding:12px 20px 15px}
+ .robot-wrapper,.has-conversation .robot-wrapper{width:90px;min-height:94px}
+ .mimo-head,.has-conversation .mimo-head{max-width:90px;max-height:100px}
+ .robot-shadow{bottom:-8px}
+ .robot-name,.has-conversation .robot-name{font-size:10px;margin:3px 0 8px}
+ .speech-card{min-height:0;max-width:550px;padding:9px 14px;border-radius:14px}
+ .speech-card p{font-size:13px;line-height:1.55}
+ .speech-card:before{width:12px;height:12px;top:-7px}
+ .has-conversation .mimo-stage{height:85px;flex-direction:row;gap:12px;padding:8px 17px;justify-content:flex-start}
+ .has-conversation .robot-wrapper{width:62px;min-height:68px;flex:0 0 62px}
+ .has-conversation .mimo-head{max-width:62px;max-height:68px}
+ .has-conversation .robot-name{font-size:11px}
+ .interaction{border-left:0;border-top:1px solid var(--line);flex:1;min-height:0;padding:13px 19px 15px}
+ .conversation-heading{margin-bottom:8px}
+ .conversation-heading h1{font-size:18px}
+ .chat-thread{min-height:125px;flex:1;padding:8px 0 10px}
+ .chat-bubble{font-size:14px;padding:10px 13px}
+ .support-modes{margin:0 0 9px;padding-top:8px}
+ .quick-replies{margin:0 0 9px}
+}
+@media(max-width:520px){
+ .chat-shell{height:calc(100dvh - 56px);min-height:0}
+ .mimo-stage{max-height:204px}
+ .robot-wrapper{width:74px;min-height:75px}
+ .mimo-head{max-width:74px;max-height:85px}
+ .mimo-stage .speech-card{width:100%}
+ .has-conversation .mimo-stage{height:72px}
+ .interaction{padding:11px 14px 12px}
+ .memory-status{font-size:9px}
+ .conversation-heading h1{font-size:16px}
+ .chat-message{max-width:92%}
+ .chat-bubble{font-size:14px;line-height:1.67}
+ .chat-thread{gap:10px}
+ .mode-buttons button{font-size:11px;padding:7px 9px}
+ .quick-replies button{min-height:32px;font-size:11px;padding:7px 10px}
+ .composer textarea{min-height:39px;font-size:14px}
+ .bottom-row{margin:7px 0}
+ .tiny-note{font-size:9px}
+ .session-note{font-size:9px}
+}
+@media(max-height:640px) and (max-width:900px){
+ .mimo-stage{max-height:145px}
+ .mimo-stage .speech-card{padding:8px 12px}
+ .robot-wrapper{min-height:60px;width:60px}
+ .mimo-head{max-width:60px;max-height:65px}
+ .memory-hint{padding:7px 10px}
+ .conversation-heading{margin-bottom:4px}
+}
+@media(prefers-reduced-motion:reduce){.typing-dots i,.chat-message{animation:none!important}}

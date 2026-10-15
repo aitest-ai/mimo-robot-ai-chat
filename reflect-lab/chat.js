@@ -82,7 +82,7 @@ function refreshHistory(){
   const a=document.createElement("p");a.textContent="從一個虛構故事開始，也可以自己編故事。";
   const b=document.createElement("span");b.textContent="不用答題，也不用急著讓心情變好。";
   const prompts=document.createElement("div");prompts.className="starter-options";
-  for(const item of [{icon:"🎨",title:"作品被改掉",subtitle:"辛苦畫的東西被亂改",action:"demo"},{icon:"🧩",title:"分組沒被選",subtitle:"朋友沒有選我一起",action:"groupDemo"},{icon:"💬",title:"朋友不理我",subtitle:"不知道是不是誤會",action:"friendDemo"}]){
+  for(const item of [{icon:"01",title:"作品被改掉",subtitle:"辛苦畫的東西被亂改",action:"demo"},{icon:"02",title:"分組沒被選",subtitle:"朋友沒有選我一起",action:"groupDemo"},{icon:"03",title:"朋友不理我",subtitle:"不知道是不是誤會",action:"friendDemo"}]){
    const button=document.createElement("button");button.type="button";button.className="starter-card";button.dataset.action=item.action;
    const mark=document.createElement("span");mark.className="starter-icon";mark.textContent=item.icon;
    const words=document.createElement("span");const strong=document.createElement("strong");strong.textContent=item.title;const small=document.createElement("small");small.textContent=item.subtitle;words.append(strong,small);button.append(mark,words);prompts.append(button);

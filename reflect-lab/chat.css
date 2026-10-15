@@ -278,3 +278,15 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 @media(max-width:520px){.starter-card .starter-icon{font-size:12px;width:30px;height:30px;flex-basis:30px}}
 
 .service-notice{background:#fff9eb;border:1px solid #efe2bf;border-radius:12px;padding:9px 12px;color:#896c35;font-size:12px;line-height:1.6;margin-bottom:10px}
+
+/* v4: transparent, user-correctable long-session fictional memory. */
+.memory-hint{font-size:12px;max-height:190px;overflow-y:auto;overscroll-behavior:contain}
+.memory-details summary{cursor:pointer;color:#4c7e60;font-weight:760;list-style:none;display:flex;align-items:center;gap:7px}
+.memory-details summary:before{content:"▸";font-size:12px;transition:transform .18s}
+.memory-details[open] summary:before{transform:rotate(90deg)}
+.memory-details p{margin:11px 0;color:#567967;font-size:12px;line-height:1.7}
+.memory-details strong{display:block;font-size:11px;margin-top:12px;color:#416a56}
+.memory-details ul{margin:5px 0 8px;padding-left:20px;color:#648271;line-height:1.65}
+.memory-details li{margin-bottom:4px}
+.memory-details small{display:block;color:#879d8c;line-height:1.55;margin-top:11px}
+@media(max-width:520px){.memory-hint{max-height:155px;padding:8px 11px}.memory-details p{font-size:11px}}

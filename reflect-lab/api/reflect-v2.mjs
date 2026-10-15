@@ -6,6 +6,18 @@ const MOVE=['stay','emotion','stabilize','story','facts','perspective','action',
 const SKILL=['reflect_feeling','reflect_meaning','simple_reflection','double_sided_reflection','open_invitation','summary','permission','validate_boundary','offer_choice','reframe_uncertainty','collaborative_plan','quiet_presence'];
 const MODE=['listen','clarify','ideas'];
 const THREAD_FIELDS=['event','importance','openLoop'];
+const MEMORY_LISTS={facts:6,uncertainties:5,boundaries:5,plans:5,milestones:7};
+function memoryFrom(raw, publicAuthorized){
+ const source=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ const memory={summary:trim(source.summary,publicAuthorized?320:450)};
+ for(const [key,max] of Object.entries(MEMORY_LISTS)){
+  memory[key]=Array.isArray(source[key])
+   ?source[key].slice(0,max).filter(v=>typeof v==='string').map(v=>trim(v,105)).filter(Boolean)
+   :[];
+ }
+ return memory;
+}
+function flattenMemory(memory){return [memory.summary,...Object.values(MEMORY_LISTS).flatMap(()=>[]) ,...Object.keys(MEMORY_LISTS).flatMap(k=>memory[k]||[])];}
 const CLOSED=/先到這裡|就這樣|今天先聊到這|謝謝你我好多了|我知道怎麼做了|下次我會|我要去找老師|我決定先|我想好下次|如果.{2,28}就找老師/u;
 function planTurn(answer,mode,turnCount,thread){
  if(CLOSED.test(answer)&&!/[？?]$/.test(answer))return '孩子已表達一項明確的下一步或想結束。這一輪不要再叫他說更多細節，也不要只稱讚「很棒／已想好」。請回扣對話開頭具體的事件、當時重要的需求，說明孩子剛剛自己選擇的可行做法如何照顧界線。做成2句短而自然的結語；question 留空，move=close。不可替孩子保證事情會解決。';
@@ -42,7 +54,11 @@ const SYSTEM=[
 '學生自己選擇的陪伴方式：listen=先聽我說（多反映少追問）；clarify=一起整理（在孩子同意時釐清事實、推測、未知）；ideas=想些方法（先徵詢再提供一兩個可行、安全的方法）。',
 '原始 Mimo 特色：心情天氣、自主命名情緒、主觀敘述、觀察與推測、選擇性換位、保護界線、自己整理下次可用的策略。SEL 是背景地圖，不是每句話都要依序完成的流程。',
 '最重要的不是每回合的技巧名稱，而是一整段聊天的敘事連續性。請維持一條清楚的人際事件主線：發生什麼、孩子在意什麼、還有什麼不知道、孩子希望接下來如何被支持。每一回合先承接上一回合的具體資訊，說明這次新訊息如何影響理解，再決定是否要問一個真正有必要的問題。',
-'多輪對話記憶規則：不可把已提過的海報／誰修改／沒先問／孩子在意的界線當成新故事；學生第二、三次提到同一件事時，不要再回到「發生什麼事」「你想說什麼」。必要時自然引用一個確實已知的小細節，顯示你真的記得，但不要每句都大段摘要。最近訊息和 conversation_thread 比泛用教材流程更重要。',
+'多輪對話記憶規則：不可把已提過的海報／誰修改／沒先問／孩子在意的界線當成新故事；學生第二、三次提到同一件事時，不要再回到「發生什麼事」「你想說什麼」。必要時自然引用一個確實已知的小細節，顯示你真的記得，但不要每句都大段摘要。最近訊息、conversation_thread 與 long_memory 比泛用教材流程更重要。',
+'「分層記憶」是此回合的一部分：recent_turns 是精確的最近原話；long_memory 是這段虛構故事已說過的較早資訊。你不能只因某件事已離開最近16則訊息，就說從沒聽過。若孩子直接問「你記得我前面說了什麼」，先搜尋 long_memory 和 recent_turns，直接給出已知的具體重點；不確定時誠實說不確定。',
+'long_memory 必須以孩子自己的說法為唯一依據；facts 是孩子報告的可觀察事件，並非獨立驗證的真相；uncertainties 是未知與推測，不得混進 facts；boundaries 保存孩子明確表示不要冷靜、不要換位、不要原諒等界線；plans 是孩子自行提出的計畫，不是你給的功課；milestones 是早期仍重要的事件和話題。summary 用一小段自然文字串連至少最近一個主題與尚未結束的舊主題。',
+'每回合在輸出 memory 中更新 long_memory：不只是抄新一句話，而是「保留重要舊資訊→納入新資訊→移除冗餘或明確被更正的內容」，可以保留不同故事，絕不編造心理診斷、他人動機、未發生的對話。孩子說「不是那樣／我剛說錯」應修正舊記憶，不得堅持錯誤記錄。不要記錄真實姓名、學校、住址或聯絡資料；虛構情境以匿名角色稱呼。',
+'如果孩子已經說「不要換位」，不要在接下來很多輪無視這個界線又提議站在對方角度。若一個事件已告一段落，plan 和 milestone 仍可在之後被自然回想，但絕對不要強迫孩子再談。',
 '自然對話節奏：剛開始先知道孩子想談的重點；談過兩三輪後，可以自然地以一句話把故事串起來，邀請孩子選擇「先整理」還是「繼續說」；當孩子已說清需要、明確提出做法或表示想結束，請回扣開頭的事件、簡短整理孩子自己的觀察和選擇並自然收束。這不是固定關卡，若學生只想被聽就不要強迫轉向。',
 '每回合記得未解決的線索 openLoop：若上一個關心點已被孩子回答，應把它更新成新焦點；孩子已說出具體處理方法時 openLoop 應清空，不得把已解決問題又變成下一題。絕對不要再次問「還有什麼感覺」「發生了什麼」之類重複的泛用問題。先聚焦一個問題，沒必要就別問。',
 '反例：學生說「我最在意的不是畫壞，是她沒問我」；錯誤只複誦「你在意她沒問你」便結束。比較好的是承接前文「剛才你說畫花了很委屈，現在聽起來更難受的是對方沒有先尊重你的決定」，不強迫追問。',
@@ -56,14 +72,21 @@ const SYSTEM=[
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
 '口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
 '只能建議校園安全的行動與真人協助，不診斷、不給藥物建議、不聲稱是人類輔導員、不承諾保密，也不聲稱已通報老師。若可能立即自傷、傷人或遭重大傷害，優先現場真人協助。',
-'輸出嚴格 JSON：reply（不是問句）,question（可空）,face（穩定傾聽為主）,move（對話方向，僅系統內部）,skill（本輪主要微技巧）,riskLevel（none/concern/urgent）,needsAdult（布林值）,thread（event/importance/openLoop 三個短字串）。無 Markdown、無額外欄位。'
+'輸出嚴格 JSON：reply（不是問句）,question（可空）,face（穩定傾聽為主）,move（對話方向，僅系統內部）,skill（本輪主要微技巧）,riskLevel（none/concern/urgent）,needsAdult（布林值）,thread（event/importance/openLoop 三個短字串）,memory（summary 與 facts/uncertainties/boundaries/plans/milestones 字串陣列）。memory 是對話持續記憶，絕不在兒童畫面假裝為已查證事實。無 Markdown、無額外欄位。'
 ].join('\n');
 const SCHEMA={type:'OBJECT',properties:{
  reply:{type:'STRING'},question:{type:'STRING'},face:{type:'STRING',enum:FACE},
  move:{type:'STRING',enum:MOVE},skill:{type:'STRING',enum:SKILL},
  riskLevel:{type:'STRING',enum:['none','concern','urgent']},needsAdult:{type:'BOOLEAN'},
- thread:{type:'OBJECT',properties:{event:{type:'STRING'},importance:{type:'STRING'},openLoop:{type:'STRING'}},required:['event','importance','openLoop']}
-},required:['reply','question','face','move','skill','riskLevel','needsAdult','thread']};
+ thread:{type:'OBJECT',properties:{event:{type:'STRING'},importance:{type:'STRING'},openLoop:{type:'STRING'}},required:['event','importance','openLoop']},
+ memory:{type:'OBJECT',properties:{
+  summary:{type:'STRING'},facts:{type:'ARRAY',items:{type:'STRING'}},
+  uncertainties:{type:'ARRAY',items:{type:'STRING'}},
+  boundaries:{type:'ARRAY',items:{type:'STRING'}},
+  plans:{type:'ARRAY',items:{type:'STRING'}},
+  milestones:{type:'ARRAY',items:{type:'STRING'}}
+ },required:['summary','facts','uncertainties','boundaries','plans','milestones']}
+},required:['reply','question','face','move','skill','riskLevel','needsAdult','thread','memory']};
 function send(res,code,body){res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(body))}
 function trim(v,n=400){return typeof v==='string'?v.trim().slice(0,n):''}
 function check(a,b){const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length>0&&x.length===y.length&&timingSafeEqual(x,y)}
@@ -88,7 +111,7 @@ export default async function handler(req,res){
  const answer=trim(input.answer,publicAuthorized?250:480),mode=MODE.includes(input.supportMode)?input.supportMode:'listen';
  if(publicAuthorized&&(PII_LIKE.test(answer)||String(input.answer||'').length>250))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
  if(!answer)return send(res,422,{error:'EMPTY'});
- const history=Array.isArray(input.history)?input.history.slice(-12).filter(m=>m&&['user','mimo'].includes(m.role)&&typeof m.text==='string').map(m=>({role:m.role,text:trim(m.text,210)})):[];
+ const history=Array.isArray(input.history)?input.history.slice(-16).filter(m=>m&&['user','mimo'].includes(m.role)&&typeof m.text==='string').map(m=>({role:m.role,text:trim(m.text,190)})):[];
  const context={};const provided=input.context&&typeof input.context==='object'?input.context:{};
  for(const k of CONTEXT){const v=trim(provided[k],publicAuthorized?120:200);if(v)context[k]=v}
  if(publicAuthorized&&(Object.values(context).some(v=>PII_LIKE.test(v))||history.some(h=>PII_LIKE.test(h.text))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
@@ -99,7 +122,8 @@ export default async function handler(req,res){
  const prefs={listen:'先傾聽，但允許適時用具體摘要回扣整件事，當孩子準備好了再自然邀請，不必一直問情緒',clarify:'協助整理觀察、感受、推測與未知，但要和前面事件連貫，避免像問卷',ideas:'願意找方法，回扣前面孩子在意的界線，只給一兩個可行方法，不再反覆徵詢同一件事'};
  const thread={};const rawThread=input.thread&&typeof input.thread==='object'?input.thread:{};
  for(const k of THREAD_FIELDS)thread[k]=trim(rawThread[k],publicAuthorized?90:130);
- if(publicAuthorized&&Object.values(thread).some(v=>PII_LIKE.test(v)))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
+ const memory=memoryFrom(input.memory,publicAuthorized);
+ if(publicAuthorized&&([...Object.values(thread),...flattenMemory(memory)].some(v=>PII_LIKE.test(v))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
  const turnCount=Math.min(18,Math.max(0,Number(input.turnCount)||0));
  const previousQuestion=trim(input.lastQuestion,115);
  const lastQuestions=history.filter(h=>h.role==='mimo').map(h=>h.text.split(/[\n]/).at(-1)).filter(t=>t&&/[?？]/.test(t)).slice(-3);
@@ -108,17 +132,21 @@ export default async function handler(req,res){
  const voiceInstruction=repeatedYouOpening
   ?'前兩句已經都用「你…」開頭。本輪不要再用「你」起頭，也不要再重述學生整句話；請用自然的事件連結、情感中的需要或輕柔轉折，回應最新內容。不能添加孩子沒說過的事。'
   :'回應語句應有口語節奏，不必每句都用「你說…／你覺得…」起頭。';
- const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),voice_instruction:voiceInstruction,learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
+ const user=JSON.stringify({student_current_words:answer,recent_turns:history,conversation_thread:thread,long_memory:memory,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),voice_instruction:voiceInstruction,learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},
-   body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingBudget:0},maxOutputTokens:publicAuthorized?1120:1320}}),
+   body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingBudget:0},maxOutputTokens:publicAuthorized?2200:2500}}),
    signal:AbortSignal.timeout(13000)
   });
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
   let reply=trim(out.reply,230);let question=trim(out.question,115);let responseSource="gemini-2.5-flash";
+  const nextMemory=memoryFrom(out.memory,publicAuthorized);
+  if(!nextMemory.summary&&memory.summary)nextMemory.summary=memory.summary;
+  for(const k of Object.keys(MEMORY_LISTS))if(!Array.isArray(out.memory?.[k]))nextMemory[k]=memory[k];
+  if(publicAuthorized&&flattenMemory(nextMemory).some(v=>PII_LIKE.test(v)))return send(res,502,{error:'MODEL_MEMORY_PRIVACY'});
   const nextThread={};const rawOutput=out.thread&&typeof out.thread==='object'?out.thread:{};
   for(const k of THREAD_FIELDS){const incoming=trim(rawOutput[k],publicAuthorized?90:130);nextThread[k]=incoming||thread[k]||'';}
   const comparison=q=>q.replace(/[？?！，。\s「」『』：:]/g,'').slice(0,80);
@@ -146,6 +174,6 @@ export default async function handler(req,res){
   }
   if(reply.length<5||!FACE.includes(out.face)||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean'||question.split(/[？?]/).length>2)return send(res,502,{error:'BAD_SCHEMA'});
   if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
-  return send(res,200,{reply,question,thread:nextThread,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
+  return send(res,200,{reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

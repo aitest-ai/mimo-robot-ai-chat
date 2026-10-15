@@ -17,7 +17,7 @@ function memoryFrom(raw, publicAuthorized){
  }
  return memory;
 }
-function flattenMemory(memory){return [memory.summary,...Object.values(MEMORY_LISTS).flatMap(()=>[]) ,...Object.keys(MEMORY_LISTS).flatMap(k=>memory[k]||[])];}
+function flattenMemory(memory){return [memory.summary,...Object.keys(MEMORY_LISTS).flatMap(k=>memory[k]||[])];}
 const CLOSED=/先到這裡|就這樣|今天先聊到這|謝謝你我好多了|我知道怎麼做了|下次我會|我要去找老師|我決定先|我想好下次|如果.{2,28}就找老師/u;
 function planTurn(answer,mode,turnCount,thread){
  if(CLOSED.test(answer)&&!/[？?]$/.test(answer))return '孩子已表達一項明確的下一步或想結束。這一輪不要再叫他說更多細節，也不要只稱讚「很棒／已想好」。請回扣對話開頭具體的事件、當時重要的需求，說明孩子剛剛自己選擇的可行做法如何照顧界線。做成2句短而自然的結語；question 留空，move=close。不可替孩子保證事情會解決。';
@@ -57,7 +57,7 @@ const SYSTEM=[
 '多輪對話記憶規則：不可把已提過的海報／誰修改／沒先問／孩子在意的界線當成新故事；學生第二、三次提到同一件事時，不要再回到「發生什麼事」「你想說什麼」。必要時自然引用一個確實已知的小細節，顯示你真的記得，但不要每句都大段摘要。最近訊息、conversation_thread 與 long_memory 比泛用教材流程更重要。',
 '「分層記憶」是此回合的一部分：recent_turns 是精確的最近原話；long_memory 是這段虛構故事已說過的較早資訊。你不能只因某件事已離開最近16則訊息，就說從沒聽過。若孩子直接問「你記得我前面說了什麼」，先搜尋 long_memory 和 recent_turns，直接給出已知的具體重點；不確定時誠實說不確定。',
 'long_memory 必須以孩子自己的說法為唯一依據；facts 是孩子報告的可觀察事件，並非獨立驗證的真相；uncertainties 是未知與推測，不得混進 facts；boundaries 保存孩子明確表示不要冷靜、不要換位、不要原諒等界線；plans 是孩子自行提出的計畫，不是你給的功課；milestones 是早期仍重要的事件和話題。summary 用一小段自然文字串連至少最近一個主題與尚未結束的舊主題。',
-'每回合在輸出 memory 中更新 long_memory：不只是抄新一句話，而是「保留重要舊資訊→納入新資訊→移除冗餘或明確被更正的內容」，可以保留不同故事，絕不編造心理診斷、他人動機、未發生的對話。孩子說「不是那樣／我剛說錯」應修正舊記憶，不得堅持錯誤記錄。不要記錄真實姓名、學校、住址或聯絡資料；虛構情境以匿名角色稱呼。',
+'每回合在輸出 memory 中更新 long_memory：不只是抄新一句話，而是「保留重要舊資訊→納入新資訊→移除冗餘或明確被更正的內容」，可以保留不同故事，絕不編造心理診斷、他人動機、未發生的對話。孩子說「不是那樣／我剛說錯」應修正舊記憶，不得堅持錯誤記錄。若之前說「藍色星星」，現在更正為「綠色月亮」，summary、facts、milestones 應只留下「綠色月亮」，不要保留「藍色星星（已修正）」；那是被否定的過期資料。不能把未再次確認的舊細節錯誤移植到更新事件。不要記錄真實姓名、學校、住址或聯絡資料；虛構情境以匿名角色稱呼。',
 '如果孩子已經說「不要換位」，不要在接下來很多輪無視這個界線又提議站在對方角度。若一個事件已告一段落，plan 和 milestone 仍可在之後被自然回想，但絕對不要強迫孩子再談。',
 '自然對話節奏：剛開始先知道孩子想談的重點；談過兩三輪後，可以自然地以一句話把故事串起來，邀請孩子選擇「先整理」還是「繼續說」；當孩子已說清需要、明確提出做法或表示想結束，請回扣開頭的事件、簡短整理孩子自己的觀察和選擇並自然收束。這不是固定關卡，若學生只想被聽就不要強迫轉向。',
 '每回合記得未解決的線索 openLoop：若上一個關心點已被孩子回答，應把它更新成新焦點；孩子已說出具體處理方法時 openLoop 應清空，不得把已解決問題又變成下一題。絕對不要再次問「還有什麼感覺」「發生了什麼」之類重複的泛用問題。先聚焦一個問題，沒必要就別問。',
@@ -115,16 +115,24 @@ export default async function handler(req,res){
  const context={};const provided=input.context&&typeof input.context==='object'?input.context:{};
  for(const k of CONTEXT){const v=trim(provided[k],publicAuthorized?120:200);if(v)context[k]=v}
  if(publicAuthorized&&(Object.values(context).some(v=>PII_LIKE.test(v))||history.some(h=>PII_LIKE.test(h.text))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
+ const incomingMemory=memoryFrom(input.memory,publicAuthorized);
+ if(publicAuthorized&&flattenMemory(incomingMemory).some(v=>PII_LIKE.test(v)))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
  if(RISK.test(answer)&&!NEGATED.test(answer))return send(res,200,rule('如果你或別人可能受傷，先和衝突現場保持距離，放下可能傷人的東西，立刻找老師或可信任的大人幫忙。網站不會替你通知。','','urgent','safety-rule',true,'support'));
  if(OBJECTS.test(answer))return send(res,200,rule('聽起來你氣到快想把東西掃下去。先不用說清楚誰對誰錯，我們先讓自己和周圍的人保持安全。','你現在能先離開桌邊嗎？','concern','object-safety'));
  if(SCHOOL.test(answer))return send(res,200,rule('你說到不想上學或一直被嘲笑，這些困擾值得有人認真聽見。先不用分析對方的動機。','你現在安全嗎？','concern','school-support',false,'support'));
- if(REFUSAL.test(answer))return send(res,200,rule('好，我不會要求你冷靜、原諒或換位思考。我們可以先照你舒服的速度說。','你現在希望我先聽你說，還是一起想下一步？','none','autonomy-rule',false,'stay'));
+ if(REFUSAL.test(answer)){
+  const boundary=/換位|體諒/.test(answer)?'孩子已表示不想被要求換位思考或體諒對方。'
+   :/原諒/.test(answer)?'孩子已表示不願被要求原諒。'
+   :'孩子不希望被要求冷靜或做呼吸練習。';
+  if(!incomingMemory.boundaries.includes(boundary))incomingMemory.boundaries=[...incomingMemory.boundaries,boundary].slice(-5);
+  return send(res,200,{...rule('好，我不會要求你冷靜、原諒或換位思考。我們可以先照你舒服的速度說。','你現在希望我先聽你說，還是一起想下一步？','none','autonomy-rule',false,'stay'),memory:incomingMemory});
+ }
  const prefs={listen:'先傾聽，但允許適時用具體摘要回扣整件事，當孩子準備好了再自然邀請，不必一直問情緒',clarify:'協助整理觀察、感受、推測與未知，但要和前面事件連貫，避免像問卷',ideas:'願意找方法，回扣前面孩子在意的界線，只給一兩個可行方法，不再反覆徵詢同一件事'};
  const thread={};const rawThread=input.thread&&typeof input.thread==='object'?input.thread:{};
  for(const k of THREAD_FIELDS)thread[k]=trim(rawThread[k],publicAuthorized?90:130);
- const memory=memoryFrom(input.memory,publicAuthorized);
+ const memory=incomingMemory;
  if(publicAuthorized&&([...Object.values(thread),...flattenMemory(memory)].some(v=>PII_LIKE.test(v))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
- const turnCount=Math.min(18,Math.max(0,Number(input.turnCount)||0));
+ const turnCount=Math.min(999,Math.max(0,Number(input.turnCount)||0));
  const previousQuestion=trim(input.lastQuestion,115);
  const lastQuestions=history.filter(h=>h.role==='mimo').map(h=>h.text.split(/[\n]/).at(-1)).filter(t=>t&&/[?？]/.test(t)).slice(-3);
  const previousReplies=history.filter(h=>h.role==='mimo').slice(-2).map(h=>h.text.trim());

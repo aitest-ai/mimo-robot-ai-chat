@@ -22,10 +22,11 @@ let counter=0;async function call(answer,extra={},teacher=false){
 const tests=[];const check=(name,pass,info)=>tests.push({name,pass:Boolean(pass),info});
 const oldMemory={summary:'很久以前：孩子在虛構美勞課畫的是綠色月亮，最在意沒先被問。',facts:['海報上有綠色月亮。'],uncertainties:[],boundaries:['不要換位思考。'],plans:[],milestones:['畫了綠色月亮海報。']};
 const history=Array.from({length:20},(_,i)=>({role:i%2?'mimo':'user',text:'另一段虛構對話第'+i+'則，討論如何整理桌面。'}));
-const initial=await call('很久以前的海報畫的是什麼？我在意什麼？',{memory:oldMemory,history,turnCount:31});
+const initial=await call('很久以前的海報畫的是什麼？我在意什麼？',{memory:oldMemory,history,archivedClues:[{text:'我最初說那張虛構的海報畫著綠色月亮。'}],turnCount:31});
 check('Long memory provided even when initial turn outside recent sixteen',initial.status===200&&lastPayload.contents[0].parts[0].text.includes('綠色月亮'),initial.body);
 const input=JSON.parse(lastPayload.contents[0].parts[0].text);
 check('Recent sixteen capped',input.recent_turns.length===16,input.recent_turns.length);
+check('Third-tier older exact quote delivered',input.archived_clues.length===1&&input.archived_clues[0].includes('綠色月亮'),input.archived_clues);
 check('Prior boundary sent back',input.long_memory.boundaries.includes('不要換位思考。'),input.long_memory.boundaries);
 check('Updated memory returned in same response',initial.body.memory?.facts?.[0]?.includes('綠色月亮'),initial.body.memory);
 const before=upstream;

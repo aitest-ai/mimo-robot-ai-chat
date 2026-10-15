@@ -270,7 +270,7 @@ async function replyTo(text){
  if(state.data.unsafe){showHelp();return;}
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
- addUser(message);state.conversationTurns++;$("chatInput").value="";resizeInput();
+ addUser(message);state.conversationTurns++;$("chatInput").value="";resizeInput();$("serviceNotice").hidden=true;
  const risk=riskLevel(message);
  if(risk==="immediate"){
   state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
@@ -368,7 +368,15 @@ async function replyTo(text){
    result=payload;
   }finally{clearTimeout(timeout)}
  }catch(e){
-  if(seq===state.turn&&String(e?.message)!=="PRIVATE_DEMO_INPUT")$("teacherStatus").textContent="Gemini 暫時沒有回應，已切換為固定引導。";
+  if(seq===state.turn){
+   const notice=$("serviceNotice");
+   const privacy=String(e?.message)==="PRIVATE_DEMO_INPUT";
+   notice.textContent=privacy
+    ?"這裡只使用虛構故事。請不要輸入真實姓名、學校或聯絡方式。"
+    :"Mimo 暫時連不上 Gemini，但剛剛聊的故事還保留在這個分頁。稍後可以再試。";
+   notice.hidden=false;
+   if(!privacy)$("teacherStatus").textContent="Gemini 暫時沒有回應；剛剛的對話仍保留。";
+  }
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
  if(result?.thread&&typeof result.thread==="object"){
@@ -446,7 +454,7 @@ function reset(){
  if(window.confirm?.("重新聊天會清除目前的文字，確定嗎？")===false)return;
  state.abort?.abort();stopBreath();clearSession();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
- $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft","",false);refreshHistory();
+ $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft","",false);$("serviceNotice").hidden=true;refreshHistory();
  suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();void enablePublicDemo();
 }
 function demo(){

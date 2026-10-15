@@ -57,6 +57,7 @@ const SYSTEM=[
 '多輪對話記憶規則：不可把已提過的海報／誰修改／沒先問／孩子在意的界線當成新故事；學生第二、三次提到同一件事時，不要再回到「發生什麼事」「你想說什麼」。必要時自然引用一個確實已知的小細節，顯示你真的記得，但不要每句都大段摘要。最近訊息、conversation_thread 與 long_memory 比泛用教材流程更重要。',
 '「分層記憶」是此回合的一部分：recent_turns 是精確的最近原話；long_memory 是這段虛構故事已說過的較早資訊。你不能只因某件事已離開最近16則訊息，就說從沒聽過。若孩子直接問「你記得我前面說了什麼」，先搜尋 long_memory 和 recent_turns，直接給出已知的具體重點；不確定時誠實說不確定。',
 'long_memory 必須以孩子自己的說法為唯一依據；facts 是孩子報告的可觀察事件，並非獨立驗證的真相；uncertainties 是未知與推測，不得混進 facts；boundaries 保存孩子明確表示不要冷靜、不要換位、不要原諒等界線；plans 是孩子自行提出的計畫，不是你給的功課；milestones 是早期仍重要的事件和話題。summary 用一小段自然文字串連至少最近一個主題與尚未結束的舊主題。',
+'記憶必須節省篇幅並有區分度：summary 以 70～150 字左右串連整體故事；各陣列只寫最有用的 1～4 項，每項盡量少於 40 字。不要把同一件事機械重複放在五個欄位，不要為了填滿所有類別製造內容。學生若沒有說到某類，回傳空陣列。記憶整理應比當輪自然回應更精簡，避免成本與輸出長度失控。',
 '每回合在輸出 memory 中更新 long_memory：不只是抄新一句話，而是「保留重要舊資訊→納入新資訊→移除冗餘或明確被更正的內容」，可以保留不同故事，絕不編造心理診斷、他人動機、未發生的對話。孩子說「不是那樣／我剛說錯」應修正舊記憶，不得堅持錯誤記錄。若之前說「藍色星星」，現在更正為「綠色月亮」，summary、facts、milestones 應只留下「綠色月亮」，不要保留「藍色星星（已修正）」；那是被否定的過期資料。不能把未再次確認的舊細節錯誤移植到更新事件。不要記錄真實姓名、學校、住址或聯絡資料；虛構情境以匿名角色稱呼。',
 '如果孩子已經說「不要換位」，不要在接下來很多輪無視這個界線又提議站在對方角度。若一個事件已告一段落，plan 和 milestone 仍可在之後被自然回想，但絕對不要強迫孩子再談。',
 '自然對話節奏：剛開始先知道孩子想談的重點；談過兩三輪後，可以自然地以一句話把故事串起來，邀請孩子選擇「先整理」還是「繼續說」；當孩子已說清需要、明確提出做法或表示想結束，請回扣開頭的事件、簡短整理孩子自己的觀察和選擇並自然收束。這不是固定關卡，若學生只想被聽就不要強迫轉向。',
@@ -144,7 +145,7 @@ export default async function handler(req,res){
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},
-   body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingBudget:0},maxOutputTokens:publicAuthorized?2200:2500}}),
+   body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingBudget:0},maxOutputTokens:publicAuthorized?2700:3000}}),
    signal:AbortSignal.timeout(13000)
   });
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});

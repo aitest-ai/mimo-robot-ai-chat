@@ -291,6 +291,28 @@ function addUser(text){
  if(state.history.length>30)state.history.shift();
  $("lastReply").hidden=false;$("lastReplyText").textContent=text;refreshHistory();
 }
+function selectArchivedClues(query){
+ // Find a few exact earlier CHILD utterances locally, without embeddings, a database or a second API call.
+ // Recently sent turns take priority; a later child correction supersedes old utterances.
+ const older=state.history.slice(0,-17).filter(msg=>msg&&msg.role==="user"&&typeof msg.text==="string");
+ if(!older.length)return [];
+ const clean=x=>String(x||"").replace(/[，。！？！？、\s「」『』：:；;]/g,"");
+ const phrases=x=>{
+  const chars=clean(x);const grams=new Set();
+  for(let i=0;i<chars.length-1;i++)grams.add(chars.slice(i,i+2));
+  return grams;
+ };
+ const terms=phrases(query);
+ const asksEarliest=/最早|一開始|剛開始|前面|之前|還記得|很久以前/.test(query);
+ const candidates=older.map((msg,i)=>{
+  const words=phrases(msg.text);let overlap=0;
+  for(const pair of terms)if(words.has(pair))overlap++;
+  return {msg,i,score:overlap};
+ }).sort((a,b)=>b.score-a.score||a.i-b.i);
+ const matched=candidates.filter(item=>item.score>=2).slice(0,3);
+ if(asksEarliest&&!matched.some(item=>item.i===0))matched.push({msg:older[0],i:0,score:0});
+ return matched.slice(0,4).sort((a,b)=>a.i-b.i).map(item=>({text:item.msg.text.slice(0,180)}));
+}
 function messageForModel(text,phase,next){
  const context=safeContext();
  const p=phaseInfo[phase],n=phaseInfo[next];
@@ -304,7 +326,7 @@ function messageForModel(text,phase,next){
  if(phase==="action")context.action=text;
  const recent=state.history.slice(-17);
  if(recent.at(-1)?.role==="user"&&recent.at(-1).text===text)recent.pop();
- return {answer:text,history:recent.slice(-16).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,memory:sanitizeMemory(state.memory),turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
+ return {answer:text,history:recent.slice(-16).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),archivedClues:selectArchivedClues(text),context,thread:state.thread,memory:sanitizeMemory(state.memory),turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);

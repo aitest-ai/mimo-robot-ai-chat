@@ -38,11 +38,20 @@ const phaseInfo={
  safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
  supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},conversationTurns:0});
+const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},memory:{summary:"",facts:[],uncertainties:[],boundaries:[],plans:[],milestones:[]},conversationTurns:0});
 let state=makeInitial();
 const intro="嗨，我是 Mimo。你可以先說一件小事，我會記得我們聊過的內容。";
 const SESSION_KEY="mimo-fictional-session-v3";
 const micro=s=>String(s||"").trim().slice(0,70);
+const MEMORY_LISTS={facts:6,uncertainties:5,boundaries:5,plans:5,milestones:7};
+function sanitizeMemory(raw){
+ const input=raw&&typeof raw==="object"?raw:{};
+ const out={summary:typeof input.summary==="string"?input.summary.trim().slice(0,320):""};
+ for(const [key,max] of Object.entries(MEMORY_LISTS)){
+  out[key]=Array.isArray(input[key])?input[key].slice(0,max).filter(v=>typeof v==="string").map(v=>v.trim().slice(0,105)).filter(Boolean):[];
+ }
+ return out;
+}
 const safeContext=()=>{
  const keys=["weather","feeling","strength","story","quote","fact","guess","unknown","reaction","perspective","action"];
  const o={};
@@ -67,7 +76,7 @@ function speak(text,expression="listen",question="",record=true){
  const last=state.history[state.history.length-1];
  if(last?.role==="mimo")last.text=$("mimoTalk").textContent;
  else state.history.push({role:"mimo",text:$("mimoTalk").textContent});
- if(state.history.length>30)state.history.shift();
+ if(state.history.length>80)state.history.shift();
  refreshHistory();persistSession();
 }
 function refreshHistory(){
@@ -97,9 +106,24 @@ function refreshHistory(){
  }
  feed.scrollTop=feed.scrollHeight;
  const memory=$("memoryHint");
- const topic=(state.thread?.importance||state.thread?.event||"").trim();
+ const topic=(state.memory.summary||state.thread.importance||state.thread.event||"").trim();
+ memory.replaceChildren();
  if(topic&&conversation.length>=3){
-  memory.hidden=false;memory.textContent="✳ 我記得我們剛才聊到："+topic.slice(0,61);
+  memory.hidden=false;
+  const details=document.createElement("details");details.className="memory-details";
+  const summary=document.createElement("summary");summary.textContent="✳ 記得的故事重點 · 點開查看";
+  const brief=document.createElement("p");brief.textContent=topic.slice(0,320);
+  const headings={facts:"故事裡提過的事",uncertainties:"仍不確定的事",boundaries:"你不希望被要求的事",plans:"想過的下一步",milestones:"早先談過的重要部分"};
+  details.append(summary,brief);
+  for(const [key,title] of Object.entries(headings)){
+   const values=state.memory[key]||[];if(!values.length)continue;
+   const label=document.createElement("strong");label.textContent=title;
+   const ul=document.createElement("ul");
+   for(const value of values){const li=document.createElement("li");li.textContent=value;ul.appendChild(li)}
+   details.append(label,ul);
+  }
+  const note=document.createElement("small");note.textContent="這是依虛構故事整理的暫存記憶，可能有誤；可以直接告訴 Mimo 哪裡要更正。";details.append(note);
+  memory.append(details);
  }else memory.hidden=true;
  const title=document.querySelector(".conversation-heading h1");
  if(title)title.textContent=conversation.length?"好，我們接著聊":"從一件小事開始就好";
@@ -107,7 +131,7 @@ function refreshHistory(){
 function persistSession(){
  if(!state.demo||state.data.unsafe||state.safetyConcern!=="none"){if(state.data.unsafe)clearSession();return;}
  try{
-  const data={v:3,t:Date.now(),phase:state.phase,history:state.history.slice(-30).filter(m=>m&&["mimo","user"].includes(m.role)).map(m=>({role:m.role,text:String(m.text||"").slice(0,360)})),thread:{event:String(state.thread.event||"").slice(0,130),importance:String(state.thread.importance||"").slice(0,130),openLoop:String(state.thread.openLoop||"").slice(0,130)},data:safeContext(),conversationTurns:state.conversationTurns,mode:state.supportMode,lastSkill:state.lastSkill,lastMove:state.lastMove,lastPrompt:state.lastPrompt,demoCase:state.demoCase};
+  const data={v:3,t:Date.now(),phase:state.phase,history:state.history.slice(-80).filter(m=>m&&["mimo","user"].includes(m.role)).map(m=>({role:m.role,text:String(m.text||"").slice(0,360)})),thread:{event:String(state.thread.event||"").slice(0,130),importance:String(state.thread.importance||"").slice(0,130),openLoop:String(state.thread.openLoop||"").slice(0,130)},memory:sanitizeMemory(state.memory),declinedMirror:!!state.declinedMirror,data:safeContext(),conversationTurns:state.conversationTurns,mode:state.supportMode,lastSkill:state.lastSkill,lastMove:state.lastMove,lastPrompt:state.lastPrompt,demoCase:state.demoCase};
   sessionStorage.setItem(SESSION_KEY,JSON.stringify(data));
  }catch{}
 }
@@ -116,10 +140,12 @@ function restoreSession(){
  let saved;try{saved=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null")}catch{return false}
  if(!saved||saved.v!==3||!Number.isFinite(saved.t)||Date.now()-saved.t>24*3600000){clearSession();return false}
  if(!Array.isArray(saved.history)||!saved.history.some(m=>m.role==="user"))return false;
- state.history=saved.history.slice(-30).filter(m=>m&&["mimo","user"].includes(m.role)&&typeof m.text==="string").map(m=>({role:m.role,text:m.text.slice(0,360)}));
+ state.history=saved.history.slice(-80).filter(m=>m&&["mimo","user"].includes(m.role)&&typeof m.text==="string").map(m=>({role:m.role,text:m.text.slice(0,360)}));
  state.thread=Object.fromEntries(["event","importance","openLoop"].map(k=>[k,typeof saved.thread?.[k]==="string"?saved.thread[k].slice(0,130):""]));
+ state.memory=sanitizeMemory(saved.memory);
+ state.declinedMirror=!!saved.declinedMirror;
  state.data=Object.fromEntries(Object.entries(saved.data||{}).filter(([k,v])=>["weather","feeling","strength","story","quote","fact","guess","unknown","reaction","perspective","action"].includes(k)&&typeof v==="string").map(([k,v])=>[k,v.slice(0,240)]));
- state.conversationTurns=Math.min(30,Math.max(0,Number(saved.conversationTurns)||0));
+ state.conversationTurns=Math.min(999,Math.max(0,Number(saved.conversationTurns)||0));
  state.supportMode=["listen","clarify","ideas"].includes(saved.mode)?saved.mode:"listen";
  state.lastSkill=typeof saved.lastSkill==="string"?saved.lastSkill:"";
  state.lastMove=typeof saved.lastMove==="string"?saved.lastMove:"stay";
@@ -260,9 +286,9 @@ function messageForModel(text,phase,next){
  if(phase==="mirrorQuote")context.quote=text;
  if(phase==="mirrorReflect")context.reaction=text;
  if(phase==="action")context.action=text;
- const recent=state.history.slice(-13);
+ const recent=state.history.slice(-17);
  if(recent.at(-1)?.role==="user"&&recent.at(-1).text===text)recent.pop();
- return {answer:text,history:recent.slice(-12).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
+ return {answer:text,history:recent.slice(-16).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),context,thread:state.thread,memory:sanitizeMemory(state.memory),turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
 async function replyTo(text){
  const message=String(text||"").trim().slice(0,480);
@@ -379,6 +405,9 @@ async function replyTo(text){
   }
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
+ if(result?.memory&&typeof result.memory==="object"){
+   state.memory=sanitizeMemory(result.memory);
+ }
  if(result?.thread&&typeof result.thread==="object"){
    for(const key of ["event","importance","openLoop"]){
     if(typeof result.thread[key]==="string"&&result.thread[key].trim())state.thread[key]=result.thread[key].slice(0,130);

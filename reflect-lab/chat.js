@@ -292,26 +292,25 @@ function addUser(text){
  $("lastReply").hidden=false;$("lastReplyText").textContent=text;refreshHistory();
 }
 function selectArchivedClues(query){
- // Find a few exact earlier CHILD utterances locally, without embeddings, a database or a second API call.
- // Recently sent turns take priority; a later child correction supersedes old utterances.
- const older=state.history.slice(0,-17).filter(msg=>msg&&msg.role==="user"&&typeof msg.text==="string");
+ // Exact quotations of older fictitious student statements; no second API call.
+ const firstRecent=Math.max(0,state.history.length-17);
+ const older=state.history.slice(0,firstRecent).filter(m=>m?.role==="user"&&typeof m.text==="string");
  if(!older.length)return [];
- const clean=x=>String(x||"").replace(/[，。！？！？、\s「」『』：:；;]/g,"");
- const phrases=x=>{
-  const chars=clean(x);const grams=new Set();
-  for(let i=0;i<chars.length-1;i++)grams.add(chars.slice(i,i+2));
-  return grams;
- };
- const terms=phrases(query);
- const asksEarliest=/最早|一開始|剛開始|前面|之前|還記得|很久以前/.test(query);
- const candidates=older.map((msg,i)=>{
-  const words=phrases(msg.text);let overlap=0;
-  for(const pair of terms)if(words.has(pair))overlap++;
-  return {msg,i,score:overlap};
- }).sort((a,b)=>b.score-a.score||a.i-b.i);
- const matched=candidates.filter(item=>item.score>=2).slice(0,3);
- if(asksEarliest&&!matched.some(item=>item.i===0))matched.push({msg:older[0],i:0,score:0});
- return matched.slice(0,4).sort((a,b)=>a.i-b.i).map(item=>({text:item.msg.text.slice(0,180)}));
+ const clean=x=>String(x||"").replace(/[，。！？、\s「」『』：:；;]/g,"");
+ const pairs=x=>{const t=clean(x),s=new Set();for(let i=0;i<t.length-1;i++)s.add(t.slice(i,i+2));return s};
+ const promptPairs=pairs(query),wantEarliest=/最早|最初|一開始|剛開始|前面|之前|還記得|很久以前/.test(query);
+ const chosen=[];
+ // A direct question about "the beginning" must always carry the earliest child utterance.
+ // Do this BEFORE relevance ranking; a later corrections still has higher priority for factual truth.
+ if(wantEarliest&&older[0])chosen.push(older[0]);
+ const scored=older.map((msg,i)=>({msg,i,score:[...promptPairs].filter(v=>pairs(msg.text).has(v)).length}))
+  .filter(x=>x.score>=2).sort((a,b)=>b.score-a.score||a.i-b.i);
+ for(const item of scored){
+  if(chosen.includes(item.msg))continue;
+  chosen.push(item.msg);
+  if(chosen.length>=4)break;
+ }
+ return chosen.slice(0,4).map(m=>({text:m.text.slice(0,180)}));
 }
 function messageForModel(text,phase,next){
  const context=safeContext();

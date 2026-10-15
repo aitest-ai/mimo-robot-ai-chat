@@ -270,7 +270,23 @@ function questionValid(q){
  if((q.match(/[？?]/g)||[]).length>1)return false;
  return true;
 }
+function noteChildBoundary(text){
+ const memory=state.memory;
+ const save=value=>{
+  if(!memory.boundaries.includes(value))memory.boundaries=[...memory.boundaries,value].slice(-5);
+ };
+ if(/(現在願意|我願意|改變主意).{0,10}(換位|體諒)/.test(text)){
+  memory.boundaries=memory.boundaries.filter(x=>!/換位|體諒/.test(x));
+  state.declinedMirror=false;
+ }else if(/(不想|不要|不願意).{0,10}(換位|體諒)|憑什麼.{0,10}體諒/.test(text)){
+  save("孩子已表示不想被要求換位思考或體諒對方。");
+  state.declinedMirror=true;
+ }
+ if(/(不想|不要|不願意).{0,8}原諒/.test(text))save("孩子已表示不願被要求原諒。");
+ if(/(不想|不要|不願意).{0,8}(冷靜|呼吸)/.test(text))save("孩子不希望被要求冷靜或做呼吸練習。");
+}
 function addUser(text){
+ noteChildBoundary(text);
  state.history.push({role:"user",text});
  if(state.history.length>30)state.history.shift();
  $("lastReply").hidden=false;$("lastReplyText").textContent=text;refreshHistory();
@@ -406,7 +422,12 @@ async function replyTo(text){
  }finally{if(seq===state.turn){state.processing=false;state.abort=null;toggleBusy(false)}}
  if(seq!==state.turn)return;
  if(result?.memory&&typeof result.memory==="object"){
+   const previousBoundaries=[...state.memory.boundaries];
    state.memory=sanitizeMemory(result.memory);
+   for(const item of previousBoundaries){
+    if(!state.memory.boundaries.includes(item))state.memory.boundaries.push(item);
+   }
+   state.memory.boundaries=state.memory.boundaries.slice(-5);
  }
  if(result?.thread&&typeof result.thread==="object"){
    for(const key of ["event","importance","openLoop"]){

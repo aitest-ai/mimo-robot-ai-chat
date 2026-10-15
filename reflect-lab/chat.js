@@ -79,9 +79,15 @@ function refreshHistory(){
  $("chatWelcome")?.replaceChildren();
  if(!conversation.length){
   const placeholder=document.createElement("div");placeholder.className="chat-welcome";
-  const a=document.createElement("p");a.textContent="不需要答完所有問題，也不用急著讓心情變好。";
-  const b=document.createElement("span");b.textContent="試試一個虛構故事，或直接用自己的話設定虛構角色。";
-  placeholder.append(a,b);feed.appendChild(placeholder);
+  const a=document.createElement("p");a.textContent="從一個虛構故事開始，也可以自己編故事。";
+  const b=document.createElement("span");b.textContent="不用答題，也不用急著讓心情變好。";
+  const prompts=document.createElement("div");prompts.className="starter-options";
+  for(const item of [{icon:"🎨",title:"作品被改掉",subtitle:"辛苦畫的東西被亂改",action:"demo"},{icon:"🧩",title:"分組沒被選",subtitle:"朋友沒有選我一起",action:"groupDemo"},{icon:"💬",title:"朋友不理我",subtitle:"不知道是不是誤會",action:"friendDemo"}]){
+   const button=document.createElement("button");button.type="button";button.className="starter-card";button.dataset.action=item.action;
+   const mark=document.createElement("span");mark.className="starter-icon";mark.textContent=item.icon;
+   const words=document.createElement("span");const strong=document.createElement("strong");strong.textContent=item.title;const small=document.createElement("small");small.textContent=item.subtitle;words.append(strong,small);button.append(mark,words);prompts.append(button);
+  }
+  placeholder.append(a,b,prompts);feed.appendChild(placeholder);
  }
  for(const msg of conversation){
   const item=document.createElement("div");item.className="chat-message "+(msg.role==="user"?"mine":"theirs");
@@ -139,16 +145,9 @@ function suggestions(phase){
  // In AI mode, optional actions express the child's choice, not canned student replies.
  // Keep mirror and immediate-safety choices separate.
  if(state.teacher&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect"].includes(phase)){
-  if(state.conversationTurns===0)return chips([{text:"🎨 作品被修改",action:"demo"},{text:"🧩 分組沒被選上",action:"groupDemo"},{text:"💭 和朋友誤會",action:"friendDemo"}]);
+  if(state.conversationTurns===0)return chips([]);
   if(state.lastMove==="close"||phase==="finish")return chips([{text:"💬 我還想再聊",action:"continue"},{text:"✨ 今天先到這裡",action:"finish"}]);
-  const options=state.supportMode==="listen"?
-   [{text:"🧩 我想整理這件事",action:"clarify"},{text:"💡 想想下一步",action:"ideas"}]:
-   state.supportMode==="clarify"?
-   [{text:"💬 先聽我說",action:"listen"},{text:"💡 想想下一步",action:"ideas"}]:
-   [{text:"💬 再說說感受",action:"listen"},{text:"🧩 一起理清楚",action:"clarify"}];
-  if(state.conversationTurns>2)options.push({text:"✨ 今天先聊到這",action:"finish"});
-  else options.push({text:"🍃 先休息",action:"breathe"});
-  return chips(options);
+  return chips(state.conversationTurns>2?[{text:"🍃 暫停一下",action:"breathe"},{text:"✨ 今天先聊到這裡",action:"finish"}]:[]);
  }
  const shortcuts=[{text:"🌿 我想先休息一下",action:"breathe"}];
  switch(phase){
@@ -515,6 +514,7 @@ $("chatForm").addEventListener("submit",e=>{e.preventDefault();void replyTo($("c
 $("chatInput").addEventListener("input",resizeInput);
 $("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();$("chatForm").requestSubmit?.()}});
 $("supportModes").addEventListener("click",e=>{const b=e.target.closest("button[data-mode]");if(b)selectMode(b.dataset.mode)});
+$("chatThread").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(b)useAction(b.dataset.action)});
 $("quickReplies").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.action)useAction(b.dataset.action);else void replyTo(b.dataset.value)});
 $("historyToggle").onclick=()=>{
  const el=$("history");el.hidden=!el.hidden;
@@ -543,5 +543,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");const resumed=restoreSession();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
+face("soft");const resumed=restoreSession();if(!resumed)refreshHistory();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
 })();

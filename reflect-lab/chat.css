@@ -583,9 +583,10 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
  .entry-summary-row strong{text-align:left}
 }
 
-/* Weather must override the preceding smile immediately, even on the first frame. */
-.mimo-head[data-weather] .face{transition:none!important}
-.mimo-head[data-weather="雷雨"] .face-soft,
-.mimo-head[data-weather="颱風"] .face-soft,
-.mimo-head[data-weather="下雨"] .face-soft,
-.mimo-head[data-weather="起霧"] .face-soft{opacity:0!important}
+/* During onboarding, never fade through the previous cheerful face.
+   Once a conversation begins, the LLM may again choose all available faces. */
+.app:not(.has-conversation) .mimo-head[data-weather] .face{transition:none!important}
+.app:not(.has-conversation) .mimo-head[data-weather="雷雨"] .face-soft,
+.app:not(.has-conversation) .mimo-head[data-weather="颱風"] .face-soft,
+.app:not(.has-conversation) .mimo-head[data-weather="下雨"] .face-soft,
+.app:not(.has-conversation) .mimo-head[data-weather="起霧"] .face-soft{opacity:0!important}

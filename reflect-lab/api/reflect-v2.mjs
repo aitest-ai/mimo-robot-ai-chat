@@ -92,6 +92,24 @@ const SCHEMA={type:'OBJECT',properties:{
   milestones:{type:'ARRAY',items:{type:'STRING'}}
  },required:['summary','facts','uncertainties','boundaries','plans','milestones']}
 },required:['say','emotion','intensity','chips','move','skill','riskLevel','needsAdult','thread','memory']};
+const ROBOT_FACE={idle:'calm',listening:'listen',thinking:'question',speaking:'soft',concerned:'listen',calming:'calm',happy:'soft',sad:'hurt',curious:'question'};
+function childSay(value){
+ let text=trim(value,250).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
+ const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情']];
+ for(const [regex,word] of words)text=text.replace(regex,word);
+ const chunks=(text.match(/[^。！？?!]+[。！？?!]?/gu)||[]).map(x=>x.trim()).filter(Boolean).slice(0,3);
+ let asked=false;
+ const sentences=chunks.map(part=>{
+  const question=/[？?]/.test(part);
+  let sentence=part.replace(/[。！？?!]+$/u,'').trim();
+  if(sentence.length>25){const comma=sentence.lastIndexOf('，',24);sentence=comma>=11?sentence.slice(0,comma):sentence.slice(0,25)}
+  if(question&&!asked){asked=true;return sentence+'？'}
+  return sentence+'。';
+ }).filter(x=>x!=='。');
+ if(!sentences.length)sentences.push('我在聽。','你可以慢慢說。');
+ if(sentences.length===1)sentences.push('你可以照自己的速度說。');
+ return sentences.join('');
+}
 function send(res,code,body){res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(body))}
 function trim(v,n=400){return typeof v==='string'?v.trim().slice(0,n):''}
 function check(a,b){const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length>0&&x.length===y.length&&timingSafeEqual(x,y)}
@@ -156,7 +174,16 @@ export default async function handler(req,res){
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
-  let reply=trim(out.reply,230);let question=trim(out.question,115);let responseSource="gemini-2.5-flash";
+  let say=childSay(out.say),reply=say,question='',responseSource="gemini-2.5-flash";
+  let emotion=ROBOT_FACE[out.emotion]?out.emotion:'listening';
+  let intensity=Math.min(1,Math.max(0,Number(out.intensity)||0.5));
+  const highOpening=answer.startsWith('【開場】')&&(answer.includes('雷雨')||answer.includes('颱風')||answer.includes('強度：4/5')||answer.includes('強度：5/5'));
+  if(highOpening){emotion='concerned';intensity=Math.max(intensity,0.72)}
+  const pieces=say.match(/[^。！？?!]+[。！？?!]?/gu)||[];
+  const questionPiece=pieces.find(x=>/[？?]/u.test(x));
+  if(questionPiece){question=questionPiece;reply=pieces.filter(x=>x!==questionPiece).join('')}
+  const chips=Array.isArray(out.chips)?out.chips.slice(0,2).filter(v=>typeof v==='string').map(v=>trim(v,22)):[];
+  const mappedFace=ROBOT_FACE[emotion]||'listen';
   const nextMemory=memoryFrom(out.memory,publicAuthorized);
   if(!nextMemory.summary&&memory.summary)nextMemory.summary=memory.summary;
   for(const k of Object.keys(MEMORY_LISTS))if(!Array.isArray(out.memory?.[k]))nextMemory[k]=memory[k];
@@ -186,8 +213,9 @@ export default async function handler(req,res){
   if(CLOSED.test(answer)&&!/[？?]$/.test(answer)){
     out.move='close';question='';nextThread.openLoop='';
   }
-  if(reply.length<5||!FACE.includes(out.face)||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean'||question.split(/[？?]/).length>2)return send(res,502,{error:'BAD_SCHEMA'});
+  if(reply.length<3||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean')return send(res,502,{error:'BAD_SCHEMA'});
   if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
-  return send(res,200,{reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':out.face,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
+  say=childSay(reply+question);
+  return send(res,200,{say,emotion:out.riskLevel==='concern'?'concerned':emotion,intensity,chips,reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':mappedFace,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

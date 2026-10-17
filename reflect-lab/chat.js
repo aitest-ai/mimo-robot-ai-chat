@@ -531,6 +531,16 @@ async function replyTo(text,fromMood=false){
  if(phase==="wrap")state.data.nextTime=message;
  const local=fallback(phase,message,next);
  if(!state.teacher){
+  if(fromMood){
+   const high=["雷雨","颱風"].includes(state.entry.weather)||state.entry.strength>=4;
+   const selected=state.entry.weather;
+   const kind=high?"listen":selected==="晴天"?"soft":"calm";
+   const words=high?"聽起來你現在很難受。你可以慢慢說。"
+    :selected==="晴天"?"今天的心情還不錯。你想聊什麼呢？"
+    :"不太知道怎麼說也沒關係。我們可以慢慢聊。";
+   updatePrompt("event",{reply:words,face:kind},"",true);
+   return;
+  }
   updatePrompt(next,local);
   if(next==="mirrorReflect"){
    // Expression chosen by child; mimic this only for the imagined role-play.

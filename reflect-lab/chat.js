@@ -38,10 +38,14 @@ const phaseInfo={
  safePause:{stage:2,field:"strategy",question:"你現在能先離開那些容易被打翻的東西嗎？",goal:"暫停內容分析；先與可能摔落的物品保持距離，提供成人協助"},
  supportCheck:{stage:2,field:"strategy",question:"你現在在學校或家裡，是安全的嗎？",goal:"對學校拒絕和持續排擠優先詢問是否安全並提供真人支持，無須換位"}
 };
-const makeInitial=()=>({phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},memory:{summary:"",facts:[],uncertainties:[],boundaries:[],plans:[],milestones:[]},conversationTurns:0});
+const makeInitial=()=>({entry:{view:"intro",intro:0,step:0,weather:"",feelings:[],strength:3,topics:[],mode:"listen"},phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},memory:{summary:"",facts:[],uncertainties:[],boundaries:[],plans:[],milestones:[]},conversationTurns:0});
 let state=makeInitial();
 const intro="嗨，我是 Mimo。你可以先說一件小事，我會記得我們聊過的內容。";
 const SESSION_KEY="mimo-fictional-session-v3";
+const ENTRY_WEATHER=["晴天","多雲","起霧","下雨","雷雨","颱風"];
+const ENTRY_FEELINGS={晴天:["開心","安心","有精神","放鬆","說不上來"],多雲:["有點煩","擔心","無聊","不太開心","說不上來"],起霧:["迷糊","緊張","不知道怎麼辦","有點亂","說不上來"],下雨:["難過","委屈","失落","孤單","說不上來"],雷雨:["生氣","委屈","害怕","很煩","說不上來"],颱風:["很生氣","很難過","害怕","好累","說不上來"]};
+const ENTRY_TOPICS=["課業","朋友同學","家裡","老師","自己的心情","其他"];
+const ENTRY_MODES=[["listen","先聽我說就好"],["clarify","幫我整理一下"],["ideas","想要一些方法"]];
 const micro=s=>String(s||"").trim().slice(0,70);
 const MEMORY_LISTS={facts:6,uncertainties:5,boundaries:5,plans:5,milestones:7};
 function sanitizeMemory(raw){
@@ -60,13 +64,15 @@ const safeContext=()=>{
 };
 function face(expression){
  const robot=$("mimoHead");
+ const mapped={idle:"calm",listening:"listen",thinking:"question",speaking:"soft",concerned:"listen",calming:"calm",happy:"soft",sad:"hurt",worried:"listen",gentle:"soft",curious:"question"};
+ expression=mapped[expression]||expression;
  if(!FACES.has(expression))expression="listen";
  robot.dataset.expression=expression;
  robot.setAttribute("aria-label","Mimo 的表情："+({calm:"平靜",listen:"認真傾聽",soft:"溫暖",guard:"皺眉",hurt:"難過",question:"正在思考"}[expression]));
  robot.classList.remove("react");void robot.getBoundingClientRect();robot.classList.add("react");
 }
 function speak(text,expression="listen",question="",record=true){
- face(expression);
+ face(expression);$("mimoHead").dataset.activity="speaking";
  const message=String(text).trim();
  const q=String(question||"").trim();
  $("mimoTalk").textContent=(message+(message&&q?"\n":"")+q).trim()||intro;
@@ -79,6 +85,100 @@ function speak(text,expression="listen",question="",record=true){
  if(state.history.length>80)state.history.shift();
  refreshHistory();persistSession();
 }
+function entryNode(tag,text,cls){
+ const el=document.createElement(tag);if(text!==undefined)el.textContent=text;
+ if(cls)el.className=cls;return el;
+}
+function entryButton(label,action,value='',kind=''){
+ const b=entryNode('button',label,'entry-choice '+kind);b.type='button';b.dataset.entryAction=action;
+ if(value)b.dataset.entryValue=value;return b;
+}
+function entryShow(){
+ const panel=$('entryPanel'),host=$('entryContent'),nav=$('entryNavigation'),e=state.entry;
+ panel.hidden=e.view==='done'||state.history.length>0;host.replaceChildren();nav.replaceChildren();
+ if(panel.hidden)return;
+ const intro=[
+  {icon:'✳',title:'嗨，我是 Mimo',desc:'我是 AI，不是真正的老師或心理師。你可以和我練習說心情。'},
+  {icon:'♡',title:'你可以慢慢說',desc:'這裡只用虛構故事。文字會送到 Vercel 與 Google Gemini，不要輸入真實姓名或私人事件。'},
+  {icon:'☀',title:'用喜歡的方式聊',desc:'可以先選心情卡，也能直接打字。覺得不安全時，記得找身邊的大人。'}
+ ];
+ if(e.view==='intro'){
+  const slide=intro[e.intro];
+  host.append(entryNode('div',slide.icon,'entry-art'),entryNode('div','認識 Mimo · '+(e.intro+1)+' / 3','entry-meta'),entryNode('h2',slide.title),entryNode('p',slide.desc));
+  const next=entryButton(e.intro===2?'開始選心情':'下一頁','introNext');next.classList.add('entry-primary');
+  nav.append(entryButton('略過介紹','introSkip'),next);
+ }else if(e.view==='cards'){
+  host.append(entryNode('span','今天的心情 · '+(e.step+1)+' / 4','entry-meta'));
+  host.append(entryNode('h2',['今天的心情像什麼天氣？','這個感覺有多強？','想聊哪件事？','希望 Mimo 怎麼陪你？'][e.step]));
+  if(e.step===0){
+   host.append(entryNode('p','選一個就好，不確定也能跳過。','entry-sub'));
+   const grid=entryNode('div',undefined,'entry-grid weather-grid');
+   const icons=['☀','☁','≋','☂','⚡','◌'];
+   ENTRY_WEATHER.forEach((name,i)=>{const b=entryButton(icons[i]+'  '+name,'weather',name,e.weather===name?'selected':'');b.setAttribute('aria-pressed',String(e.weather===name));grid.append(b)});
+   host.append(grid);
+  }else if(e.step===1){
+   host.append(entryNode('p','感覺可以選好幾個，也可以跳過。','entry-sub'));
+   const grid=entryNode('div',undefined,'entry-grid feeling-grid');
+   for(const name of (ENTRY_FEELINGS[e.weather]||['開心','難過','生氣','擔心','委屈','說不上來'])){const selected=e.feelings.includes(name);const b=entryButton(name,'feeling',name,selected?'selected':'');b.setAttribute('aria-pressed',String(selected));grid.append(b)}
+   host.append(grid);
+   const wrap=entryNode('div',undefined,'entry-intensity');wrap.append(entryNode('label','心情有多強？','entry-intensity-label'));
+   const levels=entryNode('div',undefined,'entry-levels');
+   for(let n=1;n<=5;n++){const b=entryButton(String(n),'strength',String(n),e.strength===n?'selected':'');b.setAttribute('aria-pressed',String(e.strength===n));levels.append(b)}
+   wrap.append(levels,entryNode('small','1 是一點點，5 是很強烈。'));host.append(wrap);
+  }else if(e.step===2){
+   host.append(entryNode('p','可以選好幾個，也能跳過。','entry-sub'));
+   const grid=entryNode('div',undefined,'entry-grid topic-grid');
+   for(const name of ENTRY_TOPICS){const selected=e.topics.includes(name);const b=entryButton(name,'topic',name,selected?'selected':'');b.setAttribute('aria-pressed',String(selected));grid.append(b)}host.append(grid);
+  }else{
+   host.append(entryNode('p','想怎麼聊都可以，之後也能改變。','entry-sub'));
+   const grid=entryNode('div',undefined,'entry-grid entry-mode-list');
+   for(const item of ENTRY_MODES){const b=entryButton(item[1],'mode',item[0],e.mode===item[0]?'selected':'');b.setAttribute('aria-pressed',String(e.mode===item[0]));grid.append(b)}host.append(grid);
+  }
+  const next=entryButton(e.step===3?'看看心情卡':'下一步',e.step===3?'finishCards':'nextStep');next.classList.add('entry-primary');
+  nav.append(entryButton('跳過這一步','skipStep'),next);
+ }else if(e.view==='summary'){
+  host.append(entryNode('span','今天的心情卡','entry-meta'),entryNode('h2','好，我們從這裡開始。'));
+  const card=entryNode('div',undefined,'entry-summary');
+  const fields=[['心情天氣',e.weather||'還不知道'],['感受',e.feelings.join('、')||'說不上來'],['強度',e.strength+' / 5'],['想聊的事',e.topics.join('、')||'還沒決定'],['陪伴方式',(ENTRY_MODES.find(x=>x[0]===e.mode)||ENTRY_MODES[0])[1]]];
+  for(const item of fields){const row=entryNode('div',undefined,'entry-summary-row');row.append(entryNode('span',item[0]),entryNode('strong',item[1]));card.append(row)}
+  host.append(card);const start=entryButton('就從這裡開始聊','startMood');start.classList.add('entry-primary');
+  nav.append(entryButton('返回修改','backStep'),start);
+ }
+}
+function dismissEntry(){state.entry.view='done';entryShow();$('moodCard').hidden=true}
+function startMood(){
+ const e=state.entry;
+ state.data.weather=e.weather;state.data.feeling=e.feelings.join('、');state.data.strength=String(e.strength);
+ selectMode(e.mode,true);
+ const card=$('moodCard');card.replaceChildren();
+ card.append(entryNode('strong','今天的心情卡'),entryNode('span',(e.weather||'還不知道')+' · '+(e.feelings.join('、')||'說不上來')+' · '+e.strength+'/5'));
+ e.view='done';entryShow();card.hidden=false;
+ const strong=e.weather==='雷雨'||e.weather==='颱風'||e.strength>=4;
+ face(strong?'listen':'soft');
+ const intro='【開場】這是一個虛構的校園故事。心情天氣：'+(e.weather||'還不知道')+'。感受：'+(e.feelings.join('、')||'說不上來')+'。強度：'+e.strength+'/5。想聊的事：'+(e.topics.join('、')||'還沒決定')+'。希望陪伴方式：'+(ENTRY_MODES.find(x=>x[0]===e.mode)||ENTRY_MODES[0])[1]+'。請自然接住感受，不要逐項重念心情卡。';
+ void replyTo(intro,true);
+}
+function onEntryAction(action,value){
+ const e=state.entry;if(state.processing)return;
+ if(action==='introNext'){if(e.intro<2)e.intro++;else{e.view='cards';e.step=0}}
+ if(action==='introSkip'){e.view='cards';e.step=0}
+ if(action==='weather'){e.weather=value;e.step=1}
+ if(action==='feeling'){e.feelings=e.feelings.includes(value)?e.feelings.filter(v=>v!==value):[...e.feelings,value]}
+ if(action==='strength')e.strength=Number(value)||3;
+ if(action==='topic')e.topics=e.topics.includes(value)?e.topics.filter(v=>v!==value):[...e.topics,value];
+ if(action==='mode')e.mode=value;
+ if(action==='skipStep'||action==='nextStep'){if(e.step<3)e.step++;else e.view='summary'}
+ if(action==='finishCards')e.view='summary';
+ if(action==='backStep'){e.view='cards';e.step=3}
+ if(action==='startMood')return startMood();
+ entryShow();
+}
+function historyDrawer(open){
+ $('historyDrawer').hidden=!open;$('drawerShade').hidden=!open;
+ $('historyToggle').setAttribute('aria-expanded',String(open));
+ if(open){const log=$('historyLog');log.replaceChildren();for(const m of state.history){const row=entryNode('div',undefined,'drawer-message '+m.role);row.append(entryNode('strong',m.role==='user'?'你':'Mimo'),entryNode('p',m.text));log.append(row)}log.scrollTop=log.scrollHeight}
+}
+
 function refreshHistory(){
  const legacy=$("historyItems"),feed=$("chatThread");
  if(legacy)legacy.replaceChildren();
@@ -98,13 +198,15 @@ function refreshHistory(){
   }
   placeholder.append(a,b,prompts);feed.appendChild(placeholder);
  }
- for(const msg of conversation){
+ const lastUser=[...conversation].reverse().find(m=>m.role==="user");
+ for(const msg of lastUser?[lastUser]:[]){
   const item=document.createElement("div");item.className="chat-message "+(msg.role==="user"?"mine":"theirs");
   const who=document.createElement("span");who.className="chat-message-who";who.textContent=msg.role==="user"?"你":"Mimo";
   const bubble=document.createElement("div");bubble.className="chat-bubble";bubble.textContent=msg.text;
   item.append(who,bubble);feed.appendChild(item);
  }
  feed.scrollTop=feed.scrollHeight;
+ entryShow();
  const memory=$("memoryHint");
  const topic=(state.memory.summary||state.thread.importance||state.thread.event||"").trim();
  memory.replaceChildren();
@@ -125,6 +227,7 @@ function refreshHistory(){
   const note=document.createElement("small");note.textContent="這是依虛構故事整理的暫存記憶，可能有誤；可以直接告訴 Mimo 哪裡要更正。";details.append(note);
   memory.append(details);
  }else memory.hidden=true;
+ if(!$("historyDrawer").hidden)historyDrawer(true);
  const title=document.querySelector(".conversation-heading h1");
  if(title)title.textContent=conversation.length?"好，我們接著聊":"從一件小事開始就好";
 }
@@ -173,7 +276,7 @@ function suggestions(phase){
  if(state.teacher&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect"].includes(phase)){
   if(state.conversationTurns===0)return chips([]);
   if(state.lastMove==="close"||phase==="finish")return chips([{text:"💬 我還想再聊",action:"continue"},{text:"✨ 今天先到這裡",action:"finish"}]);
-  return chips(state.conversationTurns>2?[{text:"🍃 暫停一下",action:"breathe"},{text:"✨ 今天先聊到這裡",action:"finish"}]:[]);
+  return chips([{text:"我想多說一點",value:"我想多說一點"},{text:"我不知道怎麼說",value:"我不太知道怎麼說出口"},{text:"給我一個小方法",value:"可以給我一個小方法嗎？"},{text:"今天先聊到這裡",action:"finish"}]);
  }
  const shortcuts=[{text:"🌿 我想先休息一下",action:"breathe"}];
  switch(phase){
@@ -248,6 +351,7 @@ function updatePrompt(next,response,question,allowSilence=false){
  const q=questionValid(candidate)?candidate:(allowSilence?"":phaseInfo[next].question);
  state.lastPrompt=q;
  speak(response.reply,response.face,q);
+ if(Number.isFinite(response.intensity))$("mimoHead").style.setProperty("--emotion-intensity",String(Math.max(0,Math.min(1,response.intensity))));
  suggestions(next);
 }
 function chooseMove(move,previous,backup){
@@ -327,10 +431,11 @@ function messageForModel(text,phase,next){
  if(recent.at(-1)?.role==="user"&&recent.at(-1).text===text)recent.pop();
  return {answer:text,history:recent.slice(-16).filter(m=>m&&m.text).map(m=>({role:m.role,text:String(m.text).slice(0,240)})),archivedClues:selectArchivedClues(text),context,thread:state.thread,memory:sanitizeMemory(state.memory),turnCount:state.conversationTurns,lastQuestion:state.lastPrompt,lastSkill:state.lastSkill,supportMode:state.supportMode,fictional:true,publicDemo:state.demo,demoCase:state.demoCase};
 }
-async function replyTo(text){
+async function replyTo(text,fromMood=false){
  const message=String(text||"").trim().slice(0,480);
  if(!message||state.processing)return;
  if(state.data.unsafe){showHelp();return;}
+ if(!fromMood&&state.entry.view!=="done")dismissEntry();
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
  addUser(message);state.conversationTurns++;$("chatInput").value="";resizeInput();$("serviceNotice").hidden=true;
@@ -406,11 +511,11 @@ async function replyTo(text){
  }
  const seq=++state.turn;
  state.processing=true;toggleBusy(true);
- face("listen"); // Show nonverbal typing indicator instead of a repeated fake Mimo utterance.
+ $("mimoHead").dataset.activity="thinking";face("listen"); // Show nonverbal typing indicator instead of a repeated fake Mimo utterance.
  let result=null;
  try{
   const ctl=new AbortController();state.abort=ctl;
-  const timeout=setTimeout(()=>ctl.abort(),13500);
+  const timeout=setTimeout(()=>ctl.abort(),8700);
   try{
    const headers={"Content-Type":"application/json"};
    if(state.demo)headers["X-Mimo-Demo"]="fictional-practice-v1";
@@ -426,7 +531,7 @@ async function replyTo(text){
     }
     throw Error(payload.error||"AI_UNAVAILABLE");
    }
-   if(typeof payload.reply!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
+   if(typeof (payload.say||payload.reply)!=="string"||!FACES.has(payload.face))throw Error("INVALID_RESPONSE");
    if(payload.needsAdult){state.data.unsafe=true;state.safetyConcern="immediate";state.processing=false;toggleBusy(false);state.teacher=false;state.code="";showAiMode();speak("如果這件事涉及傷害或持續欺負，請先找可信任的大人幫忙。你不需要獨自面對。","listen");showHelp();return}
    result=payload;
   }finally{clearTimeout(timeout)}
@@ -459,14 +564,14 @@ async function replyTo(text){
  state.lastSkill=result?.skill||"";
  state.lastSource=result?.source||"fallback";
  const mapped=result?chooseMove(result.move,phase,next):phase;
- const response=result?{reply:result.reply,face:result.face}:{reply:continuityFallback(message),face:"listen"};
+ const response=result?{reply:result.say||result.reply,face:result.emotion||result.face,intensity:result.intensity??0.5}:{reply:"網路慢了一點。先等等沒關係。我會在這裡。",face:"listen",intensity:0.4};
  updatePrompt(mapped,response,result?.question,true);
  if(next==="mirrorReflect"&&FACES.has(message))face(message);
 }
 function toggleBusy(busy){
  $("chatInput").disabled=busy;$("sendBtn").disabled=busy;
  $("typingIndicator").hidden=!busy; if(busy)$("chatThread").scrollTop=$("chatThread").scrollHeight;
- if(!busy)$("chatInput").focus({preventScroll:true});
+ if(!busy){$("chatInput").focus({preventScroll:true});$("mimoHead").dataset.activity="speaking";}
  suggestions(state.phase);
 }
 function resizeInput(){const el=$("chatInput");el.style.height="auto";el.style.height=Math.min(el.scrollHeight,148)+"px"}
@@ -526,7 +631,7 @@ function reset(){
  state.abort?.abort();stopBreath();clearSession();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
  $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft","",false);$("serviceNotice").hidden=true;refreshHistory();
- suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();void enablePublicDemo();
+ suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();entryShow();historyDrawer(false);void enablePublicDemo();
 }
 function demo(){
  state.demoCase="poster";
@@ -595,11 +700,12 @@ $("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!
 $("supportModes").addEventListener("click",e=>{const b=e.target.closest("button[data-mode]");if(b)selectMode(b.dataset.mode)});
 $("chatThread").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(b)useAction(b.dataset.action)});
 $("quickReplies").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.action)useAction(b.dataset.action);else void replyTo(b.dataset.value)});
-$("historyToggle").onclick=()=>{
- const el=$("history");el.hidden=!el.hidden;
- $("historyToggle").setAttribute("aria-expanded",String(!el.hidden));
- $("historyToggle").textContent=el.hidden?"看看我們剛剛聊了什麼":"收起剛剛的對話";
-};
+$("historyToggle").onclick=()=>historyDrawer($("historyDrawer").hidden);
+$("historyClose").onclick=()=>historyDrawer(false);
+$("drawerShade").onclick=()=>historyDrawer(false);
+$("breathTop").onclick=breathe;
+$("helpTop").onclick=showHelp;
+$("entryPanel").addEventListener("click",e=>{const b=e.target.closest("button[data-entry-action]");if(b)onEntryAction(b.dataset.entryAction,b.dataset.entryValue||"")});
 $("teacherOpen").onclick=()=>$("teacherDialog").showModal();
 $("teacherClose").onclick=()=>$("teacherDialog").close();
 $("helpBtn").onclick=showHelp;$("helpClose").onclick=()=>$("helpDialog").close();$("helpDone").onclick=()=>$("helpDialog").close();
@@ -622,5 +728,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");const resumed=restoreSession();if(!resumed)refreshHistory();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
+face("soft");const resumed=restoreSession();if(resumed)state.entry.view="done";if(!resumed)refreshHistory();entryShow();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
 })();

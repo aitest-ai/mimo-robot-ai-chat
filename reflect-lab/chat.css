@@ -412,3 +412,143 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
  .tiny-note{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.mimo-head[data-activity="thinking"]{animation:none}}
+
+
+/* UX v1.1: weather-responsive robot takes visual priority; card steps fit 700px */
+.chat-shell{
+ width:100%;max-width:none;height:calc(100dvh - 74px);min-height:0;
+ grid-template-columns:minmax(0,1.18fr) minmax(380px,.82fr);
+}
+.mimo-stage,.app.has-conversation .mimo-stage{
+ min-height:0;max-height:none;padding:12px 18px;overflow:hidden;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.robot-wrapper,.has-conversation .robot-wrapper,.app.has-conversation .robot-wrapper{
+ width:min(65vh,82%,490px);height:auto;min-height:0;max-height:none;flex:0 1 auto;
+}
+.mimo-head,.has-conversation .mimo-head,.app.has-conversation .mimo-head{
+ display:block;width:100%;height:auto;max-width:none;max-height:none;
+}
+.robot-name,.has-conversation .robot-name{margin:6px 0 11px;font-size:12px}
+.speech-card,.has-conversation .speech-card{min-height:72px;max-height:115px;width:min(540px,94%);padding:11px 16px}
+.speech-card p{font-size:clamp(15px,1.6vw,20px);line-height:1.55}
+.mimo-stage{transition:background .35s ease}
+.mimo-stage[data-weather="晴天"]{background:linear-gradient(154deg,#f9f8df,#eaf5e8 65%,#dfeedd)}
+.mimo-stage[data-weather="多雲"]{background:linear-gradient(155deg,#edf1f0,#eaf2eb 60%,#e1ece8)}
+.mimo-stage[data-weather="起霧"]{background:linear-gradient(145deg,#e6edee,#f1f4ef 68%,#e3edef)}
+.mimo-stage[data-weather="下雨"]{background:linear-gradient(157deg,#dbe9ec,#e7f0eb 67%,#e4eef4)}
+.mimo-stage[data-weather="雷雨"]{background:linear-gradient(153deg,#d7e4e7,#e5efec 61%,#cedfdf)}
+.mimo-stage[data-weather="颱風"]{background:linear-gradient(150deg,#cfdfe3,#e4ebea 64%,#d9e7e7)}
+.mimo-stage[data-weather="雷雨"] .stage-halo,.mimo-stage[data-weather="颱風"] .stage-halo{opacity:.35}
+.interaction{min-height:0;overflow:hidden;padding:13px clamp(15px,2.2vw,30px) 12px}
+.app:not(.has-conversation) .conversation-heading{margin:0 0 6px}
+.app:not(.has-conversation) .conversation-heading h1{font-size:16px}
+.app:not(.has-conversation) .memory-status{display:none}
+.entry-panel{
+ min-height:0;max-height:none;flex:1 1 auto;
+ overflow:visible;scrollbar-width:none;
+ margin:4px 0 7px;padding:13px 17px 10px;border-radius:18px;
+}
+.entry-content{gap:5px}
+.entry-panel h2{font-size:clamp(17px,1.7vw,22px);margin:0}
+.entry-panel p{font-size:12px;line-height:1.4}
+.entry-sub{font-size:11px!important}
+.entry-grid{gap:8px;margin:5px 0}
+.weather-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.weather-card{
+ min-width:0;min-height:97px;
+ display:flex;align-items:center;justify-content:flex-start;gap:10px;
+ text-align:left;padding:12px;border-radius:16px;
+ background:#ffffff;border:1.5px solid #d9e7dd;
+ box-shadow:0 4px 10px #3d785a0c;transition:background .16s,border-color .16s,transform .16s;
+}
+.weather-card:hover{transform:translateY(-2px);background:#eaf6ee;border-color:#78b38e}
+.weather-card .weather-icon{display:block;font-size:32px;line-height:1.15;flex:0 0 39px;filter:saturate(.9)}
+.weather-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.weather-copy strong{font-size:16px;line-height:1.25;color:#385c4a}
+.weather-copy small{font-size:11px;line-height:1.35;color:#768d81;overflow-wrap:anywhere}
+.weather-card.selected{background:#e2f2e5;border-color:#48966a;box-shadow:inset 0 0 0 1px #48966a}
+.entry-navigation{flex:0 0 auto;padding-top:8px;margin-top:auto;gap:7px}
+.entry-navigation .entry-choice{min-height:38px;padding:8px 14px}
+.entry-choice{min-height:40px}
+.entry-levels{margin:4px 0}
+.entry-levels .entry-choice{min-height:39px}
+.entry-intensity{padding-top:8px}
+.entry-summary{gap:5px;margin:3px 0}
+.entry-summary-row{padding:6px 10px}
+.quick-replies{margin-bottom:5px}
+.composer{margin-top:3px}
+.bottom-row{margin:5px 0}
+.tiny-note{margin:3px 0 0;line-height:1.38}
+@media (min-width:901px) and (max-height:740px){
+ .topbar{height:64px}
+ .chat-shell{height:calc(100dvh - 64px)}
+ .robot-wrapper,.has-conversation .robot-wrapper,.app.has-conversation .robot-wrapper{width:min(64vh,82%,475px)}
+ .speech-card,.has-conversation .speech-card{min-height:68px;max-height:95px}
+ .robot-name,.has-conversation .robot-name{margin:2px 0 6px}
+ .entry-panel{padding:10px 14px 9px}
+ .weather-card{min-height:89px;padding:10px}
+ .weather-card .weather-icon{font-size:29px}
+ .entry-navigation{padding-top:5px}
+ .conversation-heading{margin-bottom:5px}
+ .tiny-note{font-size:9px}
+}
+@media (min-width:650px) and (max-width:900px){
+ .topbar{height:63px}
+ .chat-shell{display:flex;flex-direction:column;height:calc(100dvh - 63px);min-height:0}
+ .mimo-stage,.app.has-conversation .mimo-stage{
+   flex:0 0 60%;height:60%;min-height:0;max-height:none;padding:5px 18px;
+   display:flex;flex-direction:column;justify-content:center;align-items:center;
+ }
+ .robot-wrapper,.has-conversation .robot-wrapper,.app.has-conversation .robot-wrapper{
+   width:min(46vh,70vw,470px);height:auto;min-height:0;max-height:none;
+ }
+ .mimo-head,.has-conversation .mimo-head,.app.has-conversation .mimo-head{max-width:none;max-height:none}
+ .robot-name,.has-conversation .robot-name{margin:0 0 6px}
+ .speech-card,.has-conversation .speech-card{min-height:53px;max-height:80px;padding:7px 14px;width:min(530px,90vw)}
+ .speech-card p{font-size:15px;line-height:1.4}
+ .interaction{flex:1 1 40%;min-height:0;padding:6px 17px 8px;border-top:1px solid #dce8e0}
+ .app:not(.has-conversation) .conversation-heading{display:none}
+ .entry-panel{min-height:0;max-height:none;flex:1 1 auto;margin:2px 0 5px;padding:8px 13px 8px}
+ .entry-content{gap:3px}
+ .entry-art{width:34px;height:34px;font-size:20px}
+ .entry-panel h2{font-size:18px}
+ .entry-panel p{font-size:11px;line-height:1.35}
+ .entry-grid{margin:2px 0;gap:6px}
+ .weather-card{min-height:68px;display:flex;flex-direction:column;text-align:center;gap:2px;padding:5px 7px;border-radius:11px;justify-content:center}
+ .weather-card .weather-icon{font-size:22px;flex:0 0 auto}
+ .weather-copy{gap:1px}
+ .weather-copy strong{font-size:12px}
+ .weather-copy small{font-size:10px;line-height:1.2}
+ .entry-navigation{padding-top:4px}
+ .entry-navigation .entry-choice{min-height:32px;padding:5px 11px;font-size:11px}
+ .entry-choice{min-height:31px;font-size:12px;padding:6px}
+ .entry-levels .entry-choice{min-height:33px}
+ .entry-intensity{padding-top:4px}
+ .entry-summary{gap:2px;margin:1px 0}
+ .entry-summary-row{padding:3px 9px;font-size:11px}
+ .quick-replies{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .quick-replies button{min-height:29px;padding:4px;font-size:10px}
+ .composer{margin-top:1px}
+ .composer textarea{min-height:36px}
+ .bottom-row{margin:2px 0}
+ .tiny-note{margin:1px 0 0;font-size:9px}
+}
+@media(max-width:649px){
+ .chat-shell{min-height:0;height:auto;min-height:calc(100dvh - 63px);overflow:visible;display:flex;flex-direction:column}
+ .mimo-stage,.app.has-conversation .mimo-stage{
+   min-height:350px;max-height:none;height:auto;flex:0 0 auto;
+   padding:14px 14px;flex-direction:column;justify-content:center
+ }
+ .robot-wrapper,.has-conversation .robot-wrapper,.app.has-conversation .robot-wrapper{width:min(72vw,330px);height:auto;min-height:0}
+ .mimo-head,.has-conversation .mimo-head,.app.has-conversation .mimo-head{max-width:none;max-height:none}
+ .robot-name,.has-conversation .robot-name{margin:0 0 7px}
+ .speech-card,.has-conversation .speech-card{width:95%;max-height:none;padding:10px;min-height:60px}
+ .interaction{min-height:410px;overflow:visible;padding:10px 12px}
+ .entry-panel{flex:1 0 auto;overflow:visible;min-height:0;max-height:none}
+ .weather-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .weather-card{min-height:86px;gap:5px;padding:9px}
+ .weather-card .weather-icon{font-size:27px;flex:0 0 29px}
+ .weather-copy strong{font-size:13px}
+ .weather-copy small{font-size:10px}
+}

@@ -106,7 +106,7 @@ function entryShow(){
   const slide=intro[e.intro];
   host.append(entryNode('div',slide.icon,'entry-art'),entryNode('div','認識 Mimo · '+(e.intro+1)+' / 3','entry-meta'),entryNode('h2',slide.title),entryNode('p',slide.desc));
   const next=entryButton(e.intro===2?'開始選心情':'下一頁','introNext');next.classList.add('entry-primary');
-  nav.append(entryButton('略過介紹','introSkip'),next);
+  nav.append(entryButton('略過介紹','introSkip'),entryButton('用虛構故事聊','demoEntry'),next);
  }else if(e.view==='cards'){
   host.append(entryNode('span','今天的心情 · '+(e.step+1)+' / 4','entry-meta'));
   host.append(entryNode('h2',['今天的心情像什麼天氣？','這個感覺有多強？','想聊哪件事？','希望 Mimo 怎麼陪你？'][e.step]));
@@ -171,6 +171,7 @@ function onEntryAction(action,value){
  if(action==='finishCards')e.view='summary';
  if(action==='backStep'){e.view='cards';e.step=3}
  if(action==='startMood')return startMood();
+ if(action==='demoEntry'){dismissEntry();return demo();}
  entryShow();
 }
 function historyDrawer(open){
@@ -198,7 +199,7 @@ function refreshHistory(){
   }
   placeholder.append(a,b,prompts);feed.appendChild(placeholder);
  }
- const lastUser=[...conversation].reverse().find(m=>m.role==="user");
+ const lastUser=[...conversation].reverse().find(m=>m.role==="user"&&!m.text.startsWith("【開場】"));
  for(const msg of lastUser?[lastUser]:[]){
   const item=document.createElement("div");item.className="chat-message "+(msg.role==="user"?"mine":"theirs");
   const who=document.createElement("span");who.className="chat-message-who";who.textContent=msg.role==="user"?"你":"Mimo";
@@ -564,7 +565,7 @@ async function replyTo(text,fromMood=false){
  state.lastSkill=result?.skill||"";
  state.lastSource=result?.source||"fallback";
  const mapped=result?chooseMove(result.move,phase,next):phase;
- const response=result?{reply:result.say||result.reply,face:result.emotion||result.face,intensity:result.intensity??0.5}:{reply:"網路慢了一點。先等等沒關係。我會在這裡。",face:"listen",intensity:0.4};
+ const response=result?{reply:result.reply||result.say,face:result.emotion||result.face,intensity:result.intensity??0.5}:{reply:"網路慢了一點。先等等沒關係。我會在這裡。",face:"listen",intensity:0.4};
  updatePrompt(mapped,response,result?.question,true);
  if(next==="mirrorReflect"&&FACES.has(message))face(message);
 }
@@ -728,5 +729,5 @@ $("breathPlay").onclick=()=>{
  }else $("breathStatus").textContent="圓圈已暫停。";
 };
 $("breathClose").onclick=finishBreath;
-face("soft");const resumed=restoreSession();if(resumed)state.entry.view="done";if(!resumed)refreshHistory();entryShow();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
+face("soft");$("mimoHead").dataset.activity="idle";const resumed=restoreSession();if(resumed)state.entry.view="done";if(!resumed)refreshHistory();entryShow();suggestions(resumed?state.phase:"welcome");showAiMode();selectMode(state.supportMode,true);resizeInput();void enablePublicDemo();
 })();

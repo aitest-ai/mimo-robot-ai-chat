@@ -40,9 +40,17 @@ const phaseInfo={
 };
 const makeInitial=()=>({entry:{view:"intro",intro:0,step:0,weather:"",feelings:[],strength:3,topics:[],mode:"listen"},phase:"welcome",history:[],data:{},teacher:false,demo:false,manualDisabled:false,code:"",demoCase:"poster",processing:false,turn:0,safe:false,breathing:false,motion:false,breathTimer:null,breathStart:0,lastPrompt:phaseInfo.welcome.question,safetyConcern:"none",returnPhase:"event",declinedMirror:false,needsFollowup:false,supportMode:"listen",lastSkill:"",lastSource:"",lastMove:"stay",thread:{event:"",importance:"",openLoop:""},memory:{summary:"",facts:[],uncertainties:[],boundaries:[],plans:[],milestones:[]},conversationTurns:0});
 let state=makeInitial();
-const intro="嗨，我是 Mimo。你可以先說一件小事，我會記得我們聊過的內容。";
+const intro="嗨，我是 Mimo。可以先選心情，也可以直接跟我說。";
 const SESSION_KEY="mimo-fictional-session-v3";
 const ENTRY_WEATHER=["晴天","多雲","起霧","下雨","雷雨","颱風"];
+const WEATHER_CARDS={
+ "晴天":{icon:"☀️",desc:"還不錯",expression:"soft",words:"今天的心情像晴天。想聊什麼都可以。"},
+ "多雲":{icon:"⛅",desc:"普普通通",expression:"calm",words:"今天的心情普普通通。沒關係，慢慢選。"},
+ "起霧":{icon:"🌫️",desc:"亂亂的說不上來",expression:"calm",words:"心裡有點亂也沒關係。我陪你慢慢整理。"},
+ "下雨":{icon:"🌧️",desc:"難過低落",expression:"listen",words:"這種感覺可能很難受。不用急著說清楚。"},
+ "雷雨":{icon:"⛈️",desc:"生氣煩躁",expression:"listen",words:"心裡像打雷一樣難受。可以慢慢來，我會在這裡聽。"},
+ "颱風":{icon:"🌀",desc:"壓力大快撐不住",expression:"listen",words:"像颱風一樣難受時，先不用急。我在這裡聽。"}
+};
 const ENTRY_FEELINGS={晴天:["開心","安心","有精神","放鬆","說不上來"],多雲:["有點煩","擔心","無聊","不太開心","說不上來"],起霧:["迷糊","緊張","不知道怎麼辦","有點亂","說不上來"],下雨:["難過","委屈","失落","孤單","說不上來"],雷雨:["生氣","委屈","害怕","很煩","說不上來"],颱風:["很生氣","很難過","害怕","好累","說不上來"]};
 const ENTRY_TOPICS=["課業","朋友同學","家裡","老師","自己的心情","其他"];
 const ENTRY_MODES=[["listen","先聽我說就好"],["clarify","幫我整理一下"],["ideas","想要一些方法"]];
@@ -111,10 +119,19 @@ function entryShow(){
   host.append(entryNode('span','今天的心情 · '+(e.step+1)+' / 4','entry-meta'));
   host.append(entryNode('h2',['今天的心情像什麼天氣？','這個感覺有多強？','想聊哪件事？','希望 Mimo 怎麼陪你？'][e.step]));
   if(e.step===0){
-   host.append(entryNode('p','選一個就好，不確定也能跳過。','entry-sub'));
+   host.append(entryNode('p','選一種最像現在心情的天氣。','entry-sub'));
    const grid=entryNode('div',undefined,'entry-grid weather-grid');
-   const icons=['☀','☁','≋','☂','⚡','◌'];
-   ENTRY_WEATHER.forEach((name,i)=>{const b=entryButton(icons[i]+'  '+name,'weather',name,e.weather===name?'selected':'');b.setAttribute('aria-pressed',String(e.weather===name));grid.append(b)});
+   ENTRY_WEATHER.forEach(name=>{
+    const weather=WEATHER_CARDS[name];
+    const b=entryButton('','weather',name,e.weather===name?'selected':'');
+    b.classList.add('weather-card');
+    b.setAttribute('aria-label',name+'：'+weather.desc);
+    b.setAttribute('aria-pressed',String(e.weather===name));
+    b.append(entryNode('span',weather.icon,'weather-icon'));
+    const txt=entryNode('span',undefined,'weather-copy');
+    txt.append(entryNode('strong',name),entryNode('small',weather.desc));
+    b.append(txt);grid.append(b);
+   });
    host.append(grid);
   }else if(e.step===1){
    host.append(entryNode('p','感覺可以選好幾個，也可以跳過。','entry-sub'));
@@ -158,13 +175,24 @@ function startMood(){
  const intro='【開場】這是一個虛構的校園故事。心情天氣：'+(e.weather||'還不知道')+'。感受：'+(e.feelings.join('、')||'說不上來')+'。強度：'+e.strength+'/5。想聊的事：'+(e.topics.join('、')||'還沒決定')+'。希望陪伴方式：'+(ENTRY_MODES.find(x=>x[0]===e.mode)||ENTRY_MODES[0])[1]+'。請自然接住感受，不要逐項重念心情卡。';
  void replyTo(intro,true);
 }
+function reflectWeather(weather){
+ const config=WEATHER_CARDS[weather];
+ if(!config)return;
+ const stage=document.querySelector('.mimo-stage');
+ stage.dataset.weather=weather;
+ $("mimoHead").dataset.weather=weather;
+ $("mimoHead").dataset.activity="listening";
+ face(config.expression);
+ $("mimoTalk").textContent=config.words;
+ const card=$("speechCard");card.classList.remove("flash");void card.offsetWidth;card.classList.add("flash");
+}
 function onEntryAction(action,value){
  const e=state.entry;if(state.processing)return;
  if(action==='introNext'){if(e.intro<2)e.intro++;else{e.view='cards';e.step=0}}
  if(action==='introSkip'){e.view='cards';e.step=0}
- if(action==='weather'){e.weather=value;e.step=1}
+ if(action==='weather'){e.weather=value;e.step=1;reflectWeather(value)}
  if(action==='feeling'){e.feelings=e.feelings.includes(value)?e.feelings.filter(v=>v!==value):[...e.feelings,value]}
- if(action==='strength')e.strength=Number(value)||3;
+ if(action==='strength'){e.strength=Number(value)||3;if(e.weather)reflectWeather(e.weather)}
  if(action==='topic')e.topics=e.topics.includes(value)?e.topics.filter(v=>v!==value):[...e.topics,value];
  if(action==='mode')e.mode=value;
  if(action==='skipStep'||action==='nextStep'){if(e.step<3)e.step++;else e.view='summary'}
@@ -323,7 +351,7 @@ function proposeNext(current,text){
 function continuityFallback(text){
  const event=state.thread.event,importance=state.thread.importance;
  if(event&&importance)return "剛才你說到「"+event.slice(0,37)+"」，還有你很在意的「"+importance.slice(0,24)+"」。我先記著，你可以照自己的速度繼續。";
- if(event)return "剛才談到「"+event.slice(0,45)+"」，我記得這是你在意的事。你可以慢慢接著說。";
+ if(event)return "剛才談到「"+event.slice(0,45)+"」。這件事對你很重要，你可以接著說。";
  return "我還在這裡。你可以先說現在最想讓我知道的事，不需要照著題目回答。";
 }
 function fallback(from,text,next){
@@ -631,7 +659,7 @@ function reset(){
  if(window.confirm?.("重新聊天會清除目前的文字，確定嗎？")===false)return;
  state.abort?.abort();stopBreath();clearSession();state=makeInitial();
  $("chatInput").value="";$("lastReply").hidden=true;$("history").hidden=true;$("historyToggle").setAttribute("aria-expanded","false");$("teacherCode").value="";$("fictionalConsent").checked=false;
- $("historyItems").replaceChildren();$("mimoHead").dataset.expression="soft";speak(intro,"soft","",false);$("serviceNotice").hidden=true;refreshHistory();
+ $("historyItems").replaceChildren();delete document.querySelector(".mimo-stage").dataset.weather;delete $("mimoHead").dataset.weather;$("mimoHead").dataset.expression="soft";speak(intro,"soft","",false);$("serviceNotice").hidden=true;refreshHistory();
  suggestions("welcome");showAiMode();selectMode("listen",true);resizeInput();entryShow();historyDrawer(false);void enablePublicDemo();
 }
 function demo(){

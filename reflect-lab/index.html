@@ -15,6 +15,9 @@
   <div class="brand"><span class="brand-icon" aria-hidden="true">✳</span><span><strong>Mimo</strong><small>心晴之鏡</small></span></div>
   <div class="top-actions">
    <span id="aiIndicator" class="ai-indicator">Gemini 連線中…</span>
+   <button id="breathTop" class="top-utility" type="button">◌ 深呼吸</button>
+   <button id="helpTop" class="top-utility" type="button">♡ 找真人聊聊</button>
+   <button id="historyToggle" class="icon-button" type="button" aria-label="打開聊天紀錄" title="聊天紀錄" aria-expanded="false" aria-controls="historyDrawer">☷</button>
    <button id="restart" class="icon-button" type="button" aria-label="重新聊天" title="重新聊天">↻</button>
    <button id="teacherOpen" class="icon-button" type="button" aria-label="教師測試設定" title="教師測試設定">⚙</button>
   </div>
@@ -58,23 +61,26 @@
    </div>
    <div id="memoryHint" class="memory-hint" hidden aria-live="off"></div>
    <div id="serviceNotice" class="service-notice" role="status" hidden></div>
+   <section id="entryPanel" class="entry-panel" aria-label="心情小卡引導"><div id="entryContent" class="entry-content"></div><div id="entryNavigation" class="entry-navigation"></div></section>
+   <section id="moodCard" class="mood-card" hidden aria-label="今天的心情卡"></section>
    <div id="chatThread" class="chat-thread" role="log" aria-label="你和 Mimo 的對話" aria-live="polite" aria-relevant="additions text">
     <div id="chatWelcome" class="chat-welcome"><p>不需要答完所有問題，也不用急著讓心情變好。</p><span>試試一個虛構故事，或直接用自己的話設定虛構角色。</span></div>
    </div>
    <div id="typingIndicator" class="typing-indicator" role="status" aria-label="Mimo 正在準備回覆" hidden><span class="typing-avatar" aria-hidden="true">✳</span><span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
    <div class="last-reply" id="lastReply" hidden><span>你剛剛說</span><p id="lastReplyText"></p></div>
-   <div class="support-modes" aria-label="希望 Mimo 怎麼陪你"><span>希望我怎麼陪你？</span><div id="supportModes" class="mode-buttons" role="group" aria-label="陪伴方式"><button type="button" data-mode="listen" aria-pressed="true">先聽我說</button><button type="button" data-mode="clarify" aria-pressed="false">幫我整理</button><button type="button" data-mode="ideas" aria-pressed="false">一起找方法</button></div></div>
+   <div class="support-modes" hidden aria-label="希望 Mimo 怎麼陪你"><span>希望我怎麼陪你？</span><div id="supportModes" class="mode-buttons" role="group" aria-label="陪伴方式"><button type="button" data-mode="listen" aria-pressed="true">先聽我說</button><button type="button" data-mode="clarify" aria-pressed="false">幫我整理</button><button type="button" data-mode="ideas" aria-pressed="false">一起找方法</button></div></div>
    <div class="quick-replies" id="quickReplies" aria-label="可以直接點選的回應"></div>
    <form class="composer" id="chatForm">
     <label class="sr-only" for="chatInput">對 Mimo 說的話</label>
     <textarea id="chatInput" rows="1" maxlength="480" placeholder="接著說，我有在聽…（請使用虛構角色）" enterkeyhint="send" autocomplete="off"></textarea>
     <button class="send-button" id="sendBtn" type="submit" aria-label="送出訊息">➜</button>
    </form>
-   <div class="bottom-row"><span class="session-note">僅限虛構故事 · 此分頁暫存對話 · 重新開始會清除</span><button id="helpBtn" type="button" class="help-link">♡ 找大人幫忙</button></div>
-   <div class="history" id="history" hidden><div id="historyItems" class="history-items"></div><button id="historyToggle" hidden type="button" aria-expanded="false">對話記錄</button></div>
-   <p class="tiny-note">已預設連接 Gemini（虛構情境練習）· 請勿輸入真實姓名、學校或私人事件 · 不會自動通知大人</p>
+   <div class="bottom-row"><span class="session-note">只用虛構故事練習 · 此分頁暫存對話</span><button id="helpBtn" type="button" class="help-link">♡ 找真人聊聊</button></div>
+   <div class="history" id="history" hidden><div id="historyItems" class="history-items"></div></div>
+   <p class="tiny-note">我是 AI。你的文字會送到 Vercel 與 Google Gemini 處理。請用虛構故事練習；遇到危險請找身邊的大人，本網站不會自動通知老師。</p>
   </section>
  </main>
+ <aside class="history-drawer" id="historyDrawer" hidden aria-label="聊天歷史"><div class="drawer-heading"><strong>我們剛剛聊了什麼</strong><button id="historyClose" type="button" aria-label="收起聊天紀錄">×</button></div><div id="historyLog" class="history-log"></div><p class="drawer-foot">對話只暫存在這個分頁，並會送到 AI 服務處理。</p></aside><button id="drawerShade" class="drawer-shade" type="button" hidden aria-label="關閉聊天紀錄"></button>
 </div>
 <dialog id="teacherDialog" class="dialog teacher-dialog" aria-labelledby="teacherTitle">
  <div class="dialog-top"><h2 id="teacherTitle">教師測試設定</h2><button class="dialog-close" id="teacherClose" type="button" aria-label="關閉設定">×</button></div>

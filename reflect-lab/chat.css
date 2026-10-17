@@ -582,3 +582,10 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
  .entry-summary-row{min-width:0;display:flex;flex-direction:column;gap:1px;padding:5px 8px}
  .entry-summary-row strong{text-align:left}
 }
+
+/* Weather must override the preceding smile immediately, even on the first frame. */
+.mimo-head[data-weather] .face{transition:none!important}
+.mimo-head[data-weather="雷雨"] .face-soft,
+.mimo-head[data-weather="颱風"] .face-soft,
+.mimo-head[data-weather="下雨"] .face-soft,
+.mimo-head[data-weather="起霧"] .face-soft{opacity:0!important}

@@ -370,7 +370,7 @@ function selectMode(next,silent=false){
  if(!silent)suggestions(state.phase);
 }
 function questionValid(q){
- if(!q||q.length<6||q.length>105)return false;
+ if(!q||q.length<4||q.length>105)return false;
  if(/(真實姓名|完整名字|住址|電話號碼|身分證|學號|學校名稱|班級名稱)/.test(q))return false;
  if((q.match(/[？?]/g)||[]).length>1)return false;
  return true;

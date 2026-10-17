@@ -290,3 +290,125 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .memory-details li{margin-bottom:4px}
 .memory-details small{display:block;color:#879d8c;line-height:1.55;margin-top:11px}
 @media(max-width:520px){.memory-hint{max-height:155px;padding:8px 11px}.memory-details p{font-size:11px}}
+
+
+/* Mimo UX v1 PREVIEW: child-first cards and robot, no new app architecture */
+.top-utility{background:#edf7ef;border:1px solid #d6e8da;color:#376d5b;font-size:12px;font-weight:800;border-radius:999px;padding:9px 13px;white-space:nowrap}
+.top-utility:hover{background:#dcefe2}
+.chat-shell{width:min(1260px,100%);height:calc(100dvh - 74px);min-height:630px;max-width:none;grid-template-columns:minmax(0,1.12fr) minmax(380px,.88fr)}
+.mimo-stage{min-height:0;max-height:none;padding:24px;justify-content:center}
+.robot-wrapper,.has-conversation .robot-wrapper{width:min(330px,78%);min-height:320px}
+.mimo-head,.has-conversation .mimo-head{width:100%;max-width:330px;max-height:340px}
+.robot-name,.has-conversation .robot-name{font-size:12px;margin:7px 0 17px}
+.speech-card,.has-conversation .speech-card{display:flex;width:min(430px,100%);max-height:190px;min-height:95px;padding:17px 20px}
+.speech-card p{font-size:clamp(16px,1.75vw,21px);line-height:1.72}
+.mimo-head[data-activity="thinking"] .face-listen{opacity:1}
+.mimo-head[data-activity="thinking"]{animation:mimo-wait 2.1s ease-in-out infinite}
+@keyframes mimo-wait{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.mimo-head[data-expression="listen"]{filter:drop-shadow(0 17px 22px #77988e36)}
+.interaction{min-height:0;overflow:hidden;padding:24px clamp(20px,2.6vw,35px) 15px}
+.conversation-heading h1{font-size:19px}
+.memory-status{font-size:10px}
+.chat-thread{flex:0 1 auto;min-height:0;max-height:130px;overflow:auto;margin-bottom:5px}
+.chat-thread:empty{display:none}
+.chat-message{max-width:100%}
+.chat-bubble{font-size:13px;line-height:1.6;padding:9px 14px}
+.chat-message.theirs{display:none}
+.chat-welcome{display:none}
+.support-modes{display:none!important}
+.entry-panel{background:linear-gradient(165deg,#fffefa,#f6faf4);border:1px solid #dfeae0;border-radius:23px;padding:22px 24px;margin:6px 0 12px;box-shadow:0 14px 36px #54775a10;overflow-y:auto;max-height:min(530px,57vh);min-height:238px;display:flex;flex-direction:column;flex:1;scrollbar-width:thin}
+.entry-content{display:flex;flex-direction:column;gap:9px}
+.entry-art{width:46px;height:46px;display:grid;place-items:center;font-weight:900;font-size:26px;color:#4d806d;background:#e4f2e7;border-radius:15px}
+.entry-meta{font-size:11px;font-weight:900;letter-spacing:.06em;color:#61947e}
+.entry-panel h2{font-size:clamp(19px,2vw,24px);color:#315847;margin:2px 0;line-height:1.35}
+.entry-panel p{font-size:14px;color:#638477;line-height:1.65;margin:0}
+.entry-sub{font-size:12px!important}
+.entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0}
+.entry-choice{border:1px solid #dde8dc;border-radius:14px;background:#fff;padding:13px 10px;font-size:14px;font-weight:750;color:#547461;text-align:center;min-height:45px}
+.entry-choice:hover,.entry-choice:focus-visible{background:#eaf5eb;border-color:#94c6a8}
+.entry-choice.selected,.entry-choice[aria-pressed="true"]{background:#deefe0;border-color:#5d9d76;color:#285f45;box-shadow:inset 0 0 0 1px #5d9d76}
+.entry-navigation{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:16px}
+.entry-navigation .entry-choice{border-radius:999px;min-height:45px;padding:10px 19px;font-size:13px}
+.entry-choice.entry-primary{background:#397d6e;border-color:#397d6e;color:white}
+.entry-choice.entry-primary:hover{background:#255d50}
+.entry-levels{display:flex;gap:8px;margin:8px 0 4px}
+.entry-levels .entry-choice{flex:1;min-height:46px}
+.entry-intensity{border-top:1px solid #e4ede4;padding-top:13px;margin-top:4px}
+.entry-intensity-label{font-size:13px;font-weight:800;color:#52735d}
+.entry-intensity small{font-size:11px;color:#799789}
+.entry-mode-list{grid-template-columns:1fr}
+.entry-summary{display:flex;flex-direction:column;gap:10px;margin:8px 0}
+.entry-summary-row{display:flex;justify-content:space-between;gap:15px;padding:9px 12px;border-radius:10px;background:#edf6ed;font-size:13px}
+.entry-summary-row>span{color:#73927c}.entry-summary-row strong{text-align:right;color:#3d6d53}
+.mood-card{display:flex;gap:10px;align-items:center;justify-content:space-between;background:#eff8ef;border-radius:12px;padding:8px 13px;margin-bottom:8px;max-height:66px;overflow:hidden}
+.mood-card strong{font-size:11px;color:#4a8260}.mood-card span{font-size:12px;color:#769781}
+.quick-replies{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:11px}
+.quick-replies button{white-space:normal;line-height:1.35;border-radius:13px;min-height:38px}
+.composer{flex:0 0 auto;margin-top:6px}
+.bottom-row{margin-top:8px}
+.bottom-row .help-link{display:none}
+.tiny-note{font-size:10px;line-height:1.5;color:#66847b;margin:8px 0 0}
+.history-drawer{position:fixed;z-index:22;right:0;top:0;height:100dvh;width:min(370px,88vw);background:#fffefa;border-left:1px solid #d9e6dc;padding:22px;display:flex;flex-direction:column;box-shadow:-20px 0 50px #284e4535}
+.drawer-shade{position:fixed;inset:0;z-index:21;background:#16332855;border:0}
+.drawer-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#3b6756;font-size:16px}
+.drawer-heading button{border:0;background:#edf5ee;border-radius:10px;font-size:23px;padding:4px 11px}
+.history-log{overflow:auto;flex:1;margin-top:17px;display:flex;flex-direction:column;gap:13px}
+.drawer-message{max-width:92%;padding:11px 13px;border-radius:15px;background:#edf4ec;color:#456a58}
+.drawer-message.user{align-self:flex-end;background:#fff0df;color:#805f43}
+.drawer-message strong{font-size:11px}
+.drawer-message p{margin:5px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.62}
+.drawer-foot{font-size:11px;color:#789182;line-height:1.5}
+@media(min-width:901px) and (max-height:790px){
+ .chat-shell{min-height:550px}
+ .entry-panel{max-height:490px}
+ .robot-wrapper,.has-conversation .robot-wrapper{width:255px;min-height:260px}
+ .mimo-head,.has-conversation .mimo-head{max-width:260px;max-height:265px}
+}
+@media(max-width:900px){
+ .topbar{height:63px}
+ .chat-shell{display:flex;flex-direction:column;max-width:none;height:calc(100dvh - 63px);min-height:0}
+ .mimo-stage{height:39%;min-height:245px;max-height:none;flex:0 0 39%;padding:14px 18px 8px;justify-content:center}
+ .robot-wrapper,.has-conversation .robot-wrapper{width:min(280px,54vw);min-height:195px}
+ .mimo-head,.has-conversation .mimo-head{max-width:255px;max-height:255px}
+ .robot-name,.has-conversation .robot-name{font-size:11px;margin:2px 0 8px}
+ .speech-card,.has-conversation .speech-card{display:flex;min-height:62px;max-height:115px;padding:11px 15px;width:min(490px,92vw)}
+ .speech-card p{font-size:16px;line-height:1.5}
+ .interaction{flex:1;min-height:0;padding:14px 22px 10px;border-left:0;border-top:1px solid #e1ebe3}
+ .entry-panel{max-height:none;min-height:170px;flex:1;padding:16px 20px;margin:6px 0;overflow:auto}
+ .entry-choice{min-height:40px}
+ .entry-grid{gap:7px}
+ .conversation-heading{margin-bottom:4px}
+ .chat-thread{max-height:90px;min-height:0}
+ .quick-replies{margin-bottom:8px}
+ .tiny-note{margin-top:5px}
+ .app.has-conversation .mimo-stage{height:39%;flex:0 0 39%;justify-content:center;flex-direction:column;padding:14px}
+ .app.has-conversation .robot-wrapper{min-height:190px}
+}
+@media(max-width:560px){
+ .topbar{padding:0 10px}
+ .brand-icon{width:30px;height:30px}
+ .brand strong{font-size:15px}
+ .top-actions{gap:3px}
+ .top-utility{font-size:10px;padding:7px}
+ .ai-indicator{font-size:9px;margin-right:2px;padding:5px}
+ .icon-button{width:29px;height:29px;font-size:19px}
+ .chat-shell{height:calc(100dvh - 63px)}
+ .mimo-stage,.app.has-conversation .mimo-stage{flex:0 0 34%;height:34%;min-height:190px;padding:9px 11px}
+ .robot-wrapper,.has-conversation .robot-wrapper,.app.has-conversation .robot-wrapper{width:126px;min-height:110px}
+ .mimo-head,.has-conversation .mimo-head{max-width:126px;max-height:135px}
+ .speech-card,.has-conversation .speech-card{padding:9px 12px;min-height:52px;max-height:100px}
+ .speech-card p{font-size:14px}
+ .interaction{padding:10px 11px}
+ .conversation-heading h1{font-size:15px}
+ .entry-panel{padding:14px;min-height:140px}
+ .entry-panel h2{font-size:18px}
+ .entry-panel p{font-size:12px}
+ .entry-choice{font-size:12px;padding:8px}
+ .entry-navigation{padding-top:8px}
+ .quick-replies button{font-size:11px;padding:7px}
+ .memory-hint{max-height:70px}
+ .chat-thread{max-height:65px}
+ .bottom-row{margin:4px 0}
+ .tiny-note{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.mimo-head[data-activity="thinking"]{animation:none}}

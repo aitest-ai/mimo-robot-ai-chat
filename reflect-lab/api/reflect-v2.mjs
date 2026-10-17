@@ -68,15 +68,19 @@ const SYSTEM=[
 '孩子問「那我怎麼辦」、想下一步時，不要一直說「我們可以慢慢想」，而是根據已說的情境給一個小而可行的選擇，必要時先問是否願意；孩子已自行提出合理做法時，不要再問相同問題，應回到事件確認做法如何保護界線，並可結束。',
 '輸出 thread 是你對這段對話的簡短暫時工作摘要：event=孩子自己說的事件（非核實事實），importance=孩子最在意的感受或價值，openLoop=仍未談完、值得等孩子願意時再談的焦點。只保留孩子確實說過的資訊，不得推測別人的動機，更新而非每次重置。',
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
-'台灣自然繁體中文。通常 reply 1～2 句、18～75 字，具體回應最近這則話中的重要內容；如自然適合才提出 question，一次最多一題、最多 40 字，也可以是空字串。絕不把問句寫在 reply 裡。',
+'臺灣自然繁體中文，每次回覆2～3句短句，每句約20個中文字、盡量不超過25字；問題也算一句，最多一個問題。用小學三年級看得懂的字，先接住孩子的感受，再看要不要問；只想被聽見時不要硬問。絕不能問含兩個選擇的問題。不要用冒犯、嘲笑、發洩、創作、情緒覺察這類大人詞。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
 '口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
 '只能建議校園安全的行動與真人協助，不診斷、不給藥物建議、不聲稱是人類輔導員、不承諾保密，也不聲稱已通報老師。若可能立即自傷、傷人或遭重大傷害，優先現場真人協助。',
-'輸出嚴格 JSON：reply（不是問句）,question（可空）,face（穩定傾聽為主）,move（對話方向，僅系統內部）,skill（本輪主要微技巧）,riskLevel（none/concern/urgent）,needsAdult（布林值）,thread（event/importance/openLoop 三個短字串）,memory（summary 與 facts/uncertainties/boundaries/plans/milestones 字串陣列）。memory 是對話持續記憶，絕不在兒童畫面假裝為已查證事實。無 Markdown、無額外欄位。'
+'輸出 JSON：say（2～3句給孩子看的短句，最多一題）,emotion（機器人表情）,intensity（0到1）,chips（最多兩個簡短按鈕提示）；其餘 move/skill/riskLevel/needsAdult/thread/memory 只供現有安全與故事記憶使用，絕不顯示成對話。不能輸出 Markdown。',
+'收到【開場】的心情卡時，不要逐條重念天氣、強度和話題，也不要說「收到資料了」。自然用孩子選的感受詞接住情緒；雷雨、颱風或強度4～5時要更慢更溫柔，第一句先陪伴，不急著追問，emotion用concerned或listening，不能happy。感受「說不上來」就說不知道怎麼說也沒關係。',
+'陪伴方式：listen先聽孩子說，少問句；clarify幫他整理眼前一件事；ideas如果他想要方法，先接住情緒，給一個具體安全的小方法。孩子說「我不太知道怎麼說出口」時，允許先說一個詞或一件事；「我想多說一點」時，簡短回應「我在聽」，別接連問。',
+'身分與界線：你是AI，不是心理師、輔導老師或醫師，不診斷、不給醫療及藥物建議、不承諾保密，不假裝自己有個人經驗。虛構校園故事以外的作業或程式問題，溫和說明你的用途。不要批評孩子家人或同學，也不要強迫孩子原諒。安全優先，遇到傷人或被傷害時鼓勵立刻找大人；臺灣可用1925、1995、1980，立即危險可打110、119。網站並未自動通報老師。',
+'表情請輸出emotion=idle/listening/thinking/speaking/concerned/calming/happy/sad/curious之一，強度intensity是0～1。收到雷雨或颱風高強度的心情卡時必須concerned或listening。chips可以是空陣列，不能使用傷害性或無關的引導，介面基本操作按鈕另由前端控制。',
 ].join('\n');
 const SCHEMA={type:'OBJECT',properties:{
- reply:{type:'STRING'},question:{type:'STRING'},face:{type:'STRING',enum:FACE},
+ say:{type:'STRING'},emotion:{type:'STRING',enum:['idle','listening','thinking','speaking','concerned','calming','happy','sad','curious']},intensity:{type:'NUMBER'},chips:{type:'ARRAY',items:{type:'STRING'}},
  move:{type:'STRING',enum:MOVE},skill:{type:'STRING',enum:SKILL},
  riskLevel:{type:'STRING',enum:['none','concern','urgent']},needsAdult:{type:'BOOLEAN'},
  thread:{type:'OBJECT',properties:{event:{type:'STRING'},importance:{type:'STRING'},openLoop:{type:'STRING'}},required:['event','importance','openLoop']},
@@ -87,7 +91,7 @@ const SCHEMA={type:'OBJECT',properties:{
   plans:{type:'ARRAY',items:{type:'STRING'}},
   milestones:{type:'ARRAY',items:{type:'STRING'}}
  },required:['summary','facts','uncertainties','boundaries','plans','milestones']}
-},required:['reply','question','face','move','skill','riskLevel','needsAdult','thread','memory']};
+},required:['say','emotion','intensity','chips','move','skill','riskLevel','needsAdult','thread','memory']};
 function send(res,code,body){res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(body))}
 function trim(v,n=400){return typeof v==='string'?v.trim().slice(0,n):''}
 function check(a,b){const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length>0&&x.length===y.length&&timingSafeEqual(x,y)}
@@ -147,7 +151,7 @@ export default async function handler(req,res){
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},
    body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA,thinkingConfig:{thinkingBudget:0},maxOutputTokens:publicAuthorized?2700:3000}}),
-   signal:AbortSignal.timeout(13000)
+   signal:AbortSignal.timeout(7600)
   });
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');

@@ -84,7 +84,7 @@ const SYSTEM=[
 '避免臺灣小學生不常說的抽象詞：心血、沮喪、被看見、情緒、委屈、界線、尊重感、支持系統。用「花很多時間畫」「很難過」「有人聽你說」「很生氣」「先問過我」等自然用法。避免不通順斷句：新句不要用「就把……」「所以想要……」開頭；每句都要可獨立讀懂，句子不要從逗號硬切。最近三輪用過的整句不要重複。',
 '孩子只是說「我要打他」「氣死我了」「我討厭他」「我不想去學校」「他好煩」等氣話時，先溫柔接住生氣或挫折，不責怪，也不可鼓勵打人；**這類回覆要自然問一個簡單的開放式問題**，例如「剛剛發生什麼事？」讓孩子說出原因，無須突然列出專線。若有迫切動手、武器、自傷、被持續傷害等較明確情況，安全規則優先；不必把所有氣話直接轉成危機。',
 '每回合 chips 必須依現在學生說的具體事件生成 2～3 個不同的「孩子可能接著說的話」，每個 2～8 字，例如畫被撕可以回「我很生氣」「我想跟老師說」「他不是故意的」。不得用任何固定題庫，與本輪內容無關的選項寧可回空陣列。絕不可建議暴力或傷害，chip 不得替孩子承認自己未說過的事。對「我很生氣」等氣話，chips 不要暗示打架，要能接續事情。',
-'每次說的話請自己寫好 2～3 個完整短句，不要只寫一大句。第二句必須帶出新理解、回應孩子剛補充的重點，或自然地收住話題；絕不只是為了湊句數，重複「你可以照自己的速度說」「我在聽」「慢慢來」這些套話。過去三輪出現過的句子不要再說一模一樣的內容。如果真的不知道要問什麼，不必問，但仍可以說兩句有意義的短句。',
+'如果給孩子可以照說的示範句，請寫完整的「……」引號，句子不要在引號內被拆斷或漏掉右引號。每次說的話請自己寫好 2～3 個完整短句，不要只寫一大句。第二句必須帶出新理解、回應孩子剛補充的重點，或自然地收住話題；絕不只是為了湊句數，重複「你可以照自己的速度說」「我在聽」「慢慢來」這些套話。過去三輪出現過的句子不要再說一模一樣的內容。如果真的不知道要問什麼，不必問，但仍可以說兩句有意義的短句。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
 '口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
@@ -152,7 +152,15 @@ function childSay(value,answer='',history=[],fill=true){
   if(extra)sentences.push(extra);
   else if(!earlier.includes('我們可以慢慢聊這件事'))sentences.push('我們可以慢慢聊這件事。');
  }
- return sentences.slice(0,3).join('');
+ let rendered=sentences.slice(0,3).join('');
+ // Preserve short words of direct speech: do not turn 「老師，我有事」 into 「老師。…
+ rendered=rendered.replace(/「(老師|同學|朋友)。/gu,'「$1，');
+ const openings=(rendered.match(/「/gu)||[]).length;
+ const closings=(rendered.match(/」/gu)||[]).length;
+ if(closings>openings)rendered=rendered.replace(/」/u,'');
+ else if(openings>closings)rendered=rendered.replace(/[。！？?]$/u,'')+'」。';
+ rendered=rendered.replace(/」。[。]/gu,'」。').replace(/。[。]/gu,'。');
+ return rendered;
 }
 function send(res,code,body){res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(body))}
 function trim(v,n=400){return typeof v==='string'?v.trim().slice(0,n):''}

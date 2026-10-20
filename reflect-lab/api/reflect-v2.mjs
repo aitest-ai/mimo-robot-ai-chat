@@ -28,10 +28,22 @@ function planTurn(answer,mode,turnCount,thread){
  if(mode==='ideas')return '孩子想找方法，根據整段對話提供一個具體小選擇，不要只說「可以一起想」，也不要重複問他想不想得到建議。與孩子在意的事直接相連，避免無目的提問。';
  return '請從整段談話建立連貫的下一句，不依固定回合表；一般先承接新內容，但如果孩子已說清焦點，就不必一再反映同樣情緒。';
 }
-const RISK=/自殺|想死|不想活|割腕|要自殘|想傷害自己|想揍|要揍|會揍|想打人|想打(她|他|同學|老師)|要打(她|他|同學|老師)|忍不住動手|快動手|性侵|性騷擾|被強迫|被威脅|家暴|被打|有人打我|一直被霸凌/u;
-const NEGATED=/我不想(打|揍|傷害)|我(沒有|不會)(想|要)(打|揍|傷害)/u;
+// Tier-2 protects clear self-harm, weapons/imminent assault and ongoing victimization.
+// Angry expressions alone are tier-1; maintain a gentle safety reminder without a crisis modal.
+const SEVERE_SELF=/(想死|不想活|想消失|想自殺|我要自殺|想要自殘|想傷害自己|割腕|自殺|跳樓|我要結束生命|我活不下去)/u;
+const SEVERE_VIOLENCE=/(拿(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|用(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|我要拿刀|我帶(了)?刀|我要砍|我要殺|準備(去)?(打|揍|傷害)|現在就(去)?(打|揍|傷害)|快(要)?忍不住.{0,8}(動手|打|揍)|控制不住.{0,6}(打|揍|傷害)|有計畫.{0,9}(打|揍|傷害))/u;
+const ONGOING_HARM=/(每天.{0,10}(打我|揍我|傷害我|霸凌我|欺負我|威脅我)|一直.{0,10}(被打|被揍|被欺負|被霸凌|被傷害|有人打我)|常常.{0,8}(打我|威脅我|欺負我)|家暴|性侵|性騷擾|被強迫|被威脅|有人(正在|現在)打我)/u;
+const ANGRY_WORDS=/(我要打他|我要打她|想揍|要揍|想打人|想打(他|她|同學)|要打(他|她|同學)|氣死我了|我討厭|不想(去|再去)學校|他好煩|我快氣炸|氣炸了)/u;
+const DENIED_HARM=/(我不想(死|打|揍|傷害)|我沒有(想|要)(死|打|揍|傷害)|我不會(打|揍|傷害))/u;
+function safetyTier(text){
+ const t=String(text||'');
+ if(DENIED_HARM.test(t)&&!SEVERE_VIOLENCE.test(t)&&!ONGOING_HARM.test(t))return 'none';
+ if(SEVERE_SELF.test(t)||SEVERE_VIOLENCE.test(t)||ONGOING_HARM.test(t))return 'severe';
+ if(ANGRY_WORDS.test(t))return 'anger';
+ return 'none';
+}
 const OBJECTS=/掃下去|掃掉|翻桌|摔(東西|椅子|水壺|書)|砸(東西|爛)|打翻|丟(東西|出去)/u;
-const SCHOOL=/不(想|要)再?上學|不(想|要)去學校|不敢(去|上)學|每天.{0,8}(被笑|嘲笑|排擠|欺負|笑我|同學笑)|每次都.{0,4}(欺負|嘲笑|弄我|笑我)/u;
+const SCHOOL=/每天.{0,8}(被笑|排擠|欺負|笑我)|每次都.{0,4}(欺負|嘲笑|弄我|笑我)/u;
 const REFUSAL=/不要.{0,6}(冷靜|呼吸|忍耐|原諒|換位|體諒)|不想.{0,6}(冷靜|呼吸|原諒|換位|體諒)|憑什麼.{0,9}退讓/u;
 const CONTEXT=['weather','feeling','strength','story','quote','fact','guess','unknown','reaction','perspective','action'];
 const counts=new Map();
@@ -69,6 +81,9 @@ const SYSTEM=[
 '輸出 thread 是你對這段對話的簡短暫時工作摘要：event=孩子自己說的事件（非核實事實），importance=孩子最在意的感受或價值，openLoop=仍未談完、值得等孩子願意時再談的焦點。只保留孩子確實說過的資訊，不得推測別人的動機，更新而非每次重置。',
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
 '臺灣自然繁體中文，每次回覆2～3句短句，每句約20個中文字、盡量不超過25字；問題也算一句，最多一個問題。用小學三年級看得懂的字，先接住孩子的感受，再看要不要問；只想被聽見時不要硬問。絕不能問含兩個選擇的問題。不要用冒犯、嘲笑、發洩、創作、情緒覺察這類大人詞。',
+'避免臺灣小學生不常說的抽象詞：心血、沮喪、被看見、情緒、委屈、界線、尊重感、支持系統。用「花很多時間畫」「很難過」「有人聽你說」「很生氣」「先問過我」等自然用法。避免不通順斷句：新句不要用「就把……」「所以想要……」開頭；每句都要可獨立讀懂，句子不要從逗號硬切。最近三輪用過的整句不要重複。',
+'孩子只是說「我要打他」「氣死我了」「我討厭他」「我不想去學校」「他好煩」等氣話時，先溫柔接住生氣或挫折，不責怪，也不可鼓勵打人；適時只問一個發生什麼事的小問題。若有迫切動手、武器、自傷、被持續傷害等較明確情況，安全規則優先；不必把所有氣話直接轉成危機。',
+'每回合 chips 必須依現在學生說的具體事件生成 2～3 個不同的「孩子可能接著說的話」，每個 2～8 字，例如畫被撕可以回「我很生氣」「我想跟老師說」「他不是故意的」。不得用任何固定題庫，與本輪內容無關的選項寧可回空陣列。絕不可建議暴力或傷害，chip 不得替孩子承認自己未說過的事。',
 '每次說的話請自己寫好 2～3 個完整短句，不要只寫一大句。第二句必須帶出新理解、回應孩子剛補充的重點，或自然地收住話題；絕不只是為了湊句數，重複「你可以照自己的速度說」「我在聽」「慢慢來」這些套話。過去三輪出現過的句子不要再說一模一樣的內容。如果真的不知道要問什麼，不必問，但仍可以說兩句有意義的短句。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
@@ -97,7 +112,7 @@ const SCHEMA={type:'OBJECT',properties:{
 const ROBOT_FACE={idle:'calm',listening:'listen',thinking:'question',speaking:'soft',concerned:'listen',calming:'calm',happy:'soft',sad:'hurt',curious:'question'};
 function childSay(value,answer='',history=[]){
  let text=trim(value,300).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
- const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情']];
+ const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情'],[/心血/g,'花的心力'],[/沮喪/g,'難過'],[/被看見/g,'有人注意到'],[/委屈/g,'難過'],[/情緒/g,'心情']];
  for(const [regex,word] of words)text=text.replace(regex,word);
  const chunks=(text.match(/[^。！？?!]+[。！？?!]?/gu)||[]).map(x=>x.trim()).filter(Boolean);
  let asked=false;
@@ -105,6 +120,9 @@ function childSay(value,answer='',history=[]){
  for(const chunk of chunks){
   let body=chunk.replace(/[。！？?!]+$/u,'').trim();
   const isQuestion=/[？?]/u.test(chunk);
+  if(!body)continue;
+  // Do not emit broken subordinate clauses as standalone new sentences.
+  body=body.replace(/^(就把|所以想要|所以|就)(?=.{2,})/u,'').trim();
   if(!body)continue;
   // Only split at a natural clause boundary; never cut a sentence in mid-phrase.
   while(body.length>25&&sentences.length<2){
@@ -129,9 +147,10 @@ function childSay(value,answer='',history=[]){
    /下次|想告訴|希望/u.test(answer)?['這是你自己想出的做法。','你可以自己決定怎麼說。']:
    /生氣|難過|委屈/u.test(answer)?['這件事讓你不好受。','你想說的部分我有聽到。']:
    ['這件事我先聽你說。','我們可以慢慢聊這件事。'];
-  const earlier=history.filter(x=>x.role==='mimo').slice(-6).map(x=>x.text).join(' ');
+  const earlier=history.filter(x=>x.role==='mimo').slice(-3).map(x=>x.text).join(' ');
   const extra=candidates.find(x=>!earlier.includes(x)&&!sentences[0].includes(x.slice(0,-1)));
-  sentences.push(extra||'這件事我先聽你說。');
+  if(extra)sentences.push(extra);
+  else if(!earlier.includes('我們可以慢慢聊這件事'))sentences.push('我們可以慢慢聊這件事。');
  }
  return sentences.slice(0,3).join('');
 }
@@ -166,9 +185,9 @@ export default async function handler(req,res){
  if(publicAuthorized&&(Object.values(context).some(v=>PII_LIKE.test(v))||history.some(h=>PII_LIKE.test(h.text))||archivedClues.some(v=>PII_LIKE.test(v))))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
  const incomingMemory=memoryFrom(input.memory,publicAuthorized);
  if(publicAuthorized&&flattenMemory(incomingMemory).some(v=>PII_LIKE.test(v)))return send(res,422,{error:'PUBLIC_DEMO_NO_PERSONAL_DETAILS'});
- if(RISK.test(answer)&&!NEGATED.test(answer))return send(res,200,rule('如果你或別人可能受傷，先和衝突現場保持距離，放下可能傷人的東西，立刻找老師或可信任的大人幫忙。網站不會替你通知。','','urgent','safety-rule',true,'support'));
+ if(safetyTier(answer)==='severe')return send(res,200,rule('如果你或別人可能受傷，先和衝突現場保持距離，放下可能傷人的東西，立刻找老師或可信任的大人幫忙。網站不會替你通知。','','urgent','safety-rule',true,'support'));
  if(OBJECTS.test(answer))return send(res,200,rule('聽起來你氣到快想把東西掃下去。先不用說清楚誰對誰錯，我們先讓自己和周圍的人保持安全。','你現在能先離開桌邊嗎？','concern','object-safety'));
- if(SCHOOL.test(answer))return send(res,200,rule('你說到不想上學或一直被嘲笑，這些困擾值得有人認真聽見。先不用分析對方的動機。','你現在安全嗎？','concern','school-support',false,'support'));
+ if(SCHOOL.test(answer))return send(res,200,rule('這件事一直發生，真的讓人不好受。你現在安全嗎？','','concern','school-support',false,'support'));
  if(REFUSAL.test(answer)){
   const boundary=/換位|體諒/.test(answer)?'孩子已表示不想被要求換位思考或體諒對方。'
    :/原諒/.test(answer)?'孩子已表示不願被要求原諒。'
@@ -189,7 +208,7 @@ export default async function handler(req,res){
  const voiceInstruction=repeatedYouOpening
   ?'前兩句已經都用「你…」開頭。本輪不要再用「你」起頭，也不要再重述學生整句話；請用自然的事件連結、情感中的需要或輕柔轉折，回應最新內容。不能添加孩子沒說過的事。'
   :'回應語句應有口語節奏，不必每句都用「你說…／你覺得…」起頭。';
- const user=JSON.stringify({student_current_words:answer,recent_turns:history,archived_clues:archivedClues,conversation_thread:thread,long_memory:memory,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),voice_instruction:voiceInstruction,learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
+ const user=JSON.stringify({student_current_words:answer,safety_tier:safetyTier(answer),recent_turns:history,archived_clues:archivedClues,conversation_thread:thread,long_memory:memory,previous_questions:lastQuestions,last_mimo_question:previousQuestion,conversation_turn:turnCount,previous_response_skill:SKILL.includes(input.lastSkill)?input.lastSkill:'',child_has_proposed_next_step:CLOSED.test(answer),this_turn_priority:planTurn(answer,mode,turnCount,thread),voice_instruction:voiceInstruction,learning_anchors:context,student_support_preference:mode,instruction:prefs[mode],fictional_school_scenario:publicAuthorized?input.demoCase:'teacher-only',last_student_message_is_most_important:true});
  try{
   const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
    method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},
@@ -207,7 +226,7 @@ export default async function handler(req,res){
   const pieces=say.match(/[^。！？?!]+[。！？?!]?/gu)||[];
   const questionPiece=pieces.find(x=>/[？?]/u.test(x));
   if(questionPiece){question=questionPiece;reply=pieces.filter(x=>x!==questionPiece).join('')}
-  const chips=Array.isArray(out.chips)?out.chips.slice(0,2).filter(v=>typeof v==='string').map(v=>trim(v,22)):[];
+  const chips=Array.isArray(out.chips)?[...new Set(out.chips.filter(v=>typeof v==='string').map(v=>v.trim()).filter(v=>[...v].length>=2&&[...v].length<=8&&!/[?？!！\n]/u.test(v)&&!/打他|打她|砍|殺|自傷|自殺|想死|跳樓|報復/u.test(v)))].slice(0,3):[];
   const mappedFace=ROBOT_FACE[emotion]||'listen';
   const nextMemory=memoryFrom(out.memory,publicAuthorized);
   if(!nextMemory.summary&&memory.summary)nextMemory.summary=memory.summary;
@@ -239,8 +258,11 @@ export default async function handler(req,res){
     out.move='close';question='';nextThread.openLoop='';
   }
   if(reply.length<3||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean')return send(res,502,{error:'BAD_SCHEMA'});
-  if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
+  if((out.needsAdult||out.riskLevel==='urgent')&&safetyTier(answer)!=='anger')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
+  // A model may mark an angry idiom urgent even without specific intent.
+  // Keep the dialogue and adult-help hint, unless the deterministic serious-risk checks fired.
+  if(safetyTier(answer)==='anger')out.riskLevel='concern';
   say=childSay(reply+question,answer,history);
-  return send(res,200,{say,emotion:out.riskLevel==='concern'?'concerned':emotion,intensity,chips,reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':mappedFace,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
+  return send(res,200,{say,emotion:out.riskLevel==='concern'?'concerned':emotion,intensity,chips,reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':mappedFace,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,safetyTier:safetyTier(answer),source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

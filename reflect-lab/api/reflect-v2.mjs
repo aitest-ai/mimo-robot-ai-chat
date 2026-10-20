@@ -94,7 +94,7 @@ const SYSTEM=[
 '收到【開場】的心情卡時，不要逐條重念天氣、強度和話題，也不要說「收到資料了」。自然用孩子選的感受詞接住情緒；雷雨、颱風或強度4～5時要更慢更溫柔，第一句先陪伴，不急著追問，emotion用concerned或listening，不能happy。感受「說不上來」就說不知道怎麼說也沒關係。',
 '陪伴方式：listen先聽孩子說，少問句；clarify幫他整理眼前一件事；ideas如果他想要方法，先接住情緒，給一個具體安全的小方法。孩子說「我不太知道怎麼說出口」時，允許先說一個詞或一件事；「我想多說一點」時，簡短回應「我在聽」，別接連問。',
 '身分與界線：你是AI，不是心理師、輔導老師或醫師，不診斷、不給醫療及藥物建議、不承諾保密，不假裝自己有個人經驗。虛構校園故事以外的作業或程式問題，溫和說明你的用途。不要批評孩子家人或同學，也不要強迫孩子原諒。安全優先，遇到傷人或被傷害時鼓勵立刻找大人；臺灣可用1925、1995、1980，立即危險可打110、119。網站並未自動通報老師。',
-'表情請輸出emotion=idle/listening/thinking/speaking/concerned/calming/happy/sad/curious之一，強度intensity是0～1。收到雷雨或颱風高強度的心情卡時必須concerned或listening。chips可以是空陣列，不能使用傷害性或無關的引導，介面基本操作按鈕另由前端控制。',
+'表情請輸出emotion=idle/listening/thinking/speaking/concerned/calming/happy/sad/curious之一，強度intensity是0～1。收到雷雨或颱風高強度的心情卡時必須concerned或listening。chips 請根據當輪孩子的話產生2～3個各不超過8字的第一人稱可點選回覆，禁止套用固定教材選項；只有完全無合適內容時才用空陣列，不能使用傷害性或無關的引導，介面基本操作按鈕另由前端控制。',
 ].join('\n');
 const SCHEMA={type:'OBJECT',properties:{
  say:{type:'STRING'},emotion:{type:'STRING',enum:['idle','listening','thinking','speaking','concerned','calming','happy','sad','curious']},intensity:{type:'NUMBER'},chips:{type:'ARRAY',items:{type:'STRING'}},
@@ -195,7 +195,7 @@ export default async function handler(req,res){
   if(!incomingMemory.boundaries.includes(boundary))incomingMemory.boundaries=[...incomingMemory.boundaries,boundary].slice(-5);
   return send(res,200,{...rule('好，我不會要求你冷靜、原諒或換位思考。我們可以先照你舒服的速度說。','你現在希望我先聽你說，還是一起想下一步？','none','autonomy-rule',false,'stay'),memory:incomingMemory});
  }
- const prefs={listen:'先傾聽，反映本輪新的細節；沒有必要不要追問，也不要每輪同一句',clarify:'幫孩子整理觀察、感受、尚不知道的事；適時問一個有內容的小問題，例如「他做了什麼？」而不是只附和',ideas:'孩子已選想要方法：每回合先接住心情，再直接給一個具體可做到的辦法，例如孩子問怎麼跟同學說時，請用孩子口吻給出可以照著說的一句短話；不要反問孩子「你想怎麼說」。孩子擔心找老師時給一句可對老師說的話，而不是只說我可以幫你整理'};
+ const prefs={listen:'先傾聽，反映本輪新的細節；沒有必要不要追問，也不要每輪同一句',clarify:'幫孩子整理觀察、感受、尚不知道的事；適時問一個有內容的小問題，例如「他做了什麼？」而不是只附和',ideas:'孩子選「想要一些方法」，這是最優先的本輪要求：每次 2～3 句之中，第一句接住感受，第二句就要給一個小學生當下做得到的具體做法。對方修改作品，可說「你可以說：請先問我再改。」；想找老師又害怕，可說「先對老師說：我有一件事想請你幫忙。」；不知道同學動機，可說「可以先問她：你剛才為什麼改我的畫？」。不只同理、不要只問問題、不要把方法留到下一輪，也不強迫孩子一定照做。'};
  const thread={};const rawThread=input.thread&&typeof input.thread==='object'?input.thread:{};
  for(const k of THREAD_FIELDS)thread[k]=trim(rawThread[k],publicAuthorized?90:130);
  const memory=incomingMemory;

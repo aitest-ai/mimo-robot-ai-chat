@@ -590,3 +590,9 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .app:not(.has-conversation) .mimo-head[data-weather="颱風"] .face-soft,
 .app:not(.has-conversation) .mimo-head[data-weather="下雨"] .face-soft,
 .app:not(.has-conversation) .mimo-head[data-weather="起霧"] .face-soft{opacity:0!important}
+
+/* v1.2: non-urgent, child-readable adult-support nudge without alarming modal */
+.low-risk-hint{padding:6px 10px;margin:2px 0 5px;font-size:11px;line-height:1.5;color:#647c69;border:1px solid #dcebdc;background:#f4f9f4;border-radius:11px}
+.low-risk-hint button{border:0;background:transparent;color:#387e60;text-decoration:underline;font-weight:750;cursor:pointer;padding:0 4px}
+.quick-replies:empty{display:none}
+.quick-replies button{overflow-wrap:anywhere;min-width:0}

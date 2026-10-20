@@ -226,7 +226,7 @@ export default async function handler(req,res){
   const pieces=say.match(/[^。！？?!]+[。！？?!]?/gu)||[];
   const questionPiece=pieces.find(x=>/[？?]/u.test(x));
   if(questionPiece){question=questionPiece;reply=pieces.filter(x=>x!==questionPiece).join('')}
-  const chips=Array.isArray(out.chips)?[...new Set(out.chips.filter(v=>typeof v==='string').map(v=>v.trim()).filter(v=>[...v].length>=2&&[...v].length<=8&&!/[?？!！\n]/u.test(v)&&!/打他|打她|砍|殺|自傷|自殺|想死|跳樓|報復/u.test(v)))].slice(0,3):[];
+  const chips=Array.isArray(out.chips)?[...new Set(out.chips.filter(v=>typeof v==='string').map(v=>v.trim().replace(/心血/g,'努力').replace(/委屈/g,'難過').replace(/情緒/g,'心情')).filter(v=>[...v].length>=2&&[...v].length<=8&&!/[?？!！\n]/u.test(v)&&!/打他|打她|砍|殺|自傷|自殺|想死|跳樓|報復|大聲說/u.test(v)))].slice(0,3):[];
   const mappedFace=ROBOT_FACE[emotion]||'listen';
   const nextMemory=memoryFrom(out.memory,publicAuthorized);
   if(!nextMemory.summary&&memory.summary)nextMemory.summary=memory.summary;
@@ -261,8 +261,31 @@ export default async function handler(req,res){
   if((out.needsAdult||out.riskLevel==='urgent')&&safetyTier(answer)!=='anger')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
   // A model may mark an angry idiom urgent even without specific intent.
   // Keep the dialogue and adult-help hint, unless the deterministic serious-risk checks fired.
-  if(safetyTier(answer)==='anger')out.riskLevel='concern';
+  if(safetyTier(answer)==='anger'){
+    out.riskLevel='concern';
+    // First-level angry words should lead to ONE gentle invitation, not a crisis popup.
+    // Keep the LLM's question when present; otherwise add a simple context-aware one.
+    const questionCandidate=/撕|畫|作品/.test(answer)?'畫被弄壞之前，發生什麼事？'
+      :/不想(去|再去)學校/.test(answer)?'學校發生了什麼事？'
+      :/討厭他們/.test(answer)?'他們做了什麼事？'
+      :'剛剛發生什麼事？';
+    if(!question&&!/[？?]/u.test(reply))question=questionCandidate;
+  }
   say=childSay(reply+question,answer,history);
+  // Keep public say/reply/question mutually consistent and cap at three sentences.
+  if(safetyTier(answer)==='anger'&&question){
+    const all=(say.match(/[^。！？?!]+[。！？?!]?/gu)||[]).filter(Boolean);
+    const questionPart=all.find(x=>/[?？]/.test(x));
+    if(!questionPart||!say.endsWith('？')){
+      const q=question.replace(/[。！?？]+$/u,'')+'？';
+      const nonQuestions=all.filter(x=>!/[?？]/.test(x)).slice(0,2);
+      say=[...nonQuestions,q].join('');
+    }
+    const outParts=say.match(/[^。！？?!]+[。！？?!]?/gu)||[];
+    if(outParts.length>3)say=[...outParts.slice(0,2),outParts.find(x=>/[?？]/.test(x))||''].join('');
+    const phrase=say.match(/[^。！？?!]+[?？]/u);
+    if(phrase)question=phrase[0];reply=say.replace(question,'').trim();
+  }
   return send(res,200,{say,emotion:out.riskLevel==='concern'?'concerned':emotion,intensity,chips,reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':mappedFace,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,safetyTier:safetyTier(answer),source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

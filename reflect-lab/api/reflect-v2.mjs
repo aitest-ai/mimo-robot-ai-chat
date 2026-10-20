@@ -69,6 +69,7 @@ const SYSTEM=[
 '輸出 thread 是你對這段對話的簡短暫時工作摘要：event=孩子自己說的事件（非核實事實），importance=孩子最在意的感受或價值，openLoop=仍未談完、值得等孩子願意時再談的焦點。只保留孩子確實說過的資訊，不得推測別人的動機，更新而非每次重置。',
 '孩子激動或遭到反覆取笑時，先同理與安全支持，不追問別人是怎麼笑他的；也不能假設老師或同學一定是好意或故意。不可假裝知道現場真相。',
 '臺灣自然繁體中文，每次回覆2～3句短句，每句約20個中文字、盡量不超過25字；問題也算一句，最多一個問題。用小學三年級看得懂的字，先接住孩子的感受，再看要不要問；只想被聽見時不要硬問。絕不能問含兩個選擇的問題。不要用冒犯、嘲笑、發洩、創作、情緒覺察這類大人詞。',
+'每次說的話請自己寫好 2～3 個完整短句，不要只寫一大句。第二句必須帶出新理解、回應孩子剛補充的重點，或自然地收住話題；絕不只是為了湊句數，重複「你可以照自己的速度說」「我在聽」「慢慢來」這些套話。過去三輪出現過的句子不要再說一模一樣的內容。如果真的不知道要問什麼，不必問，但仍可以說兩句有意義的短句。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
 '口語要像真正接續聊天，不像把孩子每句話換字重述。不要連續三輪都以「你……」起頭或只說「你說到……」。挑出對話中的新資訊，和前面重點串成一句有意義的話；如果沒有新問題要問，就可以安靜停在一句自然的回應。避免學術詞與口號（情緒覺察／自我管理／合作式策略），這些只供內部規劃。',
@@ -94,22 +95,45 @@ const SCHEMA={type:'OBJECT',properties:{
  },required:['summary','facts','uncertainties','boundaries','plans','milestones']}
 },required:['say','emotion','intensity','chips','move','skill','riskLevel','needsAdult','thread','memory']};
 const ROBOT_FACE={idle:'calm',listening:'listen',thinking:'question',speaking:'soft',concerned:'listen',calming:'calm',happy:'soft',sad:'hurt',curious:'question'};
-function childSay(value){
- let text=trim(value,250).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
+function childSay(value,answer='',history=[]){
+ let text=trim(value,300).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
  const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情']];
  for(const [regex,word] of words)text=text.replace(regex,word);
- const chunks=(text.match(/[^。！？?!]+[。！？?!]?/gu)||[]).map(x=>x.trim()).filter(Boolean).slice(0,3);
+ const chunks=(text.match(/[^。！？?!]+[。！？?!]?/gu)||[]).map(x=>x.trim()).filter(Boolean);
  let asked=false;
- const sentences=chunks.map(part=>{
-  const question=/[？?]/.test(part);
-  let sentence=part.replace(/[。！？?!]+$/u,'').trim();
-  if(sentence.length>25){const comma=sentence.lastIndexOf('，',24);sentence=comma>=11?sentence.slice(0,comma):sentence.slice(0,25)}
-  if(question&&!asked){asked=true;return sentence+'？'}
-  return sentence+'。';
- }).filter(x=>x!=='。');
- if(!sentences.length)sentences.push('我在聽。','你可以慢慢說。');
- if(sentences.length===1)sentences.push('你可以照自己的速度說。');
- return sentences.join('');
+ const sentences=[];
+ for(const chunk of chunks){
+  let body=chunk.replace(/[。！？?!]+$/u,'').trim();
+  const isQuestion=/[？?]/u.test(chunk);
+  if(!body)continue;
+  // Only split at a natural clause boundary; never cut a sentence in mid-phrase.
+  while(body.length>25&&sentences.length<2){
+   let pivot=body.lastIndexOf('，',24);
+   if(pivot<10)pivot=body.lastIndexOf('；',24);
+   if(pivot<10)break;
+   sentences.push(body.slice(0,pivot).trim()+'。');
+   body=body.slice(pivot+1).trim();
+  }
+  if(sentences.length>=3)break;
+  sentences.push(body+((isQuestion&&!asked)?'？':'。'));
+  if(isQuestion)asked=true;
+  if(sentences.length>=3)break;
+ }
+ if(!sentences.length)return '我有在聽。你可以慢慢說。';
+ if(sentences.length===1){
+  // The model should provide two distinct sentences. If it did not, choose a
+  // factual, small-child-language continuation that was not said recently.
+  const candidates=/先問|沒問|沒有問/u.test(answer)?['你希望先被問過。','這是你在意的事。']:
+   /不確定|不知道|故意/u.test(answer)?['對方怎麼想，我們還不知道。','還有些事沒弄清楚。']:
+   /找老師|輔導老師/u.test(answer)?['找信任的大人一起說也可以。','老師可以陪你想怎麼開口。']:
+   /下次|想告訴|希望/u.test(answer)?['這是你自己想出的做法。','你可以自己決定怎麼說。']:
+   /生氣|難過|委屈/u.test(answer)?['這件事讓你不好受。','你想說的部分我有聽到。']:
+   ['這件事我先聽你說。','我們可以慢慢聊這件事。'];
+  const earlier=history.filter(x=>x.role==='mimo').slice(-6).map(x=>x.text).join(' ');
+  const extra=candidates.find(x=>!earlier.includes(x)&&!sentences[0].includes(x.slice(0,-1)));
+  sentences.push(extra||'這件事我先聽你說。');
+ }
+ return sentences.slice(0,3).join('');
 }
 function send(res,code,body){res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(body))}
 function trim(v,n=400){return typeof v==='string'?v.trim().slice(0,n):''}
@@ -175,7 +199,7 @@ export default async function handler(req,res){
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
-  let say=childSay(out.say),reply=say,question='',responseSource="gemini-2.5-flash";
+  let say=childSay(out.say,answer,history),reply=say,question='',responseSource="gemini-2.5-flash";
   let emotion=ROBOT_FACE[out.emotion]?out.emotion:'listening';
   let intensity=Math.min(1,Math.max(0,Number(out.intensity)||0.5));
   const highOpening=answer.startsWith('【開場】')&&(answer.includes('雷雨')||answer.includes('颱風')||answer.includes('強度：4/5')||answer.includes('強度：5/5'));
@@ -216,7 +240,7 @@ export default async function handler(req,res){
   }
   if(reply.length<3||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean')return send(res,502,{error:'BAD_SCHEMA'});
   if(out.needsAdult||out.riskLevel==='urgent')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
-  say=childSay(reply+question);
+  say=childSay(reply+question,answer,history);
   return send(res,200,{say,emotion:out.riskLevel==='concern'?'concerned':emotion,intensity,chips,reply,question,thread:nextThread,memory:nextMemory,face:out.riskLevel==='concern'?'listen':mappedFace,move:out.move,skill:out.skill,riskLevel:out.riskLevel,needsAdult:false,source:responseSource});
  }catch{return send(res,502,{error:'GEMINI_TIMEOUT'})}
 }

@@ -770,7 +770,7 @@ $("helpTop").onclick=showHelp;
 $("entryPanel").addEventListener("click",e=>{const b=e.target.closest("button[data-entry-action]");if(b)onEntryAction(b.dataset.entryAction,b.dataset.entryValue||"")});
 $("teacherOpen").onclick=()=>$("teacherDialog").showModal();
 $("teacherClose").onclick=()=>$("teacherDialog").close();
-$("helpBtn").onclick=showHelp;$("helpClose").onclick=()=>$("helpDialog").close();$("helpDone").onclick=()=>$("helpDialog").close();
+$("helpBtn").onclick=showHelp;$("lowRiskHelp").onclick=showHelp;$("helpClose").onclick=()=>$("helpDialog").close();$("helpDone").onclick=()=>$("helpDialog").close();
 $("aiEnable").onclick=()=>{void enableAI()};
 $("aiDisable").onclick=disableAI;
 $("restart").onclick=reset;

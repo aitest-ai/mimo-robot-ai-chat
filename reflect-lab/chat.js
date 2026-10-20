@@ -9,7 +9,7 @@ const FACES=new Set(["calm","listen","soft","guard","hurt","question"]);
 // A safety screen is necessary even when Gemini is offline. It does not replace a real counselor.
 // Angry expressions are a concern, not proof of immediate harm. Stronger evidence keeps the safety handoff.
 const SEVERE_SELF=/(想死|不想活|想消失|想自殺|我要自殺|想要自殘|想傷害自己|割腕|自殺|跳樓|我要結束生命|我活不下去)/u;
-const SEVERE_VIOLENCE=/(拿(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|用(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|我要拿刀|我帶(了)?刀|我要砍|我要殺|準備(去)?(打|揍|傷害)|現在就(去)?(打|揍|傷害)|快(要)?忍不住.{0,8}(動手|打|揍)|控制不住.{0,6}(打|揍|傷害)|有計畫.{0,9}(打|揍|傷害))/u;
+const SEVERE_VIOLENCE=/(拿(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|用(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|我要拿刀|我帶(了)?刀|我要砍|我要殺|準備(去)?(打|揍|傷害)|現在就(要|去)?(打|揍|傷害)|快(要)?忍不住.{0,8}(動手|打|揍)|控制不住.{0,6}(打|揍|傷害)|有計畫.{0,9}(打|揍|傷害))/u;
 const ONGOING_HARM=/(每天.{0,10}(打我|揍我|傷害我|霸凌我|欺負我|威脅我)|一直.{0,10}(被打|被揍|被欺負|被霸凌|被傷害|有人打我)|常常.{0,8}(打我|威脅我|欺負我)|家暴|性侵|性騷擾|被強迫|被威脅|有人(正在|現在)打我)/u;
 const ANGRY_WORDS=/(我要打他|我要打她|想揍|要揍|想打人|想打(他|她|同學)|要打(他|她|同學)|氣死我了|我討厭|不想(去|再去)學校|他好煩|我快氣炸|氣炸了)/u;
 const DENIED_HARM=/(我不想(死|打|揍|傷害)|我沒有(想|要)(死|打|揍|傷害)|我不會(打|揍|傷害))/u;

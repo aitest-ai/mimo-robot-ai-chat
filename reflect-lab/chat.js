@@ -7,9 +7,23 @@
 const $=id=>document.getElementById(id);
 const FACES=new Set(["calm","listen","soft","guard","hurt","question"]);
 // A safety screen is necessary even when Gemini is offline. It does not replace a real counselor.
-const IMMEDIATE=/(自殺|想死|不想活|傷害自己|割腕|性侵|被強迫|有人打我|一直被霸凌|被威脅|家暴|想傷害別人|一直欺負我|被打|性騷擾|想揍|要揍|會揍|想打人|想打(他|她|同學|老師)|忍不住動手|快(要)?動手|想砍|拿刀傷)/u;
+// Angry expressions are a concern, not proof of immediate harm. Stronger evidence keeps the safety handoff.
+const SEVERE_SELF=/(想死|不想活|想消失|想自殺|我要自殺|想要自殘|想傷害自己|割腕|自殺|跳樓|我要結束生命|我活不下去)/u;
+const SEVERE_VIOLENCE=/(拿(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|用(刀|剪刀|棍子).{0,12}(打|傷|砍|殺)|我要拿刀|我帶(了)?刀|我要砍|我要殺|準備(去)?(打|揍|傷害)|現在就(去)?(打|揍|傷害)|快(要)?忍不住.{0,8}(動手|打|揍)|控制不住.{0,6}(打|揍|傷害)|有計畫.{0,9}(打|揍|傷害))/u;
+const ONGOING_HARM=/(每天.{0,10}(打我|揍我|傷害我|霸凌我|欺負我|威脅我)|一直.{0,10}(被打|被揍|被欺負|被霸凌|被傷害|有人打我)|常常.{0,8}(打我|威脅我|欺負我)|家暴|性侵|性騷擾|被強迫|被威脅|有人(正在|現在)打我)/u;
+const ANGRY_WORDS=/(我要打他|我要打她|想揍|要揍|想打人|想打(他|她|同學)|要打(他|她|同學)|氣死我了|我討厭|不想(去|再去)學校|他好煩|我快氣炸|氣炸了)/u;
+const DENIED_HARM=/(我不想(死|打|揍|傷害)|我沒有(想|要)(死|打|揍|傷害)|我不會(打|揍|傷害))/u;
 const OBJECT_RISK=/(掃下去|掃掉|砸(爛|掉|東西)|摔(東西|書|椅|桌|手機)|翻桌|丟(出去|東西)|踢桌|推倒桌|控制不住.{0,8}(東西|破壞))/u;
-const SCHOOL_DISTRESS=/(不(想|要)再?上學|不(想|要)去學校|不去上學|不敢(去|上)學|不敢去學校|每天.{0,6}(被笑|嘲笑|排擠|欺負|笑我|同學笑)|一直(被笑|被嘲笑|被排擠|被欺負|笑我)|每次都.{0,3}(欺負|嘲笑|弄我|笑我|不理我)|老師(都|也)?(偏心|不理我))/u;
+const SCHOOL_DISTRESS=/(每天.{0,6}(被笑|嘲笑|排擠|欺負|笑我|同學笑)|一直(被笑|被嘲笑|被排擠|被欺負|笑我)|每次都.{0,3}(欺負|嘲笑|弄我|笑我|不理我))/u;
+function riskLevel(text){
+ const t=String(text||"");
+ if(DENIED_HARM.test(t)&&!SEVERE_VIOLENCE.test(t)&&!ONGOING_HARM.test(t))return "none";
+ if(SEVERE_SELF.test(t)||SEVERE_VIOLENCE.test(t)||ONGOING_HARM.test(t))return "immediate";
+ if(ANGRY_WORDS.test(t))return "anger";
+ if(OBJECT_RISK.test(t))return "objects";
+ if(SCHOOL_DISTRESS.test(t))return "school";
+ return "none";
+}
 const REFUSE_PERSPECTIVE=/(不要.{0,5}(換位|體諒|理解(他|她|對方)|原諒|替(他|她)想)|不想.{0,5}(換位|體諒|理解(他|她|對方)|原諒)|憑什麼.{0,8}(我|只有我).{0,6}(退讓|體諒))/u;
 const REFUSE_CALM=/(不要.{0,6}(冷靜|呼吸|忍耐|放鬆)|不想.{0,5}(冷靜|呼吸|放鬆)|不要再問|別再問)/u;
 function riskLevel(text){
@@ -304,6 +318,7 @@ function suggestions(phase){
  // Keep mirror and immediate-safety choices separate.
  if(state.teacher&&!["safePause","supportCheck","mirrorQuote","mirrorExpression","mirrorReflect"].includes(phase)){
   if(state.conversationTurns===0)return chips([]);
+  return chips([]);
   if(state.lastMove==="close"||phase==="finish")return chips([{text:"💬 我還想再聊",action:"continue"},{text:"✨ 今天先到這裡",action:"finish"}]);
   return chips([{text:"我想多說一點",value:"我想多說一點"},{text:"我不知道怎麼說",value:"我不太知道怎麼說出口"},{text:"給我一個小方法",value:"可以給我一個小方法嗎？"},{text:"今天先聊到這裡",action:"finish"}]);
  }
@@ -464,11 +479,13 @@ async function replyTo(text,fromMood=false){
  const message=String(text||"").trim().slice(0,480);
  if(!message||state.processing)return;
  if(state.data.unsafe){showHelp();return;}
+ $("lowRiskHint").hidden=true;
  if(!fromMood&&state.entry.view!=="done")dismissEntry();
  const phase=state.phase;
  if(phase==="finish"){state.phase="event"}
  addUser(message);state.conversationTurns++;$("chatInput").value="";resizeInput();$("serviceNotice").hidden=true;
  const risk=riskLevel(message);
+ $("lowRiskHint").hidden=risk!=="anger";
  if(risk==="immediate"){
   state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
   speak("現在先和可能受傷的人保持距離，放下手邊可能傷人的東西，立刻找老師或可信任的大人到現場幫忙。網站不會替你通知任何人。","listen");
@@ -605,6 +622,12 @@ async function replyTo(text,fromMood=false){
  const mapped=result?chooseMove(result.move,phase,next):phase;
  const response=result?{reply:result.reply||result.say,face:result.emotion||result.face,intensity:result.intensity??0.5}:{reply:"網路慢了一點。先等等沒關係。我會在這裡。",face:"listen",intensity:0.4};
  updatePrompt(mapped,response,result?.question,true);
+ // Only model-generated, context-specific child utterances are shown in Gemini mode.
+ // Empty/missing chips stay empty; never substitute old stage-specific canned buttons.
+ if(state.teacher){
+  const valid=Array.isArray(result?.chips)?result.chips.filter(v=>typeof v==="string"&&[...v].length>=2&&[...v].length<=8&&!/打他|打她|殺|傷害|自殺|砍/u.test(v)).slice(0,3):[];
+  chips(valid.map(v=>({text:v,value:v})));
+ }
  if(next==="mirrorReflect"&&FACES.has(message))face(message);
 }
 function toggleBusy(busy){

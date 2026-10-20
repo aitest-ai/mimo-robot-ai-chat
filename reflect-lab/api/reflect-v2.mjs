@@ -83,7 +83,7 @@ const SYSTEM=[
 '臺灣自然繁體中文，每次回覆2～3句短句，每句約20個中文字、盡量不超過25字；問題也算一句，最多一個問題。用小學三年級看得懂的字，先接住孩子的感受，再看要不要問；只想被聽見時不要硬問。絕不能問含兩個選擇的問題。不要用冒犯、嘲笑、發洩、創作、情緒覺察這類大人詞。',
 '避免臺灣小學生不常說的抽象詞：心血、沮喪、被看見、情緒、委屈、界線、尊重感、支持系統。用「花很多時間畫」「很難過」「有人聽你說」「很生氣」「先問過我」等自然用法。避免不通順斷句：新句不要用「就把……」「所以想要……」開頭；每句都要可獨立讀懂，句子不要從逗號硬切。最近三輪用過的整句不要重複。',
 '孩子只是說「我要打他」「氣死我了」「我討厭他」「我不想去學校」「他好煩」等氣話時，先溫柔接住生氣或挫折，不責怪，也不可鼓勵打人；**這類回覆要自然問一個簡單的開放式問題**，例如「剛剛發生什麼事？」讓孩子說出原因，無須突然列出專線。若有迫切動手、武器、自傷、被持續傷害等較明確情況，安全規則優先；不必把所有氣話直接轉成危機。',
-'每回合 chips 必須依現在學生說的具體事件生成 2～3 個不同的「孩子可能接著說的話」，每個 2～8 字，例如畫被撕可以回「我很生氣」「我想跟老師說」「他不是故意的」。不得用任何固定題庫，與本輪內容無關的選項寧可回空陣列。絕不可建議暴力或傷害，chip 不得替孩子承認自己未說過的事。',
+'每回合 chips 必須依現在學生說的具體事件生成 2～3 個不同的「孩子可能接著說的話」，每個 2～8 字，例如畫被撕可以回「我很生氣」「我想跟老師說」「他不是故意的」。不得用任何固定題庫，與本輪內容無關的選項寧可回空陣列。絕不可建議暴力或傷害，chip 不得替孩子承認自己未說過的事。對「我很生氣」等氣話，chips 不要暗示打架，要能接續事情。',
 '每次說的話請自己寫好 2～3 個完整短句，不要只寫一大句。第二句必須帶出新理解、回應孩子剛補充的重點，或自然地收住話題；絕不只是為了湊句數，重複「你可以照自己的速度說」「我在聽」「慢慢來」這些套話。過去三輪出現過的句子不要再說一模一樣的內容。如果真的不知道要問什麼，不必問，但仍可以說兩句有意義的短句。',
 '避免機械式肯定：不要每輪都說 謝謝你分享、很棒耶、你好勇敢、你的感受很重要。不重複已問過或已回答過的問題；參考最近對話，不催促多說細節。',
 '絕不反覆在正式對孩子的回覆中說「我想想」「讓我想想」「我正在思考」「我在想怎麼接住你的話」等模型內部運算旁白。回應直接接住內容；若要暫停，可用短句或留白，但不要讓每次等待看起來像一段發言。',
@@ -110,7 +110,7 @@ const SCHEMA={type:'OBJECT',properties:{
  },required:['summary','facts','uncertainties','boundaries','plans','milestones']}
 },required:['say','emotion','intensity','chips','move','skill','riskLevel','needsAdult','thread','memory']};
 const ROBOT_FACE={idle:'calm',listening:'listen',thinking:'question',speaking:'soft',concerned:'listen',calming:'calm',happy:'soft',sad:'hurt',curious:'question'};
-function childSay(value,answer='',history=[]){
+function childSay(value,answer='',history=[],fill=true){
  let text=trim(value,300).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
  const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情'],[/心血/g,'花的心力'],[/沮喪/g,'難過'],[/被看見/g,'有人注意到'],[/委屈/g,'難過'],[/情緒/g,'心情']];
  for(const [regex,word] of words)text=text.replace(regex,word);
@@ -138,7 +138,7 @@ function childSay(value,answer='',history=[]){
   if(sentences.length>=3)break;
  }
  if(!sentences.length)return '我有在聽。你可以慢慢說。';
- if(sentences.length===1){
+ if(fill&&sentences.length===1){
   // The model should provide two distinct sentences. If it did not, choose a
   // factual, small-child-language continuation that was not said recently.
   const candidates=/先問|沒問|沒有問/u.test(answer)?['你希望先被問過。','這是你在意的事。']:
@@ -195,7 +195,7 @@ export default async function handler(req,res){
   if(!incomingMemory.boundaries.includes(boundary))incomingMemory.boundaries=[...incomingMemory.boundaries,boundary].slice(-5);
   return send(res,200,{...rule('好，我不會要求你冷靜、原諒或換位思考。我們可以先照你舒服的速度說。','你現在希望我先聽你說，還是一起想下一步？','none','autonomy-rule',false,'stay'),memory:incomingMemory});
  }
- const prefs={listen:'先傾聽，但允許適時用具體摘要回扣整件事，當孩子準備好了再自然邀請，不必一直問情緒',clarify:'協助整理觀察、感受、推測與未知，但要和前面事件連貫，避免像問卷',ideas:'願意找方法，回扣前面孩子在意的界線，只給一兩個可行方法，不再反覆徵詢同一件事'};
+ const prefs={listen:'先傾聽，反映本輪新的細節；沒有必要不要追問，也不要每輪同一句',clarify:'幫孩子整理觀察、感受、尚不知道的事；適時問一個有內容的小問題，例如「他做了什麼？」而不是只附和',ideas:'孩子已選想要方法：每回合先接住心情，再直接給一個具體可做到的辦法，例如孩子問怎麼跟同學說時，請用孩子口吻給出可以照著說的一句短話；不要反問孩子「你想怎麼說」。孩子擔心找老師時給一句可對老師說的話，而不是只說我可以幫你整理'};
  const thread={};const rawThread=input.thread&&typeof input.thread==='object'?input.thread:{};
  for(const k of THREAD_FIELDS)thread[k]=trim(rawThread[k],publicAuthorized?90:130);
  const memory=incomingMemory;
@@ -218,7 +218,7 @@ export default async function handler(req,res){
   if(!response.ok)return send(res,response.status===429?503:502,{error:response.status===429?'GEMINI_QUOTA':'GEMINI_UNAVAILABLE'});
   const data=await response.json(),raw=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
   let out;try{out=JSON.parse(raw)}catch{return send(res,502,{error:'BAD_JSON'})}
-  let say=childSay(out.say,answer,history),reply=say,question='',responseSource="gemini-2.5-flash";
+  let say=childSay(out.say,answer,history,safetyTier(answer)!=='anger'),reply=say,question='',responseSource="gemini-2.5-flash";
   let emotion=ROBOT_FACE[out.emotion]?out.emotion:'listening';
   let intensity=Math.min(1,Math.max(0,Number(out.intensity)||0.5));
   const highOpening=answer.startsWith('【開場】')&&(answer.includes('雷雨')||answer.includes('颱風')||answer.includes('強度：4/5')||answer.includes('強度：5/5'));
@@ -271,7 +271,7 @@ export default async function handler(req,res){
       :'剛剛發生什麼事？';
     if(!question&&!/[？?]/u.test(reply))question=questionCandidate;
   }
-  say=childSay(reply+question,answer,history);
+  say=childSay(reply+question,answer,history,safetyTier(answer)!=='anger');
   // Keep public say/reply/question mutually consistent and cap at three sentences.
   if(safetyTier(answer)==='anger'&&question){
     const all=(say.match(/[^。！？?!]+[。！？?!]?/gu)||[]).filter(Boolean);

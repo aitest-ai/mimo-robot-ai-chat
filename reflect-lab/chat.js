@@ -26,13 +26,6 @@ function riskLevel(text){
 }
 const REFUSE_PERSPECTIVE=/(不要.{0,5}(換位|體諒|理解(他|她|對方)|原諒|替(他|她)想)|不想.{0,5}(換位|體諒|理解(他|她|對方)|原諒)|憑什麼.{0,8}(我|只有我).{0,6}(退讓|體諒))/u;
 const REFUSE_CALM=/(不要.{0,6}(冷靜|呼吸|忍耐|放鬆)|不想.{0,5}(冷靜|呼吸|放鬆)|不要再問|別再問)/u;
-function riskLevel(text){
- const t=String(text||"");
- if(IMMEDIATE.test(t)&&!/(我不想(打|揍|傷害)|我沒有(想|要)(打|揍|傷害))/.test(t))return "immediate";
- if(OBJECT_RISK.test(t))return "objects";
- if(SCHOOL_DISTRESS.test(t))return "school";
- return "none";
-}
 const WEATHER=["☀️ 晴天","☁️ 多雲","🌧️ 下雨","⛈️ 打雷","🌬️ 風很大","🌫️ 霧霧的"];
 const EMOTIONS=["生氣","難過","委屈","擔心","有點亂","說不上來"];
 const phaseInfo={

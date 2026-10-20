@@ -114,6 +114,8 @@ function childSay(value,answer='',history=[],fill=true){
  let text=trim(value,300).replace(/[\n\r]+/g,' ').replace(/^[\s0-9•]+[.、．]/u,'').trim();
  const words=[[/冒犯/g,'讓人不舒服'],[/嘲笑/g,'取笑'],[/發洩/g,'說出心情'],[/創作/g,'畫的作品'],[/情緒覺察/g,'看看心情'],[/心血/g,'花的心力'],[/沮喪/g,'難過'],[/被看見/g,'有人注意到'],[/委屈/g,'難過'],[/情緒/g,'心情']];
  for(const [regex,word] of words)text=text.replace(regex,word);
+ // A child's sample sentence in 「quotes」 must stay intact, not become two fragments.
+ text=text.replace(/「([^」]{0,120})」/gu,(_,inside)=>'「'+inside.replace(/。/gu,'，')+'」');
  const chunks=(text.match(/[^。！？?!]+[。！？?!]?/gu)||[]).map(x=>x.trim()).filter(Boolean);
  let asked=false;
  const sentences=[];
@@ -129,7 +131,9 @@ function childSay(value,answer='',history=[],fill=true){
    let pivot=body.lastIndexOf('，',24);
    if(pivot<10)pivot=body.lastIndexOf('；',24);
    if(pivot<10)break;
-   sentences.push(body.slice(0,pivot).trim()+'。');
+   const head=body.slice(0,pivot);
+   if((head.match(/「/gu)||[]).length>(head.match(/」/gu)||[]).length)break;
+   sentences.push(head.trim()+'。');
    body=body.slice(pivot+1).trim();
   }
   if(sentences.length>=3)break;

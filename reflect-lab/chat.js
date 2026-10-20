@@ -481,7 +481,12 @@ async function replyTo(text,fromMood=false){
  $("lowRiskHint").hidden=risk!=="anger";
  if(risk==="immediate"){
   state.data.unsafe=true;state.safetyConcern="immediate";stopBreath();
-  speak("現在先和可能受傷的人保持距離，放下手邊可能傷人的東西，立刻找老師或可信任的大人到現場幫忙。網站不會替你通知任何人。","listen");
+  const safetyWords=SEVERE_SELF.test(message)
+   ?"你說現在不想繼續下去，我很擔心你的安全。請立刻找身邊可信任的大人陪著你。網站不會自動通知老師。"
+   :ONGOING_HARM.test(message)
+   ?"你說有人一直傷害你，這不是小事。請現在找能保護你的老師或可信任的大人。網站不會替你通知。"
+   :"你現在可能會動手，先和對方保持距離。請放下可能傷人的東西，立刻找身邊的大人幫忙。網站不會自動通知老師。";
+  speak(safetyWords,"listen");
   chips([{text:"🙋 看看怎麼找大人",action:"help"}]);
   showHelp();return;
  }

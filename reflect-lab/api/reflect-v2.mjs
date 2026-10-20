@@ -120,7 +120,7 @@ function childSay(value,answer='',history=[],fill=true){
  let asked=false;
  const sentences=[];
  for(const chunk of chunks){
-  let body=chunk.replace(/[。！？?!]+$/u,'').trim();
+  let body=chunk.replace(/[。！？?!]+$/u,'').trim().replace(/^[，、；：,\s]+/u,'');
   const isQuestion=/[？?]/u.test(chunk);
   if(!body)continue;
   // Do not emit broken subordinate clauses as standalone new sentences.

@@ -269,7 +269,17 @@ export default async function handler(req,res){
   if(CLOSED.test(answer)&&!/[？?]$/.test(answer)){
     out.move='close';question='';nextThread.openLoop='';
   }
-  if(reply.length<3||!MOVE.includes(out.move)||!SKILL.includes(out.skill)||!['none','concern','urgent'].includes(out.riskLevel)||typeof out.needsAdult!=='boolean')return send(res,502,{error:'BAD_SCHEMA'});
+  // Preserve a usable response even when Gemini returns an imperfect *internal*
+  // label. The backend still owns deterministic high-risk triage above this step.
+  if(!MOVE.includes(out.move))out.move='stay';
+  if(!SKILL.includes(out.skill))out.skill='reflect_feeling';
+  if(!['none','concern','urgent'].includes(out.riskLevel))out.riskLevel='none';
+  if(typeof out.needsAdult!=='boolean')out.needsAdult=false;
+  if(reply.length<3){
+    reply='這件事真的讓你不好受。';
+    question='剛剛發生什麼事？';
+    responseSource='safe-format-fallback';
+  }
   if((out.needsAdult||out.riskLevel==='urgent')&&safetyTier(answer)!=='anger')return send(res,200,rule('這可能需要現場的大人一起幫忙。請先找老師、輔導老師或其他可信任的人，網站不會自動通報。','','urgent','model-safety',true,'support'));
   // A model may mark an angry idiom urgent even without specific intent.
   // Keep the dialogue and adult-help hint, unless the deterministic serious-risk checks fired.
